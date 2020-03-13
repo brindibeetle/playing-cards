@@ -1,0 +1,32 @@
+img.card {
+    displaaay: block;
+    width: 100px;
+    height: auto;
+    border-top: 1px solid black;
+    border-radius: 6%;
+}
+div.card {
+}
+div.cardInPile {
+    margin-top: -130px;
+    position: relative;
+}
+div.cardInPileTop {
+    margin-top: 0px;
+}
+div.card:hover {
+    margin-top: -120px;
+}
+div.card:drag {
+    border-top: 1px solid green;
+    border-radius: 6%;
+ }
+div.cardInPileTop:hover {
+    margin-top: -0px;
+}
+
+div.pile {
+    display: inline-block;
+    padding: 10px;
+    vertical-align: top;
+}
