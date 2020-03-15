@@ -3,13 +3,15 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser exposing (Document, UrlRequest)
 import CardsCDN
+import Home
 import Html exposing (..)
 import Html.Attributes exposing (class, src)
 import Html5.DragDrop as DragDrop exposing (..)
-import Json.Decode exposing (Value)
 import Card exposing (..)
+import Json.Decode
 import Pile exposing (..)
 import Shuffle exposing (..)
+import Space
 
 
 main : Program String Model Msg
@@ -21,12 +23,27 @@ main =
         , subscriptions = (\_ -> Sub.none)
         }
 
+
 type alias Model =
-    { cards : Array Pile
-    , dragDrop : DragDrop.Model ( Int, Int ) Int
+    { pilesModel : Pile.Model
     , shuffleModel : Shuffle.Model
+    , spacesModel : Space.Model
+    , homesModel : Home.Model
+    , dragDrop : DragDrop.Model From To
     }
-    
+
+
+type From =
+    PileFrom Int Int
+    | SpaceFrom Int
+
+
+type To =
+    PileTo Int
+    | SpaceTo Int
+    | HomeTo Int
+
+
 
 -- refresh page : 
 init : String -> ( Model, Cmd Msg )
@@ -39,9 +56,11 @@ init flags =
     in
         (
             {
-                cards = Array.empty
-                , dragDrop = DragDrop.init
+                pilesModel = Pile.init
                 , shuffleModel = shuffleModel
+                , spacesModel = Space.init
+                , homesModel = Home.init
+                , dragDrop = DragDrop.init
             }
             , Cmd.map ShuffleMsg shuffleCmd
         )
@@ -55,9 +74,10 @@ init flags =
 view : Model -> Document Msg
 view model =
     let
-        maybeDraggedId = Debug.log "maybeDraggedId" ( DragDrop.getDragId model.dragDrop )
-
-        maybeDraggedCard = Maybe.andThen ( \( pileId, cardId) ->  getCardInPile model.cards pileId cardId ) maybeDraggedId
+        a = Debug.log "getDragId" ( DragDrop.getDragId model.dragDrop )
+        dragHelpForPile = Debug.log "dragHelpForPile" ( dragHelperForPile ( DragDrop.getDragId model.dragDrop ) model )
+        dragHelpForHome = Debug.log "dragHelpForHome" ( dragHelperForHome ( DragDrop.getDragId model.dragDrop ) model )
+        dragHelpForSpace = Debug.log "dragHelpForSpace" ( dragHelperForSpace ( DragDrop.getDragId model.dragDrop ) model )
     in
         { title = "Cards"
         , body =
@@ -70,53 +90,135 @@ view model =
             else
                 [
                     CardsCDN.stylesheet
-                    , div [ class "piles-container" ]
-                       ( viewPiles maybeDraggedId maybeDraggedCard model.cards )
+                    , Space.view model.spacesModel dragHelpForSpace
+                    , Home.view model.homesModel dragHelpForHome
+                    , Pile.view model.pilesModel dragHelpForPile
                 ]
         }
+
+
+dragHelperForPile : Maybe From -> Model -> Pile.DragHelper Msg
+dragHelperForPile maybeFrom model =
+    case maybeFrom of
+        Just ( PileFrom pileIndex cardIndex ) ->
+            {
+                maybeDragFromPileId = Just pileIndex
+                , maybeDragCard = Pile.getCard pileIndex cardIndex model.pilesModel
+                , droppableAttribute = droppablePiles
+                , draggableAttribute = draggablePiles
+            }
+
+        Just ( SpaceFrom spaceIndex ) ->
+            {
+                maybeDragFromPileId = Nothing
+                , maybeDragCard = Space.getCard spaceIndex model.spacesModel
+                , droppableAttribute = droppablePiles
+                , draggableAttribute = draggablePiles
+            }
+
+        _ ->
+            {
+                maybeDragFromPileId = Nothing
+                , maybeDragCard = Nothing
+                , droppableAttribute = droppablePiles
+                , draggableAttribute = draggablePiles
+            }
+
+
+dragHelperForSpace : Maybe From -> Model -> Space.DragHelper Msg
+dragHelperForSpace maybeFrom model =
+    case maybeFrom of
+        Just ( PileFrom pileIndex cardIndex ) ->
+            {
+                maybeDragFromSpaceId = Nothing
+                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
+                , droppableAttribute = droppableSpaces
+                , draggableAttribute = draggableSpaces
+            }
+
+        Just ( SpaceFrom spaceIndex ) ->
+            {
+                maybeDragFromSpaceId = Just spaceIndex
+                , draggedNumberOfCards = 1
+                , droppableAttribute = droppableSpaces
+                , draggableAttribute = draggableSpaces
+            }
+
+        _ ->
+            {
+                maybeDragFromSpaceId = Nothing
+                , draggedNumberOfCards = 0
+                , droppableAttribute = droppableSpaces
+                , draggableAttribute = draggableSpaces
+            }
+
+
+dragHelperForHome : Maybe From -> Model -> Home.DragHelper Msg
+dragHelperForHome maybeFrom model =
+    case maybeFrom of
+        Just ( PileFrom pileIndex cardIndex ) ->
+            {
+                maybeDraggedCard = Pile.getTopCard pileIndex model.pilesModel
+                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
+                , droppableAttribute = droppableHomes
+            }
+
+        Just ( SpaceFrom spaceIndex ) ->
+            {
+                maybeDraggedCard = Space.getCard spaceIndex model.spacesModel
+                , draggedNumberOfCards = 1
+                , droppableAttribute = droppableHomes
+            }
+
+        _ ->
+            {
+                maybeDraggedCard = Nothing
+                , draggedNumberOfCards = 0
+                , droppableAttribute = droppableHomes
+            }
+
+
+droppablePiles : Int -> List (Attribute Msg)
+droppablePiles pileIndex =
+    DragDrop.droppable DragDropMsg (PileTo pileIndex)
+
+
+draggablePiles : ( Int, Int ) -> List (Attribute Msg)
+draggablePiles ( pileIndex, cardIndex ) =
+    DragDrop.draggable DragDropMsg (PileFrom pileIndex cardIndex)
+
+
+droppableSpaces : Int -> List (Attribute Msg)
+droppableSpaces spaceIndex =
+    DragDrop.droppable DragDropMsg (SpaceTo spaceIndex)
+
+
+draggableSpaces : Int -> List (Attribute Msg)
+draggableSpaces spaceIndex =
+    DragDrop.draggable DragDropMsg (SpaceFrom spaceIndex)
+
+
+droppableHomes : Int -> List (Attribute Msg)
+droppableHomes spaceIndex =
+    DragDrop.droppable DragDropMsg (HomeTo spaceIndex)
+
 
 
 -- #####
 -- #####   UPDATE
 -- #####
 
+port dragstart : Json.Decode.Value -> Cmd msg
+
 
 type Msg
-    = DragDropMsg (DragDrop.Msg (Int, Int) Int)
-    | ShuffleMsg Shuffle.Msg
+    = ShuffleMsg Shuffle.Msg
+    | DragDropMsg (DragDrop.Msg From To)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        DragDropMsg msg_ ->
-            let
-                ( model_, result ) =
-                    DragDrop.update msg_ model.dragDrop
-
-                model12 = Debug.log "model" model_
-                result12 = Debug.log "result" result
-            in
-                (
-                    { model
-                    | dragDrop = model_
-                    , cards =
-                        case result of
-                            Nothing ->
-                                model.cards
-
-                            Just ( ( pileIndexFrom, cardIndex ) , pileIndexTo , _ ) ->
-                                if pileIndexFrom == pileIndexTo then
-                                    model.cards
-                                else
-                                    moveCard pileIndexFrom cardIndex pileIndexTo model.cards
-
-                    }
-                    , DragDrop.getDragstartEvent msg_
-                        |> Maybe.map (.event >> dragstart)
-                        |> Maybe.withDefault Cmd.none
-                )
-
         ShuffleMsg shuffleMsg ->
             let
                 ( shuffleModel, shuffleCmd ) =
@@ -126,7 +228,7 @@ update msg model =
                     (
                         { model
                         | shuffleModel = shuffleModel
-                        , cards = distributeToPiles shuffleModel.pile 8
+                        , pilesModel = Pile.fillPiles model.pilesModel shuffleModel.pile
                         }
                         , Cmd.none
                     )
@@ -138,96 +240,91 @@ update msg model =
                         , Cmd.map ShuffleMsg shuffleCmd
                     )
 
+        DragDropMsg msg_ ->
+            let
+                ( model_, result ) =
+                    DragDrop.update msg_ model.dragDrop
 
-port dragstart : Value -> Cmd msg
+                model12 = Debug.log "model" model_
+                result12 = Debug.log "result" result
+            in
+                (
+                    case result of
+                        Nothing ->
+                            { model
+                            | dragDrop = model_
+                            }
 
+                        Just ( PileFrom pileFromId cardFromId, PileTo pileToId, _ ) ->
+                            { model
+                            | dragDrop = model_
+                            , pilesModel = Pile.moveCard pileFromId cardFromId pileToId model.pilesModel
+                            }
 
-viewPiles : Maybe ( Int, Int ) -> Maybe Card -> Array Pile -> List (Html Msg)
-viewPiles maybeDraggedId maybeCard piles =
-    Array.indexedMap ( viewPile maybeDraggedId maybeCard ) piles |> Array.toList
+                        Just ( PileFrom pileFromId _, SpaceTo spaceId, _ ) ->
+                            case Pile.getTopCard pileFromId model.pilesModel of
+                                Nothing ->
+                                    { model
+                                    | dragDrop = model_
+                                    }
 
+                                Just card ->
+                                    { model
+                                    | dragDrop = model_
+                                    , spacesModel = Space.pushCard spaceId card model.spacesModel
+                                    , pilesModel = Pile.pullCard pileFromId model.pilesModel
+                                    }
 
-viewPile : Maybe ( Int, Int ) -> Maybe Card -> Int -> Pile -> Html Msg
-viewPile maybeDraggedId maybeDragCard pileIndex pile =
-    let
-        draggableFrom = canBeDraggedFrom pile
-    in
-        case ( maybeDraggedId, maybeDragCard ) of
-            ( Just ( draggedPileId, draggedCardId ), Just draggedCard ) ->
-                if pileIndex == draggedPileId then
-                    div ( List.concat [ [ class "pile"], DragDrop.droppable DragDropMsg pileIndex ] )
-                        [ cardPlaceholder
-                        , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
-                        ]
-                else
-                    if Card.cardsSuccessive ( getTopCardOfPile pile ) draggedCard then
-                        div ( List.concat [ [ class "pile"], DragDrop.droppable DragDropMsg pileIndex ] )
-                        [ cardPlaceholder
-                            , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
-                            ]
-                    else
-                        div ( List.concat [ [ class "pile"] ] )
-                            [ cardPlaceholder
-                            , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
-                            ]
-            ( _, _ ) ->
-                div ( List.concat [ [ class "pile"] ] )
-                    [ cardPlaceholder
-                    , viewCardsRecursively pileIndex 0 pile 99 draggableFrom
-                    ]
+                        Just ( SpaceFrom spaceFromId, SpaceTo spaceToId, _ ) ->
+                            { model
+                            | dragDrop = model_
+                            , spacesModel = Space.moveCard spaceFromId spaceToId model.spacesModel
+                            }
 
+                        Just ( SpaceFrom spaceFromId, PileTo pileToId, _ ) ->
+                            case Space.getCard spaceFromId model.spacesModel of
+                                Nothing ->
+                                    { model
+                                    | dragDrop = model_
+                                    }
 
+                                Just card ->
+                                    { model
+                                    | dragDrop = model_
+                                    , spacesModel = Space.pullCard spaceFromId model.spacesModel
+                                    , pilesModel = Pile.pushCard pileToId card model.pilesModel
+                                    }
 
+                        Just ( PileFrom pileFromId _, HomeTo homeId, _ ) ->
+                            case Pile.getTopCard pileFromId model.pilesModel of
+                                Nothing ->
+                                    { model
+                                    | dragDrop = model_
+                                    }
 
+                                Just card ->
+                                    { model
+                                    | dragDrop = model_
+                                    , homesModel = Home.pushCard homeId card model.homesModel
+                                    , pilesModel = Pile.pullCard pileFromId model.pilesModel
+                                    }
 
-        --( List.concat
-        --    [
-        --        [ text ( "pile" ++ String.fromInt pileIndex ) ]
-        --        , ( Array.indexedMap (\cardIndex card -> viewCardinPile card pileIndex cardIndex) pile ) |> Array.toList
-        --    ]
-        --)
+                        Just ( SpaceFrom spaceFromId, HomeTo homeId, _ ) ->
+                            case Space.getCard spaceFromId model.spacesModel of
+                                Nothing ->
+                                    { model
+                                    | dragDrop = model_
+                                    }
 
-viewCardsRecursively : Int -> Int -> Array Card -> Int -> Int -> Html Msg
-viewCardsRecursively pileIndex cardIndex cards draggedCardId draggableFrom =
-    let
-        draggableAttributes =
-            if cardIndex >= draggableFrom then
-                class "card-draggable" :: DragDrop.draggable DragDropMsg ( pileIndex, cardIndex )
-            else
-                []
-    in
-        case Array.get cardIndex cards of
-            Nothing ->
-                div [][]
-            Just card ->
-                --if cardIndex >= dragCardId then
-                --    div [][]
-                --else
-                    if cardIndex == 0 then
-                        div
-                            ( class "card cardInPile cardInPileTop" :: draggableAttributes )
-                            [ Card.view card
-                            , viewCardsRecursively pileIndex ( cardIndex + 1 ) cards draggedCardId draggableFrom
-                            ]
-                    else
-                        div ( class "card cardInPile" :: draggableAttributes )
-                            [ Card.view card
-                            , viewCardsRecursively pileIndex ( cardIndex + 1 ) cards draggedCardId draggableFrom
-                        ]
+                                Just card ->
+                                    { model
+                                    | dragDrop = model_
+                                    , spacesModel = Space.pullCard spaceFromId model.spacesModel
+                                    , homesModel = Home.pushCard homeId card model.homesModel
+                                    }
 
---
---viewCardinPile : Card -> Int -> Int -> Html Msg
---viewCardinPile card pileIndex cardIndex =
---    if cardIndex == 0 then
---        div
---            [ class "card cardInPile cardInPileTop" ]
---            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
---            ]
---    else
---        div [ class "card cardInPile" ]
---            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
---        --[ img [ getImage card, class "card"] [ ]
---        ]
-
-
+                    , DragDrop.getDragstartEvent msg_
+                        |> Maybe.map (.event >> dragstart)
+                        |> Maybe.withDefault Cmd.none
+                )
 

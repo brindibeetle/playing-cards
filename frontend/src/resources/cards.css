@@ -19,6 +19,10 @@ div.card {
     border: 0.05vw solid black;
     border-radius: 5%;
     padding: 0vw 0vw 0.1vw 0.1vw;
+    width: fit-content;
+    height: fit-content;
+    text-align: center;
+    line-height: 9vw;
 }
 div.card-red {
     color: red;
@@ -29,15 +33,15 @@ div.card-black {
 div.card-draggable {
     cursor: move;
 }
-div.cardInPile {
-    margin-top: -9vw;
+div.card-pile {
+    margin-top: -7vw;
     position: relative;
 }
-div.cardInPileTop {
-    margin-top: -12vw;
+div.card-pile-top {
+    margin-top: -9vw;
 }
 div.card-placeholder {
-opacity: 0.4;
+    opacity: 0.4;
     background: lightblue;
     border: 0.05vw solid lightgray;
 }
@@ -49,12 +53,13 @@ div.card:drag {
     border-top: 1px solid green;
     border-radius: 6%;
  } */
-div.cardInPileTop:hover {
+div.card-pile-top:hover {
     /* margin-top: -0px; */
 }
 
 /* Piles */
 div.piles-container {
+    position: absolute;
     display: grid;
     grid-template-columns: repeat(8, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
@@ -63,11 +68,45 @@ div.piles-container {
     height: fit-content;
     height: -webkit-fill-available;
 
-    margin-top: 30vh;
-    margin-left: calc( ( 100vw - 82vw - 4vw ) / 2);
+    top: 32vh;
+    left: calc( ( 100vw - 82vw - 4vw ) / 2);
 }
 div.pile {
     display: inline-block;
     padding: 1vw;
     vertical-align: top;
+}
+
+/* Spaces */
+div.spaces-container {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(4, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+    text-align: center;
+    width: 32vw;
+
+    margin-top: 3vh;
+    margin-left: 4vw;
+}
+div.card-space {
+    margin-top: -9vw;
+    position: relative;
+}
+
+/* Spaces */
+div.homes-container {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(4, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+    text-align: center;
+    width: 32vw;
+
+    margin-top: 3vh;
+    margin-left: calc(100vw - 44vw - 4vw);
+}
+div.card-home {
+    margin-top: -9vw;
+    position: relative;
 }

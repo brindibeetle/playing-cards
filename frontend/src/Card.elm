@@ -23,8 +23,8 @@ allSuits = [ Spades, Hearts, Clubs, Diamonds ]
 
 
 allRanks : List Rank
---allRanks = [ Ace, King, Queen, Jack, N10, N9, N8, N7, N6, N5, N4, N3, N2 ]
-allRanks = [ King, Queen, Jack]
+allRanks = [ Ace, King, Queen, Jack, N10, N9, N8, N7, N6, N5, N4, N3, N2 ]
+--allRanks = [ King, Queen, Jack]
 
 allCards : List Card
 allCards =
@@ -39,6 +39,10 @@ addCardsofSuit suit cards =
 
 thisCard : Suit -> Rank -> Card
 thisCard suit rank = { suit = suit , rank = rank }
+
+
+getSuit : Card -> Suit
+getSuit { suit } = suit
 
 
 getRank : Card -> Int
@@ -142,8 +146,22 @@ view card =
         [ text ( getChar card |> String.fromChar ) ]
 
 
-cardsSuccessive : Maybe Card -> Card -> Bool
-cardsSuccessive maybeCard nextCard =
+-- ####
+-- ####    VIEW
+-- ####
+
+cardPlaceholder : Html msg
+cardPlaceholder =
+    div [ class "card card-placeholder" ] [ text "A" ]
+
+
+-- ####
+-- ####    HELPER
+-- ####
+
+
+cardsSuccessivePile : Maybe Card -> Card -> Bool
+cardsSuccessivePile maybeCard nextCard =
     case maybeCard of
         Nothing ->
             True
@@ -153,11 +171,13 @@ cardsSuccessive maybeCard nextCard =
             getRank card == getRank nextCard + 1
 
 
+cardsSuccessiveHome : Maybe Card -> Card -> Bool
+cardsSuccessiveHome maybeCard nextCard =
+    case maybeCard of
+        Nothing ->
+            getRank nextCard == 0
+        Just card ->
+            getSuit card == getSuit nextCard
+            &&
+            getRank card + 1 == getRank nextCard
 
--- ####
--- ####    VIEW
--- ####
-
-cardPlaceholder : Html msg
-cardPlaceholder =
-    div [ class "card card-placeholder" ] [ text "A" ]
