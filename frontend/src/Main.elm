@@ -55,23 +55,25 @@ init flags =
 view : Model -> Document Msg
 view model =
     let
-         dragId = Debug.log "dragid" ( DragDrop.getDragId model.dragDrop )
+        maybeDraggedId = Debug.log "maybeDraggedId" ( DragDrop.getDragId model.dragDrop )
+
+        maybeDraggedCard = Maybe.andThen ( \( pileId, cardId) ->  getCardInPile model.cards pileId cardId ) maybeDraggedId
     in
-    { title = "Cards"
-    , body =
-        if not ( model.shuffleModel.shufflingDone ) then
-            [
-                CardsCDN.stylesheet
-                , div []
-                   [ text "Shuffling "]
-            ]
-        else
-            [
-                CardsCDN.stylesheet
-                , div []
-                   ( viewPiles model.cards )
-            ]
-    }
+        { title = "Cards"
+        , body =
+            if not ( model.shuffleModel.shufflingDone ) then
+                [
+                    CardsCDN.stylesheet
+                    , div []
+                       [ text "Shuffling "]
+                ]
+            else
+                [
+                    CardsCDN.stylesheet
+                    , div [ class "piles-container" ]
+                       ( viewPiles maybeDraggedId maybeDraggedCard model.cards )
+                ]
+        }
 
 
 -- #####
@@ -140,33 +142,92 @@ update msg model =
 port dragstart : Value -> Cmd msg
 
 
-viewPiles : Array Pile -> List (Html Msg)
-viewPiles piles =
-    Array.indexedMap viewPile piles |> Array.toList
+viewPiles : Maybe ( Int, Int ) -> Maybe Card -> Array Pile -> List (Html Msg)
+viewPiles maybeDraggedId maybeCard piles =
+    Array.indexedMap ( viewPile maybeDraggedId maybeCard ) piles |> Array.toList
 
 
-viewPile : Int -> Pile -> Html Msg
-viewPile pileIndex pile =
-    div ( List.concat [ [ class "pile"], DragDrop.droppable DragDropMsg pileIndex ] )
-        ( List.concat
-            [
-                [ text ( "pile" ++ String.fromInt pileIndex ) ]
-                , ( Array.indexedMap (\cardIndex card -> viewCardinPile card pileIndex cardIndex) pile ) |> Array.toList
-            ]
-        )
+viewPile : Maybe ( Int, Int ) -> Maybe Card -> Int -> Pile -> Html Msg
+viewPile maybeDraggedId maybeDragCard pileIndex pile =
+    let
+        draggableFrom = canBeDraggedFrom pile
+    in
+        case ( maybeDraggedId, maybeDragCard ) of
+            ( Just ( draggedPileId, draggedCardId ), Just draggedCard ) ->
+                if pileIndex == draggedPileId then
+                    div ( List.concat [ [ class "pile"], DragDrop.droppable DragDropMsg pileIndex ] )
+                        [ cardPlaceholder
+                        , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
+                        ]
+                else
+                    if Card.cardsSuccessive ( getTopCardOfPile pile ) draggedCard then
+                        div ( List.concat [ [ class "pile"], DragDrop.droppable DragDropMsg pileIndex ] )
+                        [ cardPlaceholder
+                            , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
+                            ]
+                    else
+                        div ( List.concat [ [ class "pile"] ] )
+                            [ cardPlaceholder
+                            , viewCardsRecursively pileIndex 0 pile draggedCardId draggableFrom
+                            ]
+            ( _, _ ) ->
+                div ( List.concat [ [ class "pile"] ] )
+                    [ cardPlaceholder
+                    , viewCardsRecursively pileIndex 0 pile 99 draggableFrom
+                    ]
 
 
-viewCardinPile : Card -> Int -> Int -> Html Msg
-viewCardinPile card pileIndex cardIndex =
-    if cardIndex == 0 then
-        div
-            [ class "card cardInPile cardInPileTop" ]
-            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
-            ]
-    else
-        div [ class "card cardInPile" ]
-            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
-        --[ img [ getImage card, class "card"] [ ]
-        ]
+
+
+
+        --( List.concat
+        --    [
+        --        [ text ( "pile" ++ String.fromInt pileIndex ) ]
+        --        , ( Array.indexedMap (\cardIndex card -> viewCardinPile card pileIndex cardIndex) pile ) |> Array.toList
+        --    ]
+        --)
+
+viewCardsRecursively : Int -> Int -> Array Card -> Int -> Int -> Html Msg
+viewCardsRecursively pileIndex cardIndex cards draggedCardId draggableFrom =
+    let
+        draggableAttributes =
+            if cardIndex >= draggableFrom then
+                class "card-draggable" :: DragDrop.draggable DragDropMsg ( pileIndex, cardIndex )
+            else
+                []
+    in
+        case Array.get cardIndex cards of
+            Nothing ->
+                div [][]
+            Just card ->
+                --if cardIndex >= dragCardId then
+                --    div [][]
+                --else
+                    if cardIndex == 0 then
+                        div
+                            ( class "card cardInPile cardInPileTop" :: draggableAttributes )
+                            [ Card.view card
+                            , viewCardsRecursively pileIndex ( cardIndex + 1 ) cards draggedCardId draggableFrom
+                            ]
+                    else
+                        div ( class "card cardInPile" :: draggableAttributes )
+                            [ Card.view card
+                            , viewCardsRecursively pileIndex ( cardIndex + 1 ) cards draggedCardId draggableFrom
+                        ]
+
+--
+--viewCardinPile : Card -> Int -> Int -> Html Msg
+--viewCardinPile card pileIndex cardIndex =
+--    if cardIndex == 0 then
+--        div
+--            [ class "card cardInPile cardInPileTop" ]
+--            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
+--            ]
+--    else
+--        div [ class "card cardInPile" ]
+--            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
+--        --[ img [ getImage card, class "card"] [ ]
+--        ]
+
 
 

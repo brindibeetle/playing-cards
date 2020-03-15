@@ -1,32 +1,73 @@
+@font-face {
+    font-family: "Cards font";
+    src: url("./52playingcards.ttf") format("truetype");
+}
 img.card {
     displaaay: block;
-    width: 100px;
+    width: 8vw;
     height: auto;
     border-top: 1px solid black;
     border-radius: 6%;
 }
 div.card {
+    /* width: 8vw; */
+    position: relative;
+    font-family: "Cards font";
+    font-size: 12vw;
+    opacity: 1.0;
+    background: white;
+    border: 0.05vw solid black;
+    border-radius: 5%;
+    padding: 0vw 0vw 0.1vw 0.1vw;
+}
+div.card-red {
+    color: red;
+}
+div.card-black {
+    color: black;
+}
+div.card-draggable {
+    cursor: move;
 }
 div.cardInPile {
-    margin-top: -130px;
+    margin-top: -9vw;
     position: relative;
 }
 div.cardInPileTop {
-    margin-top: 0px;
+    margin-top: -12vw;
 }
-div.card:hover {
+div.card-placeholder {
+opacity: 0.4;
+    background: lightblue;
+    border: 0.05vw solid lightgray;
+}
+
+/* div.card:hover {
     margin-top: -120px;
 }
 div.card:drag {
     border-top: 1px solid green;
     border-radius: 6%;
- }
+ } */
 div.cardInPileTop:hover {
-    margin-top: -0px;
+    /* margin-top: -0px; */
 }
 
+/* Piles */
+div.piles-container {
+    display: grid;
+    grid-template-columns: repeat(8, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+    text-align: center;
+    width: 82vw;
+    height: fit-content;
+    height: -webkit-fill-available;
+
+    margin-top: 30vh;
+    margin-left: calc( ( 100vw - 82vw - 4vw ) / 2);
+}
 div.pile {
     display: inline-block;
-    padding: 10px;
+    padding: 1vw;
     vertical-align: top;
 }

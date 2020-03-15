@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Main</title>
+  <title>Freecell solitair</title>
   <script src="env.js"></script>
   <script src="main.js"></script>
 </head>
@@ -16,7 +16,12 @@
           , node: document.getElementById('elm')
       });
       app.ports.dragstart.subscribe(function (event) {
-          event.dataTransfer.setData('text', '');
+          event.dataTransfer.setData("text/plain", event.target.id);
+          var img = new Image();
+          img.src = "./src/resources/back1.png"
+          event.dataTransfer.dropEffect = "move"
+          event.dataTransfer.effectAllowed = "move"
+<!--          event.dataTransfer.setDragImage(img,0,0);-->
       });
   </script>
 </body>

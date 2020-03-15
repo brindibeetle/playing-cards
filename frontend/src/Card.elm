@@ -12,6 +12,7 @@ type Rank = Ace | King | Queen | Jack | N10 | N9 | N8 | N7 | N6 | N5 | N4 | N3 |
 
 type Suit = Spades | Hearts | Clubs | Diamonds
 
+type Color = Black | Red
 
 defaultCard : Card
 defaultCard = { suit = Spades, rank = N2 }
@@ -22,8 +23,8 @@ allSuits = [ Spades, Hearts, Clubs, Diamonds ]
 
 
 allRanks : List Rank
-allRanks = [ Ace, King, Queen, Jack, N10, N9, N8, N7, N6, N5, N4, N3, N2 ]
-
+--allRanks = [ Ace, King, Queen, Jack, N10, N9, N8, N7, N6, N5, N4, N3, N2 ]
+allRanks = [ King, Queen, Jack]
 
 allCards : List Card
 allCards =
@@ -40,55 +41,123 @@ thisCard : Suit -> Rank -> Card
 thisCard suit rank = { suit = suit , rank = rank }
 
 
-getImage : Card -> Attribute msg
-getImage { suit, rank } =
-    String.concat
-        [ "src/resources/"
-        , case suit of
-            Spades ->
-                "spades"
-            Hearts ->
-                "hearts"
-            Clubs ->
-                "clubs"
-            Diamonds ->
-                "diamonds"
-        , " "
-        , case rank of
-            Ace ->
-                "ace"
-            King ->
-                "king"
-            Queen ->
-                "queen"
-            Jack ->
-                "jack"
-            N10 ->
-                "10"
-            N9 ->
-                "9"
-            N8 ->
-                "8"
-            N7 ->
-                "7"
-            N6 ->
-                "6"
-            N5 ->
-                "5"
-            N4 ->
-                "4"
-            N3 ->
-                "3"
-            N2 ->
-                "2"
-        , ".png"
-        ]
-    |> src
+getRank : Card -> Int
+getRank { rank } =
+    case rank of
+        Ace ->
+            0
+        N2 ->
+            1
+        N3 ->
+            2
+        N4 ->
+            3
+        N5 ->
+            4
+        N6 ->
+            5
+        N7 ->
+            6
+        N8 ->
+            7
+        N9 ->
+            8
+        N10 ->
+            9
+        Jack ->
+            10
+        Queen ->
+            11
+        King ->
+            12
 
+getChar : Card -> Char
+getChar { suit, rank } =
+    ( case suit of
+        Hearts ->
+            65
+        Diamonds ->
+            78
+        Clubs ->
+            97
+        Spades ->
+            110
+    )
+    +
+    ( case rank of
+        Ace ->
+            0
+        N2 ->
+            1
+        N3 ->
+            2
+        N4 ->
+            3
+        N5 ->
+            4
+        N6 ->
+            5
+        N7 ->
+            6
+        N8 ->
+            7
+        N9 ->
+            8
+        N10 ->
+            9
+        Jack ->
+            10
+        Queen ->
+            11
+        King ->
+            12
+    )
+    |> Char.fromCode
+
+
+getColor : Card -> Color
+getColor { suit } =
+    case suit of
+        Hearts ->
+            Red
+        Diamonds ->
+            Red
+        Clubs ->
+            Black
+        Spades ->
+            Black
+
+
+getColorClass : Color -> Attribute msg
+getColorClass color =
+    case color of
+        Black ->
+            class "card-black"
+        Red ->
+            class "card-red"
 
 view : Card -> Html msg
 view card =
-    div [ class "card" ]
-        [ img [ getImage card, class "card" ] [ ]
-        ]
+    div [ class "card ", getColor card |> getColorClass ]
+        [ text ( getChar card |> String.fromChar ) ]
 
+
+cardsSuccessive : Maybe Card -> Card -> Bool
+cardsSuccessive maybeCard nextCard =
+    case maybeCard of
+        Nothing ->
+            True
+        Just card ->
+            getColor card /= getColor nextCard
+            &&
+            getRank card == getRank nextCard + 1
+
+
+
+-- ####
+-- ####    VIEW
+-- ####
+
+cardPlaceholder : Html msg
+cardPlaceholder =
+    div [ class "card card-placeholder" ] [ text "A" ]

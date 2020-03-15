@@ -5230,21 +5230,11 @@ var $elm$browser$Browser$document = _Browser_document;
 var $author$project$Main$ShuffleMsg = function (a) {
 	return {$: 'ShuffleMsg', a: a};
 };
-var $author$project$Card$Ace = {$: 'Ace'};
 var $author$project$Card$Jack = {$: 'Jack'};
 var $author$project$Card$King = {$: 'King'};
-var $author$project$Card$N10 = {$: 'N10'};
-var $author$project$Card$N2 = {$: 'N2'};
-var $author$project$Card$N3 = {$: 'N3'};
-var $author$project$Card$N4 = {$: 'N4'};
-var $author$project$Card$N5 = {$: 'N5'};
-var $author$project$Card$N6 = {$: 'N6'};
-var $author$project$Card$N7 = {$: 'N7'};
-var $author$project$Card$N8 = {$: 'N8'};
-var $author$project$Card$N9 = {$: 'N9'};
 var $author$project$Card$Queen = {$: 'Queen'};
 var $author$project$Card$allRanks = _List_fromArray(
-	[$author$project$Card$Ace, $author$project$Card$King, $author$project$Card$Queen, $author$project$Card$Jack, $author$project$Card$N10, $author$project$Card$N9, $author$project$Card$N8, $author$project$Card$N7, $author$project$Card$N6, $author$project$Card$N5, $author$project$Card$N4, $author$project$Card$N3, $author$project$Card$N2]);
+	[$author$project$Card$King, $author$project$Card$Queen, $author$project$Card$Jack]);
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -6053,37 +6043,26 @@ var $elm$core$Array$slice = F3(
 			correctFrom,
 			A2($elm$core$Array$sliceRight, correctTo, array));
 	});
-var $author$project$Pile$pull1Card = F2(
-	function (index, pile) {
-		return A2(
-			$elm$core$Array$append,
-			A3($elm$core$Array$slice, 0, index, pile),
-			A3(
-				$elm$core$Array$slice,
-				index + 1,
-				$elm$core$Array$length(pile),
-				pile));
-	});
-var $author$project$Pile$push1Card = F2(
-	function (card, pile) {
-		return A2($elm$core$Array$push, card, pile);
-	});
 var $author$project$Pile$moveCard2 = F2(
 	function (index, _v0) {
 		var pileFrom = _v0.a;
 		var pileTo = _v0.b;
-		var _v1 = A2($elm$core$Array$get, index, pileFrom);
-		if (_v1.$ === 'Nothing') {
-			return _Utils_Tuple2(pileFrom, pileTo);
-		} else {
-			var card = _v1.a;
-			return _Utils_Tuple2(
-				A2($author$project$Pile$pull1Card, index, pileFrom),
-				A2($author$project$Pile$push1Card, card, pileTo));
-		}
+		var cards = A3(
+			$elm$core$Array$slice,
+			index,
+			$elm$core$Array$length(pileFrom),
+			pileFrom);
+		var cards1 = A2(
+			$elm$core$Debug$log,
+			'cardslength',
+			$elm$core$Array$length(cards));
+		return _Utils_Tuple2(
+			A3($elm$core$Array$slice, 0, index, pileFrom),
+			A2($elm$core$Array$append, pileTo, cards));
 	});
 var $author$project$Pile$moveCard = F4(
 	function (pileIndexFrom, index, pileIndexTo, piles) {
+		var cards = A2($elm$core$Debug$log, 'moveCard pileIndexFrom', pileIndexFrom);
 		var _v0 = _Utils_Tuple2(
 			A2($elm$core$Array$get, pileIndexFrom, piles),
 			A2($elm$core$Array$get, pileIndexTo, piles));
@@ -6332,7 +6311,35 @@ var $author$project$Main$update = F2(
 				A2($elm$core$Platform$Cmd$map, $author$project$Main$ShuffleMsg, shuffleCmd));
 		}
 	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Pile$getCardInPile = F3(
+	function (piles, pileId, cardId) {
+		var _v0 = A2($elm$core$Array$get, pileId, piles);
+		if (_v0.$ === 'Nothing') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var pile = _v0.a;
+			return A2($elm$core$Array$get, cardId, pile);
+		}
+	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 	switch (model.$) {
 		case 'NotDragging':
@@ -6346,14 +6353,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 			return $elm$core$Maybe$Just(dragId);
 	}
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -6417,7 +6416,128 @@ var $elm$core$Array$indexedMap = F2(
 var $author$project$Main$DragDropMsg = function (a) {
 	return {$: 'DragDropMsg', a: a};
 };
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $author$project$Card$Black = {$: 'Black'};
+var $author$project$Card$Red = {$: 'Red'};
+var $author$project$Card$getColor = function (_v0) {
+	var suit = _v0.suit;
+	switch (suit.$) {
+		case 'Hearts':
+			return $author$project$Card$Red;
+		case 'Diamonds':
+			return $author$project$Card$Red;
+		case 'Clubs':
+			return $author$project$Card$Black;
+		default:
+			return $author$project$Card$Black;
+	}
+};
+var $author$project$Card$getRank = function (_v0) {
+	var rank = _v0.rank;
+	switch (rank.$) {
+		case 'Ace':
+			return 0;
+		case 'N2':
+			return 1;
+		case 'N3':
+			return 2;
+		case 'N4':
+			return 3;
+		case 'N5':
+			return 4;
+		case 'N6':
+			return 5;
+		case 'N7':
+			return 6;
+		case 'N8':
+			return 7;
+		case 'N9':
+			return 8;
+		case 'N10':
+			return 9;
+		case 'Jack':
+			return 10;
+		case 'Queen':
+			return 11;
+		default:
+			return 12;
+	}
+};
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Card$cardsSuccessive = F2(
+	function (maybeCard, nextCard) {
+		if (maybeCard.$ === 'Nothing') {
+			return true;
+		} else {
+			var card = maybeCard.a;
+			return (!_Utils_eq(
+				$author$project$Card$getColor(card),
+				$author$project$Card$getColor(nextCard))) && _Utils_eq(
+				$author$project$Card$getRank(card),
+				$author$project$Card$getRank(nextCard) + 1);
+		}
+	});
+var $author$project$Pile$canBeDraggedFromHelper = F2(
+	function (card, _v0) {
+		var cardIndex = _v0.a;
+		var _v1 = _v0.b;
+		var maybeLastCard = _v1.a;
+		var connecting = _v1.b;
+		var _v2 = _Utils_Tuple2(maybeLastCard, connecting);
+		if (!_v2.b) {
+			return _Utils_Tuple2(
+				cardIndex,
+				_Utils_Tuple2(maybeLastCard, false));
+		} else {
+			if (_v2.a.$ === 'Nothing') {
+				var _v3 = _v2.a;
+				return _Utils_Tuple2(
+					cardIndex - 1,
+					_Utils_Tuple2(
+						$elm$core$Maybe$Just(card),
+						true));
+			} else {
+				var lastCard = _v2.a.a;
+				return A2(
+					$author$project$Card$cardsSuccessive,
+					$elm$core$Maybe$Just(card),
+					lastCard) ? _Utils_Tuple2(
+					cardIndex - 1,
+					_Utils_Tuple2(
+						$elm$core$Maybe$Just(card),
+						true)) : _Utils_Tuple2(
+					cardIndex + 1,
+					_Utils_Tuple2($elm$core$Maybe$Nothing, false));
+			}
+		}
+	});
+var $author$project$Pile$canBeDraggedFrom = function (cards) {
+	var lastCard = A2(
+		$elm$core$Array$get,
+		$elm$core$Array$length(cards) - 1,
+		cards);
+	if (lastCard.$ === 'Nothing') {
+		return 99;
+	} else {
+		var card = lastCard.a;
+		return A3(
+			$elm$core$Array$foldr,
+			$author$project$Pile$canBeDraggedFromHelper,
+			_Utils_Tuple2(
+				$elm$core$Array$length(cards) - 1,
+				_Utils_Tuple2($elm$core$Maybe$Nothing, true)),
+			cards).a;
+	}
+};
+var $author$project$Card$cardPlaceholder = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('card card-placeholder')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('A')
+		]));
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
@@ -6558,6 +6678,12 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
 			]);
 	});
+var $author$project$Pile$getTopCardOfPile = function (pile) {
+	return A2(
+		$elm$core$Array$get,
+		$elm$core$Array$length(pile) - 1,
+		pile);
+};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd = {$: 'DragEnd'};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragStart = F2(
 	function (a, b) {
@@ -6596,162 +6722,213 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
 			]);
 	});
-var $elm$core$String$concat = function (strings) {
-	return A2($elm$core$String$join, '', strings);
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
 };
-var $elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var $author$project$Card$getImage = function (_v0) {
+var $elm$core$Char$fromCode = _Char_fromCode;
+var $author$project$Card$getChar = function (_v0) {
 	var suit = _v0.suit;
 	var rank = _v0.rank;
-	return $elm$html$Html$Attributes$src(
-		$elm$core$String$concat(
-			_List_fromArray(
-				[
-					'src/resources/',
-					function () {
-					switch (suit.$) {
-						case 'Spades':
-							return 'spades';
-						case 'Hearts':
-							return 'hearts';
-						case 'Clubs':
-							return 'clubs';
-						default:
-							return 'diamonds';
-					}
-				}(),
-					' ',
-					function () {
-					switch (rank.$) {
-						case 'Ace':
-							return 'ace';
-						case 'King':
-							return 'king';
-						case 'Queen':
-							return 'queen';
-						case 'Jack':
-							return 'jack';
-						case 'N10':
-							return '10';
-						case 'N9':
-							return '9';
-						case 'N8':
-							return '8';
-						case 'N7':
-							return '7';
-						case 'N6':
-							return '6';
-						case 'N5':
-							return '5';
-						case 'N4':
-							return '4';
-						case 'N3':
-							return '3';
-						default:
-							return '2';
-					}
-				}(),
-					'.png'
-				])));
+	return $elm$core$Char$fromCode(
+		function () {
+			switch (suit.$) {
+				case 'Hearts':
+					return 65;
+				case 'Diamonds':
+					return 78;
+				case 'Clubs':
+					return 97;
+				default:
+					return 110;
+			}
+		}() + function () {
+			switch (rank.$) {
+				case 'Ace':
+					return 0;
+				case 'N2':
+					return 1;
+				case 'N3':
+					return 2;
+				case 'N4':
+					return 3;
+				case 'N5':
+					return 4;
+				case 'N6':
+					return 5;
+				case 'N7':
+					return 6;
+				case 'N8':
+					return 7;
+				case 'N9':
+					return 8;
+				case 'N10':
+					return 9;
+				case 'Jack':
+					return 10;
+				case 'Queen':
+					return 11;
+				default:
+					return 12;
+			}
+		}());
 };
-var $elm$html$Html$img = _VirtualDom_node('img');
-var $author$project$Main$viewCardinPile = F3(
-	function (card, pileIndex, cardIndex) {
-		return (!cardIndex) ? A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('card cardInPile cardInPileTop')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$img,
-					$elm$core$List$concat(
-						_List_fromArray(
-							[
-								_List_fromArray(
-								[
-									$author$project$Card$getImage(card),
-									$elm$html$Html$Attributes$class('card')
-								]),
-								A2(
-								$norpan$elm_html5_drag_drop$Html5$DragDrop$draggable,
-								$author$project$Main$DragDropMsg,
-								_Utils_Tuple2(pileIndex, cardIndex))
-							])),
-					_List_Nil)
-				])) : A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('card cardInPile')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$img,
-					$elm$core$List$concat(
-						_List_fromArray(
-							[
-								_List_fromArray(
-								[
-									$author$project$Card$getImage(card),
-									$elm$html$Html$Attributes$class('card')
-								]),
-								A2(
-								$norpan$elm_html5_drag_drop$Html5$DragDrop$draggable,
-								$author$project$Main$DragDropMsg,
-								_Utils_Tuple2(pileIndex, cardIndex))
-							])),
-					_List_Nil)
-				]));
+var $author$project$Card$getColorClass = function (color) {
+	if (color.$ === 'Black') {
+		return $elm$html$Html$Attributes$class('card-black');
+	} else {
+		return $elm$html$Html$Attributes$class('card-red');
+	}
+};
+var $author$project$Card$view = function (card) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('card '),
+				$author$project$Card$getColorClass(
+				$author$project$Card$getColor(card))
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				$elm$core$String$fromChar(
+					$author$project$Card$getChar(card)))
+			]));
+};
+var $author$project$Main$viewCardsRecursively = F5(
+	function (pileIndex, cardIndex, cards, draggedCardId, draggableFrom) {
+		var draggableAttributes = (_Utils_cmp(cardIndex, draggableFrom) > -1) ? A2(
+			$elm$core$List$cons,
+			$elm$html$Html$Attributes$class('card-draggable'),
+			A2(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$draggable,
+				$author$project$Main$DragDropMsg,
+				_Utils_Tuple2(pileIndex, cardIndex))) : _List_Nil;
+		var _v0 = A2($elm$core$Array$get, cardIndex, cards);
+		if (_v0.$ === 'Nothing') {
+			return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+		} else {
+			var card = _v0.a;
+			return (!cardIndex) ? A2(
+				$elm$html$Html$div,
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('card cardInPile cardInPileTop'),
+					draggableAttributes),
+				_List_fromArray(
+					[
+						$author$project$Card$view(card),
+						A5($author$project$Main$viewCardsRecursively, pileIndex, cardIndex + 1, cards, draggedCardId, draggableFrom)
+					])) : A2(
+				$elm$html$Html$div,
+				A2(
+					$elm$core$List$cons,
+					$elm$html$Html$Attributes$class('card cardInPile'),
+					draggableAttributes),
+				_List_fromArray(
+					[
+						$author$project$Card$view(card),
+						A5($author$project$Main$viewCardsRecursively, pileIndex, cardIndex + 1, cards, draggedCardId, draggableFrom)
+					]));
+		}
 	});
-var $author$project$Main$viewPile = F2(
-	function (pileIndex, pile) {
-		return A2(
-			$elm$html$Html$div,
-			$elm$core$List$concat(
+var $author$project$Main$viewPile = F4(
+	function (maybeDraggedId, maybeDragCard, pileIndex, pile) {
+		var draggableFrom = $author$project$Pile$canBeDraggedFrom(pile);
+		var _v0 = _Utils_Tuple2(maybeDraggedId, maybeDragCard);
+		if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
+			var _v1 = _v0.a.a;
+			var draggedPileId = _v1.a;
+			var draggedCardId = _v1.b;
+			var draggedCard = _v0.b.a;
+			return _Utils_eq(pileIndex, draggedPileId) ? A2(
+				$elm$html$Html$div,
+				$elm$core$List$concat(
+					_List_fromArray(
+						[
+							_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('pile')
+							]),
+							A2($norpan$elm_html5_drag_drop$Html5$DragDrop$droppable, $author$project$Main$DragDropMsg, pileIndex)
+						])),
 				_List_fromArray(
 					[
-						_List_fromArray(
+						$author$project$Card$cardPlaceholder,
+						A5($author$project$Main$viewCardsRecursively, pileIndex, 0, pile, draggedCardId, draggableFrom)
+					])) : (A2(
+				$author$project$Card$cardsSuccessive,
+				$author$project$Pile$getTopCardOfPile(pile),
+				draggedCard) ? A2(
+				$elm$html$Html$div,
+				$elm$core$List$concat(
+					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('pile')
-						]),
-						A2($norpan$elm_html5_drag_drop$Html5$DragDrop$droppable, $author$project$Main$DragDropMsg, pileIndex)
-					])),
-			$elm$core$List$concat(
+							_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('pile')
+							]),
+							A2($norpan$elm_html5_drag_drop$Html5$DragDrop$droppable, $author$project$Main$DragDropMsg, pileIndex)
+						])),
 				_List_fromArray(
 					[
-						_List_fromArray(
+						$author$project$Card$cardPlaceholder,
+						A5($author$project$Main$viewCardsRecursively, pileIndex, 0, pile, draggedCardId, draggableFrom)
+					])) : A2(
+				$elm$html$Html$div,
+				$elm$core$List$concat(
+					_List_fromArray(
 						[
-							$elm$html$Html$text(
-							'pile' + $elm$core$String$fromInt(pileIndex))
-						]),
-						$elm$core$Array$toList(
-						A2(
-							$elm$core$Array$indexedMap,
-							F2(
-								function (cardIndex, card) {
-									return A3($author$project$Main$viewCardinPile, card, pileIndex, cardIndex);
-								}),
-							pile))
+							_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('pile')
+							])
+						])),
+				_List_fromArray(
+					[
+						$author$project$Card$cardPlaceholder,
+						A5($author$project$Main$viewCardsRecursively, pileIndex, 0, pile, draggedCardId, draggableFrom)
 					])));
+		} else {
+			return A2(
+				$elm$html$Html$div,
+				$elm$core$List$concat(
+					_List_fromArray(
+						[
+							_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('pile')
+							])
+						])),
+				_List_fromArray(
+					[
+						$author$project$Card$cardPlaceholder,
+						A5($author$project$Main$viewCardsRecursively, pileIndex, 0, pile, 99, draggableFrom)
+					]));
+		}
 	});
-var $author$project$Main$viewPiles = function (piles) {
-	return $elm$core$Array$toList(
-		A2($elm$core$Array$indexedMap, $author$project$Main$viewPile, piles));
-};
+var $author$project$Main$viewPiles = F3(
+	function (maybeDraggedId, maybeCard, piles) {
+		return $elm$core$Array$toList(
+			A2(
+				$elm$core$Array$indexedMap,
+				A2($author$project$Main$viewPile, maybeDraggedId, maybeCard),
+				piles));
+	});
 var $author$project$Main$view = function (model) {
-	var dragId = A2(
+	var maybeDraggedId = A2(
 		$elm$core$Debug$log,
-		'dragid',
+		'maybeDraggedId',
 		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop));
+	var maybeDraggedCard = A2(
+		$elm$core$Maybe$andThen,
+		function (_v0) {
+			var pileId = _v0.a;
+			var cardId = _v0.b;
+			return A3($author$project$Pile$getCardInPile, model.cards, pileId, cardId);
+		},
+		maybeDraggedId);
 	return {
 		body: (!model.shuffleModel.shufflingDone) ? _List_fromArray(
 			[
@@ -6768,8 +6945,11 @@ var $author$project$Main$view = function (model) {
 				$author$project$CardsCDN$stylesheet,
 				A2(
 				$elm$html$Html$div,
-				_List_Nil,
-				$author$project$Main$viewPiles(model.cards))
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('piles-container')
+					]),
+				A3($author$project$Main$viewPiles, maybeDraggedId, maybeDraggedCard, model.cards))
 			]),
 		title: 'Cards'
 	};
