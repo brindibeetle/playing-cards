@@ -103,6 +103,7 @@ dragHelperForPile maybeFrom model =
         Just ( PileFrom pileIndex cardIndex ) ->
             {
                 maybeDragFromPileId = Just pileIndex
+                , maybeDragFromCardId = Just cardIndex
                 , maybeDragCard = Pile.getCard pileIndex cardIndex model.pilesModel
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles
@@ -111,6 +112,7 @@ dragHelperForPile maybeFrom model =
         Just ( SpaceFrom spaceIndex ) ->
             {
                 maybeDragFromPileId = Nothing
+                , maybeDragFromCardId = Nothing
                 , maybeDragCard = Space.getCard spaceIndex model.spacesModel
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles
@@ -119,6 +121,7 @@ dragHelperForPile maybeFrom model =
         _ ->
             {
                 maybeDragFromPileId = Nothing
+                , maybeDragFromCardId = Nothing
                 , maybeDragCard = Nothing
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles

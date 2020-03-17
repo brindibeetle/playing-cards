@@ -200,7 +200,7 @@ getNumberOfCards pileIndex cardIndex model =
 
 
 type alias DragHelper msg =
-    { maybeDragFromPileId : Maybe Int, maybeDragCard : Maybe Card, droppableAttribute : Int -> List (Attribute msg), draggableAttribute : ( Int, Int ) -> List (Attribute msg) }
+    { maybeDragFromPileId : Maybe Int, maybeDragFromCardId : Maybe Int, maybeDragCard : Maybe Card, droppableAttribute : Int -> List (Attribute msg), draggableAttribute : ( Int, Int ) -> List (Attribute msg) }
 
 
 -- ####
@@ -222,7 +222,7 @@ viewPiles piles dragHelper =
 viewPile : DragHelper msg -> Int -> Pile -> Html msg
 viewPile dragHelper pileIndex pile =
     let
-        { maybeDragFromPileId, maybeDragCard, droppableAttribute } = Debug.log "viewPile dragHelper" dragHelper
+        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, droppableAttribute } = Debug.log "viewPile dragHelper" dragHelper
         draggableFrom = canBeDraggedFrom pile
     in
         case maybeDragCard of
@@ -230,23 +230,23 @@ viewPile dragHelper pileIndex pile =
                 if pileIndex == ( Maybe.withDefault 99 maybeDragFromPileId ) then
                     div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
                         [ cardPlaceholder
-                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom
+                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom maybeDragFromCardId
                         ]
                 else
                     if cardsSuccessivePile ( getTopCardOfPile pile ) draggedCard then
                         div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
                         [ cardPlaceholder
-                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom
+                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
                         ]
                     else
                         div ( List.concat [ [ class "pile"] ] )
                             [ cardPlaceholder
-                            , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom
+                            , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
                             ]
             Nothing ->
                 div ( List.concat [ [ class "pile"] ] )
                     [ cardPlaceholder
-                    , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom
+                    , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
                     ]
 
 
@@ -260,8 +260,8 @@ viewPile dragHelper pileIndex pile =
         --    ]
         --)
 
-viewCardsRecursively : DragHelper msg -> Int -> Int -> Array Card -> Int -> Html msg
-viewCardsRecursively dragHelper pileIndex cardIndex cards draggableFrom =
+viewCardsRecursively : DragHelper msg -> Int -> Int -> Array Card -> Int -> Maybe Int -> Html msg
+viewCardsRecursively dragHelper pileIndex cardIndex cards draggableFrom maybeDragFromCardId =
     let
         draggableAttributes =
             if cardIndex >= draggableFrom then
@@ -274,20 +274,24 @@ viewCardsRecursively dragHelper pileIndex cardIndex cards draggableFrom =
             Nothing ->
                 div [][]
             Just card ->
-                --if cardIndex >= dragCardId then
-                --    div [][]
-                --else
-                    if cardIndex == 0 then
-                        div
-                            ( class "card card-pile card-pile-top" :: draggableAttributes )
-                            [ Card.view card
-                            , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom
+                    let
+                        cardHide =
+                            if cardIndex >= ( maybeDragFromCardId |> Maybe.withDefault 99 ) then
+                                " card-hide"
+                            else
+                                ""
+                    in
+                        if cardIndex == 0 then
+                            div
+                                ( class ("card card-pile card-pile-top" ++ cardHide) :: draggableAttributes )
+                                [ Card.view card
+                                , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
+                                ]
+                        else
+                            div ( class ("card card-pile" ++ cardHide) :: draggableAttributes )
+                                [ Card.view card
+                                , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
                             ]
-                    else
-                        div ( class "card card-pile" :: draggableAttributes )
-                            [ Card.view card
-                            , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom
-                        ]
 
 --
 --viewCardinPile : Card -> Int -> Int -> Html Msg

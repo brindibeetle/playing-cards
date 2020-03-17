@@ -6827,6 +6827,7 @@ var $author$project$Main$dragHelperForPile = F2(
 					draggableAttribute: $author$project$Main$draggablePiles,
 					droppableAttribute: $author$project$Main$droppablePiles,
 					maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, model.pilesModel),
+					maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
 					maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex)
 				};
 			} else {
@@ -6835,11 +6836,12 @@ var $author$project$Main$dragHelperForPile = F2(
 					draggableAttribute: $author$project$Main$draggablePiles,
 					droppableAttribute: $author$project$Main$droppablePiles,
 					maybeDragCard: A2($author$project$Space$getCard, spaceIndex, model.spacesModel),
+					maybeDragFromCardId: $elm$core$Maybe$Nothing,
 					maybeDragFromPileId: $elm$core$Maybe$Nothing
 				};
 			}
 		} else {
-			return {draggableAttribute: $author$project$Main$draggablePiles, droppableAttribute: $author$project$Main$droppablePiles, maybeDragCard: $elm$core$Maybe$Nothing, maybeDragFromPileId: $elm$core$Maybe$Nothing};
+			return {draggableAttribute: $author$project$Main$draggablePiles, droppableAttribute: $author$project$Main$droppablePiles, maybeDragCard: $elm$core$Maybe$Nothing, maybeDragFromCardId: $elm$core$Maybe$Nothing, maybeDragFromPileId: $elm$core$Maybe$Nothing};
 		}
 	});
 var $author$project$Main$SpaceFrom = function (a) {
@@ -7271,8 +7273,8 @@ var $author$project$Pile$canBeDraggedFrom = function (cards) {
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
-var $author$project$Pile$viewCardsRecursively = F5(
-	function (dragHelper, pileIndex, cardIndex, cards, draggableFrom) {
+var $author$project$Pile$viewCardsRecursively = F6(
+	function (dragHelper, pileIndex, cardIndex, cards, draggableFrom, maybeDragFromCardId) {
 		var _v0 = dragHelper;
 		var draggableAttribute = _v0.draggableAttribute;
 		var draggableAttributes = (_Utils_cmp(cardIndex, draggableFrom) > -1) ? A2(
@@ -7285,26 +7287,29 @@ var $author$project$Pile$viewCardsRecursively = F5(
 			return A2($elm$html$Html$div, _List_Nil, _List_Nil);
 		} else {
 			var card = _v1.a;
+			var cardHide = (_Utils_cmp(
+				cardIndex,
+				A2($elm$core$Maybe$withDefault, 99, maybeDragFromCardId)) > -1) ? ' card-hide' : '';
 			return (!cardIndex) ? A2(
 				$elm$html$Html$div,
 				A2(
 					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class('card card-pile card-pile-top'),
+					$elm$html$Html$Attributes$class('card card-pile card-pile-top' + cardHide),
 					draggableAttributes),
 				_List_fromArray(
 					[
 						$author$project$Card$view(card),
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, cardIndex + 1, cards, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, cardIndex + 1, cards, draggableFrom, maybeDragFromCardId)
 					])) : A2(
 				$elm$html$Html$div,
 				A2(
 					$elm$core$List$cons,
-					$elm$html$Html$Attributes$class('card card-pile'),
+					$elm$html$Html$Attributes$class('card card-pile' + cardHide),
 					draggableAttributes),
 				_List_fromArray(
 					[
 						$author$project$Card$view(card),
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, cardIndex + 1, cards, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, cardIndex + 1, cards, draggableFrom, maybeDragFromCardId)
 					]));
 		}
 	});
@@ -7313,6 +7318,7 @@ var $author$project$Pile$viewPile = F3(
 		var draggableFrom = $author$project$Pile$canBeDraggedFrom(pile);
 		var _v0 = A2($elm$core$Debug$log, 'viewPile dragHelper', dragHelper);
 		var maybeDragFromPileId = _v0.maybeDragFromPileId;
+		var maybeDragFromCardId = _v0.maybeDragFromCardId;
 		var maybeDragCard = _v0.maybeDragCard;
 		var droppableAttribute = _v0.droppableAttribute;
 		if (maybeDragCard.$ === 'Just') {
@@ -7333,7 +7339,7 @@ var $author$project$Pile$viewPile = F3(
 				_List_fromArray(
 					[
 						$author$project$Card$cardPlaceholder,
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom, maybeDragFromCardId)
 					])) : (A2(
 				$author$project$Card$cardsSuccessivePile,
 				$author$project$Pile$getTopCardOfPile(pile),
@@ -7351,7 +7357,7 @@ var $author$project$Pile$viewPile = F3(
 				_List_fromArray(
 					[
 						$author$project$Card$cardPlaceholder,
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom, $elm$core$Maybe$Nothing)
 					])) : A2(
 				$elm$html$Html$div,
 				$elm$core$List$concat(
@@ -7365,7 +7371,7 @@ var $author$project$Pile$viewPile = F3(
 				_List_fromArray(
 					[
 						$author$project$Card$cardPlaceholder,
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom, $elm$core$Maybe$Nothing)
 					])));
 		} else {
 			return A2(
@@ -7381,7 +7387,7 @@ var $author$project$Pile$viewPile = F3(
 				_List_fromArray(
 					[
 						$author$project$Card$cardPlaceholder,
-						A5($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom)
+						A6($author$project$Pile$viewCardsRecursively, dragHelper, pileIndex, 0, pile, draggableFrom, $elm$core$Maybe$Nothing)
 					]));
 		}
 	});

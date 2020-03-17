@@ -10,7 +10,6 @@ img.card {
     border-radius: 6%;
 }
 div.card {
-    /* width: 8vw; */
     position: relative;
     font-family: "Cards font";
     font-size: 12vw;
@@ -18,11 +17,11 @@ div.card {
     background: white;
     border: 0.05vw solid black;
     border-radius: 5%;
-    padding: 0vw 0vw 0.1vw 0.1vw;
-    width: fit-content;
-    height: fit-content;
+    padding: 0vw 0vw 0vw 0vw;
     text-align: center;
-    line-height: 9vw;
+    width: 7vw;
+    height: 10vw;
+    line-height: 10vw;
 }
 div.card-red {
     color: red;
@@ -38,14 +37,22 @@ div.card-pile {
     position: relative;
 }
 div.card-pile-top {
-    margin-top: -9vw;
+    margin-top: -10vw;
 }
 div.card-placeholder {
     opacity: 0.4;
     background: lightblue;
     border: 0.05vw solid lightgray;
 }
-
+div.card-hide {
+    animation-name: cardhide;
+    animation-duration: 0.01s;
+    animation-fill-mode: forwards;
+}
+@keyframes cardhide {
+    0% { display: block; visibility: block;  }
+    100% { display: none; visibility: hidden; }
+}
 /* div.card:hover {
     margin-top: -120px;
 }
@@ -73,7 +80,6 @@ div.piles-container {
 }
 div.pile {
     display: inline-block;
-    padding: 1vw;
     vertical-align: top;
 }
 
@@ -90,7 +96,7 @@ div.spaces-container {
     margin-left: 4vw;
 }
 div.card-space {
-    margin-top: -9vw;
+    margin-top: -10vw;
     position: relative;
 }
 
@@ -107,6 +113,6 @@ div.homes-container {
     margin-left: calc(100vw - 44vw - 4vw);
 }
 div.card-home {
-    margin-top: -9vw;
+    margin-top: -10vw;
     position: relative;
 }
