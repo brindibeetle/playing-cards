@@ -1,7 +1,7 @@
 module Home exposing (..)
 
 import Array exposing (Array)
-import Card exposing (Card, cardPlaceholder)
+import Card exposing (Card, cardPlaceholder, cardsSuccessiveHome)
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
 import Html5.DragDrop as DragDrop
@@ -31,7 +31,7 @@ numberOfHomes = 4
 -- ####
 
 
-type alias DragHelper msg =
+type alias Helper msg =
     { maybeDraggedCard : Maybe Card, draggedNumberOfCards : Int, droppableAttribute : Int -> List (Attribute msg) }
 
 
@@ -40,16 +40,16 @@ type alias DragHelper msg =
 -- ####
 
 
-view : Model -> DragHelper msg -> Html msg
-view model dragHelper =
+view : Model -> Helper msg -> Html msg
+view model helper =
     div [ class "homes-container" ]
-        ( Array.indexedMap (viewHome dragHelper) model.homes |> Array.toList )
+        ( Array.indexedMap (viewHome helper) model.homes |> Array.toList )
 
 
-viewHome : DragHelper msg -> Int -> Maybe Card -> Html msg
-viewHome dragHelper index maybeCard =
+viewHome : Helper msg -> Int -> Maybe Card -> Html msg
+viewHome helper index maybeCard =
     let
-        { maybeDraggedCard, draggedNumberOfCards, droppableAttribute } = dragHelper
+        { maybeDraggedCard, draggedNumberOfCards, droppableAttribute } = helper
 
         cardsSuccessive =
             case maybeDraggedCard of
@@ -102,3 +102,24 @@ pushCard homeId card model =
     { model
     | homes = Array.set homeId ( Just card ) model.homes
     }
+
+
+canReceiveCard : Card -> Model -> Maybe Int
+canReceiveCard card { homes } =
+    Array.indexedMap
+        ( \homeId maybeCard -> (homeId, maybeCard) )
+        homes
+    |>
+    Array.foldl
+        ( \(homeId, maybeCard) maybeHomeId ->
+            case maybeHomeId of
+                Nothing ->
+                    if ( cardsSuccessiveHome maybeCard card ) then
+                        Just homeId
+                    else
+                        Nothing
+
+                Just _ ->
+                    maybeHomeId
+        )
+        Nothing

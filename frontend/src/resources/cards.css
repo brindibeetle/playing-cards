@@ -36,7 +36,7 @@ div.card-pile {
     margin-top: -7vw;
     position: relative;
 }
-div.card-pile-top {
+div.card-pile-bottom {
     margin-top: -10vw;
 }
 div.card-placeholder {
@@ -60,7 +60,7 @@ div.card:drag {
     border-top: 1px solid green;
     border-radius: 6%;
  } */
-div.card-pile-top:hover {
+div.card-pile-bottom:hover {
     /* margin-top: -0px; */
 }
 

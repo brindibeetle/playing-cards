@@ -2,11 +2,11 @@ module Pile exposing (..)
 
 import Array as Array exposing (..)
 
+import Basics as Math
 import Card exposing (..)
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
-import Html5.DragDrop as DragDrop
-import Json.Decode as Json exposing (Value)
+import Html.Events exposing (onDoubleClick)
 
 
 --  ####
@@ -194,13 +194,30 @@ getNumberOfCards pileIndex cardIndex model =
         Just pile ->
             Array.length pile - cardIndex
 
+
+getEmptyPiles : Model -> Int
+getEmptyPiles { piles } =
+    Array.foldl
+        ( \pile i -> if Array.isEmpty pile then i + 1 else i )
+        0
+        piles
+
 -- ####
--- ####    DRAGHELPER
+-- ####    HELPER
 -- ####
 
 
-type alias DragHelper msg =
-    { maybeDragFromPileId : Maybe Int, maybeDragFromCardId : Maybe Int, maybeDragCard : Maybe Card, droppableAttribute : Int -> List (Attribute msg), draggableAttribute : ( Int, Int ) -> List (Attribute msg) }
+type alias Helper msg =
+    { maybeDragFromPileId : Maybe Int
+    , maybeDragFromCardId : Maybe Int
+    , maybeDragCard : Maybe Card
+    , draggedNumberOfCards : Int
+    , droppableAttribute : Int -> List (Attribute msg)
+    , draggableAttribute : ( Int, Int ) -> List (Attribute msg)
+    , emptyPiles : Int
+    , emptySpaces : Int
+    , clickToSendHome : Int -> Card -> Attribute msg
+    }
 
 
 -- ####
@@ -208,103 +225,107 @@ type alias DragHelper msg =
 -- ####
 
 
-view : Model -> DragHelper msg -> Html msg
-view model dragHelper =
+view : Model -> Helper msg -> Html msg
+view model helper =
     div [ class "piles-container" ]
-        ( viewPiles model.piles dragHelper )
+        ( viewPiles model.piles helper )
 
 
-viewPiles : Array Pile -> DragHelper msg -> List (Html msg)
-viewPiles piles dragHelper =
-    Array.indexedMap ( viewPile dragHelper ) piles |> Array.toList
+viewPiles : Array Pile -> Helper msg -> List (Html msg)
+viewPiles piles helper =
+    Array.indexedMap ( viewPile helper ) piles |> Array.toList
 
 
-viewPile : DragHelper msg -> Int -> Pile -> Html msg
-viewPile dragHelper pileIndex pile =
+draggableCards : Int -> Int -> Int
+draggableCards emptySpaces emptyPiles =
+    if emptyPiles == 0 then
+        emptySpaces + 1
+    else
+        2 * draggableCards emptySpaces ( emptyPiles - 1)
+
+
+viewPile : Helper msg -> Int -> Pile -> Html msg
+viewPile helper pileIndex pile =
     let
-        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, droppableAttribute } = Debug.log "viewPile dragHelper" dragHelper
-        draggableFrom = canBeDraggedFrom pile
+        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, draggedNumberOfCards, droppableAttribute, emptyPiles, emptySpaces } = Debug.log "viewPile helper" helper
+        draggableFrom1 =  Debug.log "canBeDraggedFrom pileIndex" pileIndex
+        draggableFrom2 =  Debug.log "canBeDraggedFrom pile" ( canBeDraggedFrom pile )
+        a = Debug.log  ("draggableCards emptySpaces = " ++ String.fromInt emptySpaces ++ ", emptyPiles = " ++ String.fromInt emptyPiles ) ( draggableCards emptySpaces emptyPiles )
+        draggableFrom =  Math.max ( canBeDraggedFrom pile ) ( Array.length pile - ( draggableCards emptySpaces emptyPiles ) )
     in
         case maybeDragCard of
             Just draggedCard ->
+                -- cards may go back on pile where they came from :
                 if pileIndex == ( Maybe.withDefault 99 maybeDragFromPileId ) then
                     div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
                         [ cardPlaceholder
-                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom maybeDragFromCardId
+                        , viewCardsRecursively helper pileIndex 0 pile draggableFrom maybeDragFromCardId
                         ]
                 else
-                    if cardsSuccessivePile ( getTopCardOfPile pile ) draggedCard then
-                        div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
+                    -- if dropping on an empty pile, then you can drop less cards :
+                    if Array.isEmpty pile && draggedNumberOfCards > draggableCards emptySpaces ( emptyPiles - 1)  then
+                        div ( List.concat [ [ class "pile"] ] )
                         [ cardPlaceholder
-                        , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
+                        , viewCardsRecursively helper pileIndex 0 pile draggableFrom Nothing
                         ]
                     else
-                        div ( List.concat [ [ class "pile"] ] )
+                        if cardsSuccessivePile ( getTopCardOfPile pile ) draggedCard then
+                            div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
                             [ cardPlaceholder
-                            , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
+                            , viewCardsRecursively helper pileIndex 0 pile draggableFrom Nothing
                             ]
+                        else
+                            div ( List.concat [ [ class "pile"] ] )
+                                [ cardPlaceholder
+                                , viewCardsRecursively helper pileIndex 0 pile draggableFrom Nothing
+                                ]
             Nothing ->
                 div ( List.concat [ [ class "pile"] ] )
                     [ cardPlaceholder
-                    , viewCardsRecursively dragHelper pileIndex 0 pile draggableFrom Nothing
+                    , viewCardsRecursively helper pileIndex 0 pile draggableFrom Nothing
                     ]
 
 
-
-
-
-        --( List.concat
-        --    [
-        --        [ text ( "pile" ++ String.fromInt pileIndex ) ]
-        --        , ( Array.indexedMap (\cardIndex card -> viewCardinPile card pileIndex cardIndex) pile ) |> Array.toList
-        --    ]
-        --)
-
-viewCardsRecursively : DragHelper msg -> Int -> Int -> Array Card -> Int -> Maybe Int -> Html msg
-viewCardsRecursively dragHelper pileIndex cardIndex cards draggableFrom maybeDragFromCardId =
+viewCardsRecursively : Helper msg -> Int -> Int -> Array Card -> Int -> Maybe Int -> Html msg
+viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFromCardId =
     let
+        { draggableAttribute, clickToSendHome } = helper
         draggableAttributes =
             if cardIndex >= draggableFrom then
                 class "card-draggable" ::  draggableAttribute ( pileIndex, cardIndex )
             else
                 []
-        { draggableAttribute } = dragHelper
-    in
+        cardHide =
+             if cardIndex >= ( maybeDragFromCardId |> Maybe.withDefault 99 ) then
+                 " card-hide"
+             else
+                 ""
+        cardBottom =
+              if cardIndex == 0 then
+                 " card-pile-bottom"
+              else
+                 ""
+     in
         case Array.get cardIndex cards of
             Nothing ->
                 div [][]
             Just card ->
-                    let
-                        cardHide =
-                            if cardIndex >= ( maybeDragFromCardId |> Maybe.withDefault 99 ) then
-                                " card-hide"
-                            else
-                                ""
-                    in
-                        if cardIndex == 0 then
-                            div
-                                ( class ("card card-pile card-pile-top" ++ cardHide) :: draggableAttributes )
-                                [ Card.view card
-                                , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
-                                ]
-                        else
-                            div ( class ("card card-pile" ++ cardHide) :: draggableAttributes )
-                                [ Card.view card
-                                , viewCardsRecursively dragHelper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
+                let
+                    onClick =
+                          if cardIndex == Array.length cards - 1 then
+                             [ clickToSendHome pileIndex card ]
+                          else
+                             []
+                in
+                    div
+                        ( List.concat
+                            [
+                                [ ( class ("card card-pile" ++ cardBottom ++ cardHide)) ]
+                                , draggableAttributes
+                                , onClick
                             ]
-
---
---viewCardinPile : Card -> Int -> Int -> Html Msg
---viewCardinPile card pileIndex cardIndex =
---    if cardIndex == 0 then
---        div
---            [ class "card cardInPile cardInPileTop" ]
---            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
---            ]
---    else
---        div [ class "card cardInPile" ]
---            [ img ( List.concat [ [ getImage card, class "card"], DragDrop.draggable DragDropMsg ( pileIndex, cardIndex ) ] ) [ ]
---        --[ img [ getImage card, class "card"] [ ]
---        ]
-
+                        )
+                        [ Card.view card
+                        , viewCardsRecursively helper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
+                        ]
 

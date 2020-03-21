@@ -2,15 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00962ba3-65f1-47ff-8399-52f427e760c5" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Card.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Card.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Home.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Home.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Pile.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Pile.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Space.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Space.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -88,10 +91,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="608" y="139" width="759" height="762" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584018147986" />
-    <state x="667" y="276" width="586" height="488" key="find.popup" timestamp="1584303142102">
+    <state x="667" y="276" width="586" height="488" key="find.popup" timestamp="1584789480486">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584303142102" />
+    <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584789480486" />
     <state width="600" height="424" key="javadoc.popup" timestamp="1584290060589">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -100,9 +103,9 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584296219964" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1584273523607">
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1584800212191">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584273523607" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584800212191" />
   </component>
 </project>

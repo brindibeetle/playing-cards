@@ -181,3 +181,4 @@ cardsSuccessiveHome maybeCard nextCard =
             &&
             getRank card + 1 == getRank nextCard
 
+

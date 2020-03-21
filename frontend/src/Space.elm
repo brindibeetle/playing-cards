@@ -20,33 +20,48 @@ init =
         , dragDrop = DragDrop.init
     }
 
+
 numberOfSpaces : Int
 numberOfSpaces = 4
 
 
+getEmptySpaces : Model -> Int
+getEmptySpaces { spaces } =
+    Array.foldl
+        ( \space i -> if space == Nothing then i + 1 else i )
+        0
+        spaces
+
+
 -- ####
--- ####    DRAGHELPER
+-- ####    HELPER
 -- ####
 
 
-type alias DragHelper msg =
-    { maybeDragFromSpaceId : Maybe Int, draggedNumberOfCards : Int, droppableAttribute : Int -> List (Attribute msg), draggableAttribute : Int -> List (Attribute msg) }
+type alias Helper msg =
+    { maybeDragFromSpaceId : Maybe Int
+    , draggedNumberOfCards : Int
+    , droppableAttribute : Int -> List (Attribute msg)
+    , draggableAttribute : Int -> List (Attribute msg)
+    , clickToSendHomeFromSpace : Int -> Card -> Attribute msg
+    }
 
 
 -- ####
 -- ####    VIEW
 -- ####
 
-view : Model -> DragHelper msg -> Html msg
-view model dragHelper =
+
+view : Model -> Helper msg -> Html msg
+view model helper =
     div [ class "spaces-container" ]
-        ( Array.indexedMap (viewSpace dragHelper) model.spaces |> Array.toList )
+        ( Array.indexedMap (viewSpace helper) model.spaces |> Array.toList )
 
 
-viewSpace : DragHelper msg -> Int -> Maybe Card -> Html msg
-viewSpace dragHelper index maybeCard =
+viewSpace : Helper msg -> Int -> Maybe Card -> Html msg
+viewSpace helper index maybeCard =
     let
-        { maybeDragFromSpaceId, draggedNumberOfCards, droppableAttribute, draggableAttribute } = dragHelper
+        { maybeDragFromSpaceId, draggedNumberOfCards, droppableAttribute, draggableAttribute, clickToSendHomeFromSpace } = helper
     in
     case maybeCard  of
         Nothing ->
@@ -64,14 +79,14 @@ viewSpace dragHelper index maybeCard =
                 div ( List.append ( draggableAttribute index ) ( droppableAttribute index ) )
                     [ cardPlaceholder
                     , div
-                        [ class "card-space" ]
+                        [ class "card-space card-hide", clickToSendHomeFromSpace index card ]
                         [ Card.view card ]
                     ]
             else
                 div ( draggableAttribute index )
                     [ cardPlaceholder
                     , div
-                        [ class "card-space" ]
+                        [ class "card-space", clickToSendHomeFromSpace index card ]
                         [ Card.view card ]
                     ]
 

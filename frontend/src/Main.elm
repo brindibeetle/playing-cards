@@ -1,11 +1,10 @@
 port module Main exposing (main)
 
-import Array exposing (Array)
 import Browser exposing (Document, UrlRequest)
 import CardsCDN
 import Home
 import Html exposing (..)
-import Html.Attributes exposing (class, src)
+import Html.Events exposing (onDoubleClick)
 import Html5.DragDrop as DragDrop exposing (..)
 import Card exposing (..)
 import Json.Decode
@@ -75,9 +74,9 @@ view : Model -> Document Msg
 view model =
     let
         a = Debug.log "getDragId" ( DragDrop.getDragId model.dragDrop )
-        dragHelpForPile = Debug.log "dragHelpForPile" ( dragHelperForPile ( DragDrop.getDragId model.dragDrop ) model )
-        dragHelpForHome = Debug.log "dragHelpForHome" ( dragHelperForHome ( DragDrop.getDragId model.dragDrop ) model )
-        dragHelpForSpace = Debug.log "dragHelpForSpace" ( dragHelperForSpace ( DragDrop.getDragId model.dragDrop ) model )
+        helpForPile = Debug.log "helpForPile" ( helperForPile ( DragDrop.getDragId model.dragDrop ) model )
+        helpForHome = Debug.log "helpForHome" ( helperForHome ( DragDrop.getDragId model.dragDrop ) model )
+        helpForSpace = Debug.log "helpForSpace" ( helperForSpace ( DragDrop.getDragId model.dragDrop ) model )
     in
         { title = "Cards"
         , body =
@@ -90,23 +89,27 @@ view model =
             else
                 [
                     CardsCDN.stylesheet
-                    , Space.view model.spacesModel dragHelpForSpace
-                    , Home.view model.homesModel dragHelpForHome
-                    , Pile.view model.pilesModel dragHelpForPile
+                    , Space.view model.spacesModel helpForSpace
+                    , Home.view model.homesModel helpForHome
+                    , Pile.view model.pilesModel helpForPile
                 ]
         }
 
 
-dragHelperForPile : Maybe From -> Model -> Pile.DragHelper Msg
-dragHelperForPile maybeFrom model =
+helperForPile : Maybe From -> Model -> Pile.Helper Msg
+helperForPile maybeFrom model =
     case maybeFrom of
         Just ( PileFrom pileIndex cardIndex ) ->
             {
                 maybeDragFromPileId = Just pileIndex
                 , maybeDragFromCardId = Just cardIndex
                 , maybeDragCard = Pile.getCard pileIndex cardIndex model.pilesModel
+                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles
+                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
+                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
+                , clickToSendHome = clickToSendHomeFromPile
             }
 
         Just ( SpaceFrom spaceIndex ) ->
@@ -114,8 +117,12 @@ dragHelperForPile maybeFrom model =
                 maybeDragFromPileId = Nothing
                 , maybeDragFromCardId = Nothing
                 , maybeDragCard = Space.getCard spaceIndex model.spacesModel
+                , draggedNumberOfCards = 1
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles
+                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
+                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
+                , clickToSendHome = clickToSendHomeFromPile
             }
 
         _ ->
@@ -123,13 +130,17 @@ dragHelperForPile maybeFrom model =
                 maybeDragFromPileId = Nothing
                 , maybeDragFromCardId = Nothing
                 , maybeDragCard = Nothing
+                , draggedNumberOfCards = 0
                 , droppableAttribute = droppablePiles
                 , draggableAttribute = draggablePiles
-            }
+                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
+                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
+                , clickToSendHome = clickToSendHomeFromPile
+              }
 
 
-dragHelperForSpace : Maybe From -> Model -> Space.DragHelper Msg
-dragHelperForSpace maybeFrom model =
+helperForSpace : Maybe From -> Model -> Space.Helper Msg
+helperForSpace maybeFrom model =
     case maybeFrom of
         Just ( PileFrom pileIndex cardIndex ) ->
             {
@@ -137,6 +148,7 @@ dragHelperForSpace maybeFrom model =
                 , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
                 , droppableAttribute = droppableSpaces
                 , draggableAttribute = draggableSpaces
+                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
             }
 
         Just ( SpaceFrom spaceIndex ) ->
@@ -145,6 +157,7 @@ dragHelperForSpace maybeFrom model =
                 , draggedNumberOfCards = 1
                 , droppableAttribute = droppableSpaces
                 , draggableAttribute = draggableSpaces
+                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
             }
 
         _ ->
@@ -153,11 +166,12 @@ dragHelperForSpace maybeFrom model =
                 , draggedNumberOfCards = 0
                 , droppableAttribute = droppableSpaces
                 , draggableAttribute = draggableSpaces
+                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
             }
 
 
-dragHelperForHome : Maybe From -> Model -> Home.DragHelper Msg
-dragHelperForHome maybeFrom model =
+helperForHome : Maybe From -> Model -> Home.Helper Msg
+helperForHome maybeFrom model =
     case maybeFrom of
         Just ( PileFrom pileIndex cardIndex ) ->
             {
@@ -206,6 +220,14 @@ droppableHomes spaceIndex =
     DragDrop.droppable DragDropMsg (HomeTo spaceIndex)
 
 
+clickToSendHomeFromPile : Int -> Card -> Attribute Msg
+clickToSendHomeFromPile pileIndex card =
+    onDoubleClick ( SentHomeFromPileMsg pileIndex card )
+
+
+clickToSendHomeFromSpace : Int -> Card -> Attribute Msg
+clickToSendHomeFromSpace homeIndex card =
+    onDoubleClick ( SentHomeFromSpaceMsg homeIndex card )
 
 -- #####
 -- #####   UPDATE
@@ -217,6 +239,8 @@ port dragstart : Json.Decode.Value -> Cmd msg
 type Msg
     = ShuffleMsg Shuffle.Msg
     | DragDropMsg (DragDrop.Msg From To)
+    | SentHomeFromPileMsg Int Card
+    | SentHomeFromSpaceMsg Int Card
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -330,4 +354,33 @@ update msg model =
                         |> Maybe.map (.event >> dragstart)
                         |> Maybe.withDefault Cmd.none
                 )
+
+        SentHomeFromPileMsg pileIndex card ->
+            case Home.canReceiveCard card model.homesModel of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just index ->
+                    (
+                        { model
+                        | pilesModel = Pile.pullCard pileIndex model.pilesModel
+                        , homesModel = Home.pushCard index card model.homesModel
+                        }
+                        , Cmd.none
+                    )
+
+        SentHomeFromSpaceMsg homeIndex card ->
+            case Home.canReceiveCard card model.homesModel of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just index ->
+                    (
+                        { model
+                        | spacesModel = Space.pullCard homeIndex model.spacesModel
+                        , homesModel = Home.pushCard index card model.homesModel
+                        }
+                        , Cmd.none
+                    )
+
 
