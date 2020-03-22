@@ -5274,6 +5274,7 @@ var $author$project$Card$Spades = {$: 'Spades'};
 var $author$project$Card$allSuits = _List_fromArray(
 	[$author$project$Card$Spades, $author$project$Card$Hearts, $author$project$Card$Clubs, $author$project$Card$Diamonds]);
 var $author$project$Card$allCards = A3($elm$core$List$foldl, $author$project$Card$addCardsofSuit, _List_Nil, $author$project$Card$allSuits);
+var $author$project$Distribute$init = {distributingDone: false, distributorCardIndex: 0, pile: $elm$core$Array$empty, piles: $elm$core$Array$empty};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 'NotDragging'};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Home$numberOfHomes = 4;
@@ -5290,181 +5291,33 @@ var $author$project$Home$init = {
 	dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
 	homes: A2($elm$core$Array$repeat, $author$project$Home$numberOfHomes, $elm$core$Maybe$Nothing)
 };
-var $author$project$Pile$init = {piles: $elm$core$Array$empty};
-var $elm$core$Array$length = function (_v0) {
-	var len = _v0.a;
-	return len;
+var $author$project$Pile$numberOfPiles = 8;
+var $author$project$Pile$init = {
+	piles: A2($elm$core$Array$repeat, $author$project$Pile$numberOfPiles, $elm$core$Array$empty)
 };
-var $author$project$Shuffle$Shuffle = function (a) {
-	return {$: 'Shuffle', a: a};
-};
-var $elm$random$Random$Generate = function (a) {
-	return {$: 'Generate', a: a};
-};
-var $elm$random$Random$Seed = F2(
-	function (a, b) {
-		return {$: 'Seed', a: a, b: b};
+var $author$project$Shuffle$DoRandom = {$: 'DoRandom'};
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
 	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$random$Random$next = function (_v0) {
-	var state0 = _v0.a;
-	var incr = _v0.b;
-	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
-};
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
-};
-var $elm$time$Time$Name = function (a) {
-	return {$: 'Name', a: a};
-};
-var $elm$time$Time$Offset = function (a) {
-	return {$: 'Offset', a: a};
-};
-var $elm$time$Time$Zone = F2(
-	function (a, b) {
-		return {$: 'Zone', a: a, b: b};
-	});
-var $elm$time$Time$customZone = $elm$time$Time$Zone;
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
-var $elm$time$Time$posixToMillis = function (_v0) {
-	var millis = _v0.a;
-	return millis;
-};
-var $elm$random$Random$init = A2(
-	$elm$core$Task$andThen,
-	function (time) {
-		return $elm$core$Task$succeed(
-			$elm$random$Random$initialSeed(
-				$elm$time$Time$posixToMillis(time)));
-	},
-	$elm$time$Time$now);
-var $elm$random$Random$step = F2(
-	function (_v0, seed) {
-		var generator = _v0.a;
-		return generator(seed);
-	});
-var $elm$random$Random$onEffects = F3(
-	function (router, commands, seed) {
-		if (!commands.b) {
-			return $elm$core$Task$succeed(seed);
-		} else {
-			var generator = commands.a.a;
-			var rest = commands.b;
-			var _v1 = A2($elm$random$Random$step, generator, seed);
-			var value = _v1.a;
-			var newSeed = _v1.b;
-			return A2(
-				$elm$core$Task$andThen,
-				function (_v2) {
-					return A3($elm$random$Random$onEffects, router, rest, newSeed);
-				},
-				A2($elm$core$Platform$sendToApp, router, value));
-		}
-	});
-var $elm$random$Random$onSelfMsg = F3(
-	function (_v0, _v1, seed) {
-		return $elm$core$Task$succeed(seed);
-	});
-var $elm$random$Random$Generator = function (a) {
-	return {$: 'Generator', a: a};
-};
-var $elm$random$Random$map = F2(
-	function (func, _v0) {
-		var genA = _v0.a;
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var _v1 = genA(seed0);
-				var a = _v1.a;
-				var seed1 = _v1.b;
-				return _Utils_Tuple2(
-					func(a),
-					seed1);
-			});
-	});
-var $elm$random$Random$cmdMap = F2(
-	function (func, _v0) {
-		var generator = _v0.a;
-		return $elm$random$Random$Generate(
-			A2($elm$random$Random$map, func, generator));
-	});
-_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
-var $elm$random$Random$command = _Platform_leaf('Random');
-var $elm$random$Random$generate = F2(
-	function (tagger, generator) {
-		return $elm$random$Random$command(
-			$elm$random$Random$Generate(
-				A2($elm$random$Random$map, tagger, generator)));
-	});
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Bitwise$xor = _Bitwise_xor;
-var $elm$random$Random$peel = function (_v0) {
-	var state = _v0.a;
-	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
-	return ((word >>> 22) ^ word) >>> 0;
-};
-var $elm$random$Random$int = F2(
-	function (a, b) {
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
-				var lo = _v0.a;
-				var hi = _v0.b;
-				var range = (hi - lo) + 1;
-				if (!((range - 1) & range)) {
-					return _Utils_Tuple2(
-						(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
-						$elm$random$Random$next(seed0));
-				} else {
-					var threshhold = (((-range) >>> 0) % range) >>> 0;
-					var accountForBias = function (seed) {
-						accountForBias:
-						while (true) {
-							var x = $elm$random$Random$peel(seed);
-							var seedN = $elm$random$Random$next(seed);
-							if (_Utils_cmp(x, threshhold) < 0) {
-								var $temp$seed = seedN;
-								seed = $temp$seed;
-								continue accountForBias;
-							} else {
-								return _Utils_Tuple2((x % range) + lo, seedN);
-							}
-						}
-					};
-					return accountForBias(seed0);
-				}
-			});
-	});
-var $author$project$Shuffle$randomShuffle = function (pileLength) {
+var $elm$core$Process$sleep = _Process_sleep;
+var $author$project$Shuffle$randomShuffle = function (turn) {
 	return A2(
-		$elm$random$Random$generate,
-		$author$project$Shuffle$Shuffle,
-		A2($elm$random$Random$int, 1, pileLength - 1));
+		$elm$core$Task$perform,
+		$elm$core$Basics$always($author$project$Shuffle$DoRandom),
+		$elm$core$Process$sleep(
+			(!turn) ? 1300 : 200));
 };
 var $author$project$Shuffle$init = function (pile) {
 	return _Utils_Tuple2(
 		{pile: pile, shuffledTimes: 0, shufflingDone: false},
-		$author$project$Shuffle$randomShuffle(
-			$elm$core$Array$length(pile)));
+		$author$project$Shuffle$randomShuffle(0));
 };
 var $author$project$Space$numberOfSpaces = 4;
 var $author$project$Space$init = {
 	dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
 	spaces: A2($elm$core$Array$repeat, $author$project$Space$numberOfSpaces, $elm$core$Maybe$Nothing)
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
 		fromListHelp:
@@ -5509,15 +5362,17 @@ var $author$project$Main$init = function (flags) {
 		$author$project$Pile$makePile($author$project$Card$allCards));
 	var shuffleModel = _v0.a;
 	var shuffleCmd = _v0.b;
-	var shuffleCmd1 = A2($elm$core$Debug$log, 'shuffleCmd', shuffleCmd);
-	var shuffleModel1 = A2($elm$core$Debug$log, 'shuffleModel', shuffleModel);
 	return _Utils_Tuple2(
-		{dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, homesModel: $author$project$Home$init, pilesModel: $author$project$Pile$init, shuffleModel: shuffleModel, spacesModel: $author$project$Space$init},
+		{distributeModel: $author$project$Distribute$init, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, homesModel: $author$project$Home$init, pilesModel: $author$project$Pile$init, shuffleModel: shuffleModel, spacesModel: $author$project$Space$init},
 		A2($elm$core$Platform$Cmd$map, $author$project$Main$ShuffleMsg, shuffleCmd));
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$DistributeMsg = function (a) {
+	return {$: 'DistributeMsg', a: a};
+};
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $author$project$Card$getRank = function (_v0) {
 	var rank = _v0.rank;
 	switch (rank.$) {
@@ -5589,6 +5444,7 @@ var $elm$core$Array$foldl = F3(
 	});
 var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
 var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var $elm$core$Array$tailIndex = function (len) {
 	return (len >>> 5) << 5;
 };
@@ -5657,7 +5513,44 @@ var $elm$core$Basics$composeR = F3(
 		return g(
 			f(x));
 	});
+var $author$project$Main$SentAllHomeFromPileMsg = function (a) {
+	return {$: 'SentAllHomeFromPileMsg', a: a};
+};
+var $author$project$Main$SentAllHomeFromSpaceMsg = function (a) {
+	return {$: 'SentAllHomeFromSpaceMsg', a: a};
+};
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Home$playingDone = function (model) {
+	return A3(
+		$elm$core$Array$foldl,
+		F2(
+			function (maybeCard, done) {
+				if (maybeCard.$ === 'Nothing') {
+					return false;
+				} else {
+					var card = maybeCard.a;
+					return done && _Utils_eq(card.rank, $author$project$Card$King);
+				}
+			}),
+		true,
+		model.homes);
+};
+var $author$project$Main$doSentHomeAll = F2(
+	function (model, _int) {
+		var chooser = A2($elm$core$Basics$modBy, 12, _int);
+		return $author$project$Home$playingDone(model.homesModel) ? $elm$core$Platform$Cmd$none : ((chooser < 8) ? A2(
+			$elm$core$Task$perform,
+			$elm$core$Basics$always(
+				$author$project$Main$SentAllHomeFromPileMsg(chooser)),
+			$elm$core$Process$sleep(40)) : A2(
+			$elm$core$Task$perform,
+			$elm$core$Basics$always(
+				$author$project$Main$SentAllHomeFromSpaceMsg(chooser)),
+			$elm$core$Process$sleep(40)));
+	});
 var $author$project$Main$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
+var $elm$core$Bitwise$and = _Bitwise_and;
 var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
 var $elm$core$Basics$ge = _Utils_ge;
 var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
@@ -5694,7 +5587,86 @@ var $elm$core$Array$get = F2(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
-var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$Space$getCard = F2(
+	function (spaceId, model) {
+		var _v0 = A2($elm$core$Array$get, spaceId, model.spaces);
+		if (_v0.$ === 'Nothing') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var maybeCard = _v0.a;
+			return maybeCard;
+		}
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg) {
+	if (msg.$ === 'DragStart') {
+		var dragId = msg.a;
+		var event = msg.b;
+		return $elm$core$Maybe$Just(
+			{dragId: dragId, event: event});
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Array$length = function (_v0) {
+	var len = _v0.a;
+	return len;
+};
+var $author$project$Pile$getTopCardOfPile = function (pile) {
+	return A2(
+		$elm$core$Array$get,
+		$elm$core$Array$length(pile) - 1,
+		pile);
+};
+var $author$project$Pile$getTopCard = F2(
+	function (pileIndex, model) {
+		return A2(
+			$elm$core$Maybe$andThen,
+			$author$project$Pile$getTopCardOfPile,
+			A2($elm$core$Array$get, pileIndex, model.piles));
+	});
+var $elm$core$Debug$log = _Debug_log;
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
+var $elm$core$Elm$JsArray$slice = _JsArray_slice;
+var $elm$core$Array$appendHelpBuilder = F2(
+	function (tail, builder) {
+		var tailLen = $elm$core$Elm$JsArray$length(tail);
+		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
+		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
+		return (notAppended < 0) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
+		} : ((!notAppended) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: $elm$core$Elm$JsArray$empty
+		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
+	});
 var $elm$core$Elm$JsArray$push = _JsArray_push;
 var $elm$core$Elm$JsArray$singleton = _JsArray_singleton;
 var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
@@ -5765,174 +5737,6 @@ var $elm$core$Array$unsafeReplaceTail = F2(
 		} else {
 			return A4($elm$core$Array$Array_elm_builtin, newArrayLen, startShift, tree, newTail);
 		}
-	});
-var $elm$core$Array$push = F2(
-	function (a, array) {
-		var tail = array.d;
-		return A2(
-			$elm$core$Array$unsafeReplaceTail,
-			A2($elm$core$Elm$JsArray$push, a, tail),
-			array);
-	});
-var $elm$core$Array$setHelp = F4(
-	function (shift, index, value, tree) {
-		var pos = $elm$core$Array$bitMask & (index >>> shift);
-		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-		if (_v0.$ === 'SubTree') {
-			var subTree = _v0.a;
-			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$SubTree(newSub),
-				tree);
-		} else {
-			var values = _v0.a;
-			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
-			return A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				pos,
-				$elm$core$Array$Leaf(newLeaf),
-				tree);
-		}
-	});
-var $elm$core$Array$set = F3(
-	function (index, value, array) {
-		var len = array.a;
-		var startShift = array.b;
-		var tree = array.c;
-		var tail = array.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			tree,
-			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
-			$elm$core$Array$Array_elm_builtin,
-			len,
-			startShift,
-			A4($elm$core$Array$setHelp, startShift, index, value, tree),
-			tail));
-	});
-var $author$project$Pile$distributeCardToPile = F2(
-	function (card, _v0) {
-		var piles = _v0.a;
-		var pileIndex = _v0.b;
-		var _v1 = A2($elm$core$Array$get, pileIndex, piles);
-		if (_v1.$ === 'Nothing') {
-			return _Utils_Tuple2(
-				piles,
-				A2(
-					$elm$core$Basics$modBy,
-					$elm$core$Array$length(piles),
-					pileIndex + 1));
-		} else {
-			var pile = _v1.a;
-			var pileIndex1 = A2(
-				$elm$core$Basics$modBy,
-				$elm$core$Array$length(piles),
-				pileIndex + 1);
-			var pile1 = A2($elm$core$Array$push, card, pile);
-			return _Utils_Tuple2(
-				A3($elm$core$Array$set, pileIndex, pile1, piles),
-				pileIndex1);
-		}
-	});
-var $author$project$Pile$distributeToPiles = F2(
-	function (pile, number) {
-		return A3(
-			$elm$core$Array$foldl,
-			$author$project$Pile$distributeCardToPile,
-			_Utils_Tuple2(
-				A2($elm$core$Array$repeat, number, $elm$core$Array$empty),
-				0),
-			pile).a;
-	});
-var $author$project$Pile$numberOfPiles = 8;
-var $author$project$Pile$fillPiles = F2(
-	function (model, pile) {
-		return _Utils_update(
-			model,
-			{
-				piles: A2($author$project$Pile$distributeToPiles, pile, $author$project$Pile$numberOfPiles)
-			});
-	});
-var $author$project$Space$getCard = F2(
-	function (spaceId, model) {
-		var _v0 = A2($elm$core$Array$get, spaceId, model.spaces);
-		if (_v0.$ === 'Nothing') {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var maybeCard = _v0.a;
-			return maybeCard;
-		}
-	});
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg) {
-	if (msg.$ === 'DragStart') {
-		var dragId = msg.a;
-		var event = msg.b;
-		return $elm$core$Maybe$Just(
-			{dragId: dragId, event: event});
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$Pile$getTopCardOfPile = function (pile) {
-	return A2(
-		$elm$core$Array$get,
-		$elm$core$Array$length(pile) - 1,
-		pile);
-};
-var $author$project$Pile$getTopCard = F2(
-	function (pileIndex, model) {
-		return A2(
-			$elm$core$Maybe$andThen,
-			$author$project$Pile$getTopCardOfPile,
-			A2($elm$core$Array$get, pileIndex, model.piles));
-	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
-var $elm$core$Elm$JsArray$slice = _JsArray_slice;
-var $elm$core$Array$appendHelpBuilder = F2(
-	function (tail, builder) {
-		var tailLen = $elm$core$Elm$JsArray$length(tail);
-		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
-		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
-		return (notAppended < 0) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
-		} : ((!notAppended) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: $elm$core$Elm$JsArray$empty
-		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
 	});
 var $elm$core$Array$appendHelpTree = F2(
 	function (toAppend, array) {
@@ -6223,17 +6027,54 @@ var $author$project$Pile$moveCard2 = F2(
 			index,
 			$elm$core$Array$length(pileFrom),
 			pileFrom);
-		var cards1 = A2(
-			$elm$core$Debug$log,
-			'cardslength',
-			$elm$core$Array$length(cards));
 		return _Utils_Tuple2(
 			A3($elm$core$Array$slice, 0, index, pileFrom),
 			A2($elm$core$Array$append, pileTo, cards));
 	});
+var $elm$core$Array$setHelp = F4(
+	function (shift, index, value, tree) {
+		var pos = $elm$core$Array$bitMask & (index >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+		if (_v0.$ === 'SubTree') {
+			var subTree = _v0.a;
+			var newSub = A4($elm$core$Array$setHelp, shift - $elm$core$Array$shiftStep, index, value, subTree);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$SubTree(newSub),
+				tree);
+		} else {
+			var values = _v0.a;
+			var newLeaf = A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, values);
+			return A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				pos,
+				$elm$core$Array$Leaf(newLeaf),
+				tree);
+		}
+	});
+var $elm$core$Array$set = F3(
+	function (index, value, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? array : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			tree,
+			A3($elm$core$Elm$JsArray$unsafeSet, $elm$core$Array$bitMask & index, value, tail)) : A4(
+			$elm$core$Array$Array_elm_builtin,
+			len,
+			startShift,
+			A4($elm$core$Array$setHelp, startShift, index, value, tree),
+			tail));
+	});
 var $author$project$Pile$moveCard = F4(
 	function (pileIndexFrom, index, pileIndexTo, model) {
-		var cards = A2($elm$core$Debug$log, 'moveCard pileIndexFrom', pileIndexFrom);
 		if (_Utils_eq(pileIndexFrom, pileIndexTo)) {
 			return model;
 		} else {
@@ -6287,8 +6128,50 @@ var $author$project$Space$moveCard = F3(
 				});
 		}
 	});
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Pile$playingDonePileHelper = F2(
+	function (card, _v0) {
+		var okay = _v0.a;
+		var maybeLastCard = _v0.b;
+		var _v1 = _Utils_Tuple2(okay, maybeLastCard);
+		if (!_v1.a) {
+			return _Utils_Tuple2(
+				false,
+				$elm$core$Maybe$Just(card));
+		} else {
+			if (_v1.b.$ === 'Nothing') {
+				var _v2 = _v1.b;
+				return _Utils_Tuple2(
+					true,
+					$elm$core$Maybe$Just(card));
+			} else {
+				var lastCard = _v1.b.a;
+				return _Utils_Tuple2(
+					_Utils_cmp(
+						$author$project$Card$getRank(card),
+						$author$project$Card$getRank(lastCard)) < 1,
+					$elm$core$Maybe$Just(card));
+			}
+		}
+	});
+var $author$project$Pile$playingDonePile = F2(
+	function (cards, okay) {
+		return (!okay) ? false : A3(
+			$elm$core$Array$foldl,
+			$author$project$Pile$playingDonePileHelper,
+			_Utils_Tuple2(true, $elm$core$Maybe$Nothing),
+			cards).a;
+	});
+var $author$project$Pile$playingDone = function (_v0) {
+	var piles = _v0.piles;
+	return A2(
+		$elm$core$Debug$log,
+		'Pile.playingDone',
+		A3($elm$core$Array$foldl, $author$project$Pile$playingDonePile, true, piles));
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var $author$project$Pile$pullCard = F2(
 	function (pileIndex, model) {
 		var maybePile = A2(
@@ -6326,6 +6209,14 @@ var $author$project$Home$pushCard = F3(
 					model.homes)
 			});
 	});
+var $elm$core$Array$push = F2(
+	function (a, array) {
+		var tail = array.d;
+		return A2(
+			$elm$core$Array$unsafeReplaceTail,
+			A2($elm$core$Elm$JsArray$push, a, tail),
+			array);
+	});
 var $author$project$Pile$pushCard = F3(
 	function (pileIndex, card, model) {
 		var maybePile = A2(
@@ -6354,6 +6245,75 @@ var $author$project$Space$pushCard = F3(
 					$elm$core$Maybe$Just(card),
 					model.spaces)
 			});
+	});
+var $author$project$Pile$setPiles = F2(
+	function (model, piles) {
+		return _Utils_update(
+			model,
+			{piles: piles});
+	});
+var $author$project$Distribute$DoDistribute = {$: 'DoDistribute'};
+var $author$project$Distribute$distribute = function (index) {
+	return A2(
+		$elm$core$Task$perform,
+		$elm$core$Basics$always($author$project$Distribute$DoDistribute),
+		$elm$core$Process$sleep(
+			(!index) ? 800 : 80));
+};
+var $author$project$Distribute$start = function (pile) {
+	var model = {
+		distributingDone: false,
+		distributorCardIndex: 0,
+		pile: pile,
+		piles: A2($elm$core$Array$repeat, $author$project$Pile$numberOfPiles, $elm$core$Array$empty)
+	};
+	return _Utils_Tuple2(
+		model,
+		$author$project$Distribute$distribute(0));
+};
+var $author$project$Distribute$distributeCard = F3(
+	function (card, piles, pileIndex) {
+		var _v0 = A2($elm$core$Array$get, pileIndex, piles);
+		if (_v0.$ === 'Nothing') {
+			return piles;
+		} else {
+			var pile = _v0.a;
+			var pile1 = A2($elm$core$Array$push, card, pile);
+			return A3($elm$core$Array$set, pileIndex, pile1, piles);
+		}
+	});
+var $author$project$Distribute$getCurrentCard = F2(
+	function (cards, index) {
+		return A2($elm$core$Array$get, index, cards);
+	});
+var $author$project$Distribute$update = F2(
+	function (_v0, model) {
+		var _v1 = model;
+		var pile = _v1.pile;
+		var piles = _v1.piles;
+		var distributorCardIndex = _v1.distributorCardIndex;
+		var maybeCard = A2($author$project$Distribute$getCurrentCard, pile, distributorCardIndex);
+		var distributorPileIndex = A2(
+			$elm$core$Basics$modBy,
+			$elm$core$Array$length(piles),
+			distributorCardIndex);
+		if (maybeCard.$ === 'Nothing') {
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{distributingDone: true}),
+				$elm$core$Platform$Cmd$none);
+		} else {
+			var card = maybeCard.a;
+			return _Utils_Tuple2(
+				_Utils_update(
+					model,
+					{
+						distributorCardIndex: distributorCardIndex + 1,
+						piles: A3($author$project$Distribute$distributeCard, card, piles, distributorPileIndex)
+					}),
+				$author$project$Distribute$distribute(distributorCardIndex + 1));
+		}
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
 	function (a, b, c, d) {
@@ -6474,7 +6434,153 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon = F3(
 		return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$update = $norpan$elm_html5_drag_drop$Html5$DragDrop$updateCommon(false);
-var $elm$core$Basics$not = _Basics_not;
+var $author$project$Shuffle$Shuffle = function (a) {
+	return {$: 'Shuffle', a: a};
+};
+var $elm$random$Random$Generate = function (a) {
+	return {$: 'Generate', a: a};
+};
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 'Seed', a: a, b: b};
+	});
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var $elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
+var $elm$time$Time$posixToMillis = function (_v0) {
+	var millis = _v0.a;
+	return millis;
+};
+var $elm$random$Random$init = A2(
+	$elm$core$Task$andThen,
+	function (time) {
+		return $elm$core$Task$succeed(
+			$elm$random$Random$initialSeed(
+				$elm$time$Time$posixToMillis(time)));
+	},
+	$elm$time$Time$now);
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0.a;
+		return generator(seed);
+	});
+var $elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return $elm$core$Task$succeed(seed);
+		} else {
+			var generator = commands.a.a;
+			var rest = commands.b;
+			var _v1 = A2($elm$random$Random$step, generator, seed);
+			var value = _v1.a;
+			var newSeed = _v1.b;
+			return A2(
+				$elm$core$Task$andThen,
+				function (_v2) {
+					return A3($elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2($elm$core$Platform$sendToApp, router, value));
+		}
+	});
+var $elm$random$Random$onSelfMsg = F3(
+	function (_v0, _v1, seed) {
+		return $elm$core$Task$succeed(seed);
+	});
+var $elm$random$Random$Generator = function (a) {
+	return {$: 'Generator', a: a};
+};
+var $elm$random$Random$map = F2(
+	function (func, _v0) {
+		var genA = _v0.a;
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v1 = genA(seed0);
+				var a = _v1.a;
+				var seed1 = _v1.b;
+				return _Utils_Tuple2(
+					func(a),
+					seed1);
+			});
+	});
+var $elm$random$Random$cmdMap = F2(
+	function (func, _v0) {
+		var generator = _v0.a;
+		return $elm$random$Random$Generate(
+			A2($elm$random$Random$map, func, generator));
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
+var $elm$random$Random$command = _Platform_leaf('Random');
+var $elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return $elm$random$Random$command(
+			$elm$random$Random$Generate(
+				A2($elm$random$Random$map, tagger, generator)));
+	});
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$int = F2(
+	function (a, b) {
+		return $elm$random$Random$Generator(
+			function (seed0) {
+				var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+				var lo = _v0.a;
+				var hi = _v0.b;
+				var range = (hi - lo) + 1;
+				if (!((range - 1) & range)) {
+					return _Utils_Tuple2(
+						(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
+						$elm$random$Random$next(seed0));
+				} else {
+					var threshhold = (((-range) >>> 0) % range) >>> 0;
+					var accountForBias = function (seed) {
+						accountForBias:
+						while (true) {
+							var x = $elm$random$Random$peel(seed);
+							var seedN = $elm$random$Random$next(seed);
+							if (_Utils_cmp(x, threshhold) < 0) {
+								var $temp$seed = seedN;
+								seed = $temp$seed;
+								continue accountForBias;
+							} else {
+								return _Utils_Tuple2((x % range) + lo, seedN);
+							}
+						}
+					};
+					return accountForBias(seed0);
+				}
+			});
+	});
 var $author$project$Shuffle$shuffleOverhand = F2(
 	function (pile, numberOfCards) {
 		return A2(
@@ -6489,23 +6595,28 @@ var $author$project$Shuffle$shuffleOverhand = F2(
 					$elm$core$Array$toList(
 						A3($elm$core$Array$slice, 0, numberOfCards, pile)))));
 	});
-var $author$project$Shuffle$shuffleTimesTodo = 66;
+var $author$project$Shuffle$shuffleTimesTodo = 30;
 var $author$project$Shuffle$update = F2(
 	function (msg, model) {
-		var shufflingDoneA = A2($elm$core$Debug$log, 'shuffled', model.shufflingDone);
-		var shuffledTimesA = A2($elm$core$Debug$log, 'shuffledTimes', model.shuffledTimes);
-		var msgA = A2($elm$core$Debug$log, 'msg', msg);
-		var random = msg.a;
-		var shuffledTimes1 = model.shuffledTimes + 1;
-		var shufflingDone1 = _Utils_cmp(shuffledTimes1, $author$project$Shuffle$shuffleTimesTodo) > -1;
-		var pile1 = A2(
-			$elm$core$Debug$log,
-			'pile1',
-			A2($author$project$Shuffle$shuffleOverhand, model.pile, random));
-		return _Utils_Tuple2(
-			{pile: pile1, shuffledTimes: shuffledTimes1, shufflingDone: shufflingDone1},
-			(!shufflingDone1) ? $author$project$Shuffle$randomShuffle(
-				$elm$core$Array$length(pile1)) : $elm$core$Platform$Cmd$none);
+		if (msg.$ === 'DoRandom') {
+			return _Utils_Tuple2(
+				model,
+				A2(
+					$elm$random$Random$generate,
+					$author$project$Shuffle$Shuffle,
+					A2(
+						$elm$random$Random$int,
+						1,
+						$elm$core$Array$length(model.pile) - 1)));
+		} else {
+			var random = msg.a;
+			var shuffledTimes1 = model.shuffledTimes + 1;
+			var shufflingDone1 = _Utils_cmp(shuffledTimes1, $author$project$Shuffle$shuffleTimesTodo) > -1;
+			var pile1 = A2($author$project$Shuffle$shuffleOverhand, model.pile, random);
+			return _Utils_Tuple2(
+				{pile: pile1, shuffledTimes: shuffledTimes1, shufflingDone: shufflingDone1},
+				(!shufflingDone1) ? $author$project$Shuffle$randomShuffle(shuffledTimes1) : $elm$core$Platform$Cmd$none);
+		}
 	});
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -6518,167 +6629,223 @@ var $elm$core$Maybe$withDefault = F2(
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
+		var a = A2($elm$core$Debug$log, 'Main.update.msg', msg);
 		switch (msg.$) {
 			case 'ShuffleMsg':
 				var shuffleMsg = msg.a;
 				var _v1 = A2($author$project$Shuffle$update, shuffleMsg, model.shuffleModel);
 				var shuffleModel = _v1.a;
 				var shuffleCmd = _v1.b;
-				return shuffleModel.shufflingDone ? _Utils_Tuple2(
+				if (shuffleModel.shufflingDone) {
+					var _v2 = $author$project$Distribute$start(model.shuffleModel.pile);
+					var distributeModel = _v2.a;
+					var distributeCmd = _v2.b;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{distributeModel: distributeModel, shuffleModel: shuffleModel}),
+						A2($elm$core$Platform$Cmd$map, $author$project$Main$DistributeMsg, distributeCmd));
+				} else {
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{shuffleModel: shuffleModel}),
+						A2($elm$core$Platform$Cmd$map, $author$project$Main$ShuffleMsg, shuffleCmd));
+				}
+			case 'DistributeMsg':
+				var distributeMsg = msg.a;
+				var _v3 = A2($author$project$Distribute$update, distributeMsg, model.distributeModel);
+				var distributeModel = _v3.a;
+				var distributeCmd = _v3.b;
+				return distributeModel.distributingDone ? _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							pilesModel: A2($author$project$Pile$fillPiles, model.pilesModel, shuffleModel.pile),
-							shuffleModel: shuffleModel
+							distributeModel: distributeModel,
+							pilesModel: A2($author$project$Pile$setPiles, model.pilesModel, distributeModel.piles)
 						}),
 					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{shuffleModel: shuffleModel}),
-					A2($elm$core$Platform$Cmd$map, $author$project$Main$ShuffleMsg, shuffleCmd));
+						{
+							distributeModel: distributeModel,
+							pilesModel: A2($author$project$Pile$setPiles, model.pilesModel, distributeModel.piles)
+						}),
+					A2($elm$core$Platform$Cmd$map, $author$project$Main$DistributeMsg, distributeCmd));
 			case 'DragDropMsg':
 				var msg_ = msg.a;
-				var _v2 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.dragDrop);
-				var model_ = _v2.a;
-				var result = _v2.b;
-				var model12 = A2($elm$core$Debug$log, 'model', model_);
-				var result12 = A2($elm$core$Debug$log, 'result', result);
-				return _Utils_Tuple2(
-					function () {
-						if (result.$ === 'Nothing') {
-							return _Utils_update(
+				var _v4 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.dragDrop);
+				var dragDropModel = _v4.a;
+				var dragDropResult = _v4.b;
+				var _v5 = function () {
+					if (dragDropResult.$ === 'Nothing') {
+						return _Utils_Tuple2(
+							_Utils_update(
 								model,
-								{dragDrop: model_});
+								{dragDrop: dragDropModel}),
+							$elm$core$Platform$Cmd$none);
+					} else {
+						if (dragDropResult.a.a.$ === 'PileFrom') {
+							switch (dragDropResult.a.b.$) {
+								case 'PileTo':
+									var _v7 = dragDropResult.a;
+									var _v8 = _v7.a;
+									var pileFromId = _v8.a;
+									var cardFromId = _v8.b;
+									var pileToId = _v7.b.a;
+									var model2 = _Utils_update(
+										model,
+										{
+											dragDrop: dragDropModel,
+											pilesModel: A4($author$project$Pile$moveCard, pileFromId, cardFromId, pileToId, model.pilesModel)
+										});
+									return _Utils_Tuple2(
+										model2,
+										$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+								case 'SpaceTo':
+									var _v9 = dragDropResult.a;
+									var _v10 = _v9.a;
+									var pileFromId = _v10.a;
+									var spaceId = _v9.b.a;
+									var _v11 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
+									if (_v11.$ === 'Nothing') {
+										return _Utils_Tuple2(
+											_Utils_update(
+												model,
+												{dragDrop: dragDropModel}),
+											$elm$core$Platform$Cmd$none);
+									} else {
+										var card = _v11.a;
+										var model2 = _Utils_update(
+											model,
+											{
+												dragDrop: dragDropModel,
+												pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel),
+												spacesModel: A3($author$project$Space$pushCard, spaceId, card, model.spacesModel)
+											});
+										return _Utils_Tuple2(
+											model2,
+											$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+									}
+								default:
+									var _v15 = dragDropResult.a;
+									var _v16 = _v15.a;
+									var pileFromId = _v16.a;
+									var homeId = _v15.b.a;
+									var _v17 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
+									if (_v17.$ === 'Nothing') {
+										return _Utils_Tuple2(
+											_Utils_update(
+												model,
+												{dragDrop: dragDropModel}),
+											$elm$core$Platform$Cmd$none);
+									} else {
+										var card = _v17.a;
+										var model2 = _Utils_update(
+											model,
+											{
+												dragDrop: dragDropModel,
+												homesModel: A3($author$project$Home$pushCard, homeId, card, model.homesModel),
+												pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel)
+											});
+										return _Utils_Tuple2(
+											model2,
+											$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+									}
+							}
 						} else {
-							if (result.a.a.$ === 'PileFrom') {
-								switch (result.a.b.$) {
-									case 'PileTo':
-										var _v4 = result.a;
-										var _v5 = _v4.a;
-										var pileFromId = _v5.a;
-										var cardFromId = _v5.b;
-										var pileToId = _v4.b.a;
-										return _Utils_update(
+							switch (dragDropResult.a.b.$) {
+								case 'SpaceTo':
+									var _v12 = dragDropResult.a;
+									var spaceFromId = _v12.a.a;
+									var spaceToId = _v12.b.a;
+									return _Utils_Tuple2(
+										_Utils_update(
 											model,
 											{
-												dragDrop: model_,
-												pilesModel: A4($author$project$Pile$moveCard, pileFromId, cardFromId, pileToId, model.pilesModel)
-											});
-									case 'SpaceTo':
-										var _v6 = result.a;
-										var _v7 = _v6.a;
-										var pileFromId = _v7.a;
-										var spaceId = _v6.b.a;
-										var _v8 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
-										if (_v8.$ === 'Nothing') {
-											return _Utils_update(
-												model,
-												{dragDrop: model_});
-										} else {
-											var card = _v8.a;
-											return _Utils_update(
-												model,
-												{
-													dragDrop: model_,
-													pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel),
-													spacesModel: A3($author$project$Space$pushCard, spaceId, card, model.spacesModel)
-												});
-										}
-									default:
-										var _v12 = result.a;
-										var _v13 = _v12.a;
-										var pileFromId = _v13.a;
-										var homeId = _v12.b.a;
-										var _v14 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
-										if (_v14.$ === 'Nothing') {
-											return _Utils_update(
-												model,
-												{dragDrop: model_});
-										} else {
-											var card = _v14.a;
-											return _Utils_update(
-												model,
-												{
-													dragDrop: model_,
-													homesModel: A3($author$project$Home$pushCard, homeId, card, model.homesModel),
-													pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel)
-												});
-										}
-								}
-							} else {
-								switch (result.a.b.$) {
-									case 'SpaceTo':
-										var _v9 = result.a;
-										var spaceFromId = _v9.a.a;
-										var spaceToId = _v9.b.a;
-										return _Utils_update(
-											model,
-											{
-												dragDrop: model_,
+												dragDrop: dragDropModel,
 												spacesModel: A3($author$project$Space$moveCard, spaceFromId, spaceToId, model.spacesModel)
-											});
-									case 'PileTo':
-										var _v10 = result.a;
-										var spaceFromId = _v10.a.a;
-										var pileToId = _v10.b.a;
-										var _v11 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
-										if (_v11.$ === 'Nothing') {
-											return _Utils_update(
+											}),
+										$elm$core$Platform$Cmd$none);
+								case 'PileTo':
+									var _v13 = dragDropResult.a;
+									var spaceFromId = _v13.a.a;
+									var pileToId = _v13.b.a;
+									var _v14 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
+									if (_v14.$ === 'Nothing') {
+										return _Utils_Tuple2(
+											_Utils_update(
 												model,
-												{dragDrop: model_});
-										} else {
-											var card = _v11.a;
-											return _Utils_update(
+												{dragDrop: dragDropModel}),
+											$elm$core$Platform$Cmd$none);
+									} else {
+										var card = _v14.a;
+										return _Utils_Tuple2(
+											_Utils_update(
 												model,
 												{
-													dragDrop: model_,
+													dragDrop: dragDropModel,
 													pilesModel: A3($author$project$Pile$pushCard, pileToId, card, model.pilesModel),
 													spacesModel: A2($author$project$Space$pullCard, spaceFromId, model.spacesModel)
-												});
-										}
-									default:
-										var _v15 = result.a;
-										var spaceFromId = _v15.a.a;
-										var homeId = _v15.b.a;
-										var _v16 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
-										if (_v16.$ === 'Nothing') {
-											return _Utils_update(
+												}),
+											$elm$core$Platform$Cmd$none);
+									}
+								default:
+									var _v18 = dragDropResult.a;
+									var spaceFromId = _v18.a.a;
+									var homeId = _v18.b.a;
+									var _v19 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
+									if (_v19.$ === 'Nothing') {
+										return _Utils_Tuple2(
+											_Utils_update(
 												model,
-												{dragDrop: model_});
-										} else {
-											var card = _v16.a;
-											return _Utils_update(
+												{dragDrop: dragDropModel}),
+											$elm$core$Platform$Cmd$none);
+									} else {
+										var card = _v19.a;
+										return _Utils_Tuple2(
+											_Utils_update(
 												model,
 												{
-													dragDrop: model_,
+													dragDrop: dragDropModel,
 													homesModel: A3($author$project$Home$pushCard, homeId, card, model.homesModel),
 													spacesModel: A2($author$project$Space$pullCard, spaceFromId, model.spacesModel)
-												});
-										}
-								}
+												}),
+											$elm$core$Platform$Cmd$none);
+									}
 							}
 						}
-					}(),
-					A2(
-						$elm$core$Maybe$withDefault,
-						$elm$core$Platform$Cmd$none,
-						A2(
-							$elm$core$Maybe$map,
-							A2(
-								$elm$core$Basics$composeR,
-								function ($) {
-									return $.event;
-								},
-								$author$project$Main$dragstart),
-							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
+					}
+				}();
+				var model1 = _v5.a;
+				var cmd = _v5.b;
+				return _Utils_Tuple2(
+					model1,
+					$elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								cmd,
+								A2(
+								$elm$core$Maybe$withDefault,
+								$elm$core$Platform$Cmd$none,
+								A2(
+									$elm$core$Maybe$map,
+									A2(
+										$elm$core$Basics$composeR,
+										function ($) {
+											return $.event;
+										},
+										$author$project$Main$dragstart),
+									$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_)))
+							])));
 			case 'SentHomeFromPileMsg':
 				var pileIndex = msg.a;
 				var card = msg.b;
-				var _v17 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
-				if (_v17.$ === 'Nothing') {
+				var _v20 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+				if (_v20.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
-					var index = _v17.a;
+					var index = _v20.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -6688,14 +6855,14 @@ var $author$project$Main$update = F2(
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
-			default:
+			case 'SentHomeFromSpaceMsg':
 				var homeIndex = msg.a;
 				var card = msg.b;
-				var _v18 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
-				if (_v18.$ === 'Nothing') {
+				var _v21 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+				if (_v21.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
-					var index = _v18.a;
+					var index = _v21.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -6705,9 +6872,62 @@ var $author$project$Main$update = F2(
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
+			case 'SentAllHomeFromPileMsg':
+				var pileIndex = msg.a;
+				var _v22 = A2($author$project$Pile$getTopCard, pileIndex, model.pilesModel);
+				if (_v22.$ === 'Nothing') {
+					return _Utils_Tuple2(
+						model,
+						A2($author$project$Main$doSentHomeAll, model, pileIndex + 1));
+				} else {
+					var card = _v22.a;
+					var _v23 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+					if (_v23.$ === 'Nothing') {
+						return _Utils_Tuple2(
+							model,
+							A2($author$project$Main$doSentHomeAll, model, pileIndex + 1));
+					} else {
+						var index = _v23.a;
+						var model2 = _Utils_update(
+							model,
+							{
+								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
+								pilesModel: A2($author$project$Pile$pullCard, pileIndex, model.pilesModel)
+							});
+						return _Utils_Tuple2(
+							model2,
+							A2($author$project$Main$doSentHomeAll, model2, pileIndex + 1));
+					}
+				}
+			default:
+				var spaceIndex8 = msg.a;
+				var _v24 = A2($author$project$Space$getCard, spaceIndex8 - 8, model.spacesModel);
+				if (_v24.$ === 'Nothing') {
+					return _Utils_Tuple2(
+						model,
+						A2($author$project$Main$doSentHomeAll, model, spaceIndex8 + 1));
+				} else {
+					var card = _v24.a;
+					var _v25 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+					if (_v25.$ === 'Nothing') {
+						return _Utils_Tuple2(
+							model,
+							A2($author$project$Main$doSentHomeAll, model, spaceIndex8 + 1));
+					} else {
+						var index = _v25.a;
+						var model2 = _Utils_update(
+							model,
+							{
+								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
+								spacesModel: A2($author$project$Space$pullCard, spaceIndex8 - 8, model.spacesModel)
+							});
+						return _Utils_Tuple2(
+							model2,
+							A2($author$project$Main$doSentHomeAll, model2, spaceIndex8 + 1));
+					}
+				}
 		}
 	});
-var $elm$html$Html$div = _VirtualDom_node('div');
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 	switch (model.$) {
 		case 'NotDragging':
@@ -6904,6 +7124,15 @@ var $author$project$Main$helperForHome = F2(
 			return {draggedNumberOfCards: 0, droppableAttribute: $author$project$Main$droppableHomes, maybeDraggedCard: $elm$core$Maybe$Nothing};
 		}
 	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $author$project$Main$SentHomeFromPileMsg = F2(
 	function (a, b) {
 		return {$: 'SentHomeFromPileMsg', a: a, b: b};
@@ -6990,9 +7219,6 @@ var $author$project$Main$droppablePiles = function (pileIndex) {
 };
 var $author$project$Pile$getCard = F3(
 	function (pileIndex, cardIndex, model) {
-		var c = A2($elm$core$Debug$log, 'getCard model', model);
-		var b = A2($elm$core$Debug$log, 'getCard cardIndex', cardIndex);
-		var a = A2($elm$core$Debug$log, 'getCard pileIndex', pileIndex);
 		return A2(
 			$elm$core$Maybe$andThen,
 			$elm$core$Array$get(cardIndex),
@@ -7024,68 +7250,90 @@ var $author$project$Space$getEmptySpaces = function (_v0) {
 		0,
 		spaces);
 };
-var $author$project$Main$helperForPile = F2(
-	function (maybeFrom, model) {
-		if (maybeFrom.$ === 'Just') {
-			if (maybeFrom.a.$ === 'PileFrom') {
-				var _v1 = maybeFrom.a;
-				var pileIndex = _v1.a;
-				var cardIndex = _v1.b;
-				return {
-					clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
-					draggableAttribute: $author$project$Main$draggablePiles,
-					draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, model.pilesModel),
-					droppableAttribute: $author$project$Main$droppablePiles,
-					emptyPiles: A2(
-						$elm$core$Debug$log,
-						'getEmptyPiles',
-						$author$project$Pile$getEmptyPiles(model.pilesModel)),
-					emptySpaces: A2(
-						$elm$core$Debug$log,
-						'getEmptySpaces',
-						$author$project$Space$getEmptySpaces(model.spacesModel)),
-					maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, model.pilesModel),
-					maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
-					maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex)
-				};
-			} else {
-				var spaceIndex = maybeFrom.a.a;
-				return {
-					clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
-					draggableAttribute: $author$project$Main$draggablePiles,
-					draggedNumberOfCards: 1,
-					droppableAttribute: $author$project$Main$droppablePiles,
-					emptyPiles: A2(
-						$elm$core$Debug$log,
-						'getEmptyPiles',
-						$author$project$Pile$getEmptyPiles(model.pilesModel)),
-					emptySpaces: A2(
-						$elm$core$Debug$log,
-						'getEmptySpaces',
-						$author$project$Space$getEmptySpaces(model.spacesModel)),
-					maybeDragCard: A2($author$project$Space$getCard, spaceIndex, model.spacesModel),
-					maybeDragFromCardId: $elm$core$Maybe$Nothing,
-					maybeDragFromPileId: $elm$core$Maybe$Nothing
-				};
-			}
-		} else {
+var $author$project$Main$helperForPile = F3(
+	function (maybeFrom, distributingDone, model) {
+		var _v0 = _Utils_Tuple2(distributingDone, maybeFrom);
+		if (!_v0.a) {
 			return {
+				cardClass: _List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('card-distributing')
+					]),
 				clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
 				draggableAttribute: $author$project$Main$draggablePiles,
 				draggedNumberOfCards: 0,
 				droppableAttribute: $author$project$Main$droppablePiles,
-				emptyPiles: A2(
-					$elm$core$Debug$log,
-					'getEmptyPiles',
-					$author$project$Pile$getEmptyPiles(model.pilesModel)),
-				emptySpaces: A2(
-					$elm$core$Debug$log,
-					'getEmptySpaces',
-					$author$project$Space$getEmptySpaces(model.spacesModel)),
+				emptyPiles: 0,
+				emptySpaces: 0,
 				maybeDragCard: $elm$core$Maybe$Nothing,
 				maybeDragFromCardId: $elm$core$Maybe$Nothing,
 				maybeDragFromPileId: $elm$core$Maybe$Nothing
 			};
+		} else {
+			if (_v0.b.$ === 'Just') {
+				if (_v0.b.a.$ === 'PileFrom') {
+					var _v1 = _v0.b.a;
+					var pileIndex = _v1.a;
+					var cardIndex = _v1.b;
+					return {
+						cardClass: _List_Nil,
+						clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
+						draggableAttribute: $author$project$Main$draggablePiles,
+						draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, model.pilesModel),
+						droppableAttribute: $author$project$Main$droppablePiles,
+						emptyPiles: A2(
+							$elm$core$Debug$log,
+							'getEmptyPiles',
+							$author$project$Pile$getEmptyPiles(model.pilesModel)),
+						emptySpaces: A2(
+							$elm$core$Debug$log,
+							'getEmptySpaces',
+							$author$project$Space$getEmptySpaces(model.spacesModel)),
+						maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, model.pilesModel),
+						maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
+						maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex)
+					};
+				} else {
+					var spaceIndex = _v0.b.a.a;
+					return {
+						cardClass: _List_Nil,
+						clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
+						draggableAttribute: $author$project$Main$draggablePiles,
+						draggedNumberOfCards: 1,
+						droppableAttribute: $author$project$Main$droppablePiles,
+						emptyPiles: A2(
+							$elm$core$Debug$log,
+							'getEmptyPiles',
+							$author$project$Pile$getEmptyPiles(model.pilesModel)),
+						emptySpaces: A2(
+							$elm$core$Debug$log,
+							'getEmptySpaces',
+							$author$project$Space$getEmptySpaces(model.spacesModel)),
+						maybeDragCard: A2($author$project$Space$getCard, spaceIndex, model.spacesModel),
+						maybeDragFromCardId: $elm$core$Maybe$Nothing,
+						maybeDragFromPileId: $elm$core$Maybe$Nothing
+					};
+				}
+			} else {
+				return {
+					cardClass: _List_Nil,
+					clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
+					draggableAttribute: $author$project$Main$draggablePiles,
+					draggedNumberOfCards: 0,
+					droppableAttribute: $author$project$Main$droppablePiles,
+					emptyPiles: A2(
+						$elm$core$Debug$log,
+						'getEmptyPiles',
+						$author$project$Pile$getEmptyPiles(model.pilesModel)),
+					emptySpaces: A2(
+						$elm$core$Debug$log,
+						'getEmptySpaces',
+						$author$project$Space$getEmptySpaces(model.spacesModel)),
+					maybeDragCard: $elm$core$Maybe$Nothing,
+					maybeDragFromCardId: $elm$core$Maybe$Nothing,
+					maybeDragFromPileId: $elm$core$Maybe$Nothing
+				};
+			}
 		}
 	});
 var $author$project$Main$SentHomeFromSpaceMsg = F2(
@@ -7143,14 +7391,6 @@ var $author$project$Main$helperForSpace = F2(
 			return {clickToSendHomeFromSpace: $author$project$Main$clickToSendHomeFromSpace, draggableAttribute: $author$project$Main$draggableSpaces, draggedNumberOfCards: 0, droppableAttribute: $author$project$Main$droppableSpaces, maybeDragFromSpaceId: $elm$core$Maybe$Nothing};
 		}
 	});
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -7172,9 +7412,9 @@ var $author$project$CardsCDN$stylesheet = A3(
 			$elm$html$Html$Attributes$href('src/resources/cards.css')
 		]),
 	_List_Nil);
+var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $author$project$Card$cardPlaceholder = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -7443,6 +7683,7 @@ var $author$project$Pile$viewCardsRecursively = F6(
 		var _v0 = helper;
 		var draggableAttribute = _v0.draggableAttribute;
 		var clickToSendHome = _v0.clickToSendHome;
+		var cardClass = _v0.cardClass;
 		var draggableAttributes = (_Utils_cmp(cardIndex, draggableFrom) > -1) ? A2(
 			$elm$core$List$cons,
 			$elm$html$Html$Attributes$class('card-draggable'),
@@ -7468,6 +7709,7 @@ var $author$project$Pile$viewCardsRecursively = F6(
 							[
 								$elm$html$Html$Attributes$class('card card-pile' + (cardBottom + cardHide))
 							]),
+							cardClass,
 							draggableAttributes,
 							onClick
 						])),
@@ -7480,12 +7722,7 @@ var $author$project$Pile$viewCardsRecursively = F6(
 	});
 var $author$project$Pile$viewPile = F3(
 	function (helper, pileIndex, pile) {
-		var draggableFrom2 = A2(
-			$elm$core$Debug$log,
-			'canBeDraggedFrom pile',
-			$author$project$Pile$canBeDraggedFrom(pile));
-		var draggableFrom1 = A2($elm$core$Debug$log, 'canBeDraggedFrom pileIndex', pileIndex);
-		var _v0 = A2($elm$core$Debug$log, 'viewPile helper', helper);
+		var _v0 = helper;
 		var maybeDragFromPileId = _v0.maybeDragFromPileId;
 		var maybeDragFromCardId = _v0.maybeDragFromCardId;
 		var maybeDragCard = _v0.maybeDragCard;
@@ -7493,10 +7730,6 @@ var $author$project$Pile$viewPile = F3(
 		var droppableAttribute = _v0.droppableAttribute;
 		var emptyPiles = _v0.emptyPiles;
 		var emptySpaces = _v0.emptySpaces;
-		var a = A2(
-			$elm$core$Debug$log,
-			'draggableCards emptySpaces = ' + ($elm$core$String$fromInt(emptySpaces) + (', emptyPiles = ' + $elm$core$String$fromInt(emptyPiles))),
-			A2($author$project$Pile$draggableCards, emptySpaces, emptyPiles));
 		var draggableFrom = A2(
 			$elm$core$Basics$max,
 			$author$project$Pile$canBeDraggedFrom(pile),
@@ -7605,6 +7838,38 @@ var $author$project$Pile$view = F2(
 				]),
 			A2($author$project$Pile$viewPiles, model.piles, helper));
 	});
+var $author$project$Shuffle$viewShuffleCard = F2(
+	function (index, card) {
+		return (!index) ? A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('card-shuffle-bottom')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Card$view(card)
+				])) : A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('card-shuffle')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Card$view(card)
+				]));
+	});
+var $author$project$Shuffle$view = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('shuffle-container')
+			]),
+		$elm$core$Array$toList(
+			A2($elm$core$Array$indexedMap, $author$project$Shuffle$viewShuffleCard, model.pile)));
+};
 var $author$project$Space$viewSpace = F3(
 	function (helper, index, maybeCard) {
 		var _v0 = helper;
@@ -7683,48 +7948,45 @@ var $author$project$Space$view = F2(
 	});
 var $author$project$Main$view = function (model) {
 	var helpForSpace = A2(
-		$elm$core$Debug$log,
-		'helpForSpace',
-		A2(
-			$author$project$Main$helperForSpace,
-			$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
-			model));
-	var helpForPile = A2(
-		$elm$core$Debug$log,
-		'helpForPile',
-		A2(
-			$author$project$Main$helperForPile,
-			$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
-			model));
+		$author$project$Main$helperForSpace,
+		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
+		model);
 	var helpForHome = A2(
-		$elm$core$Debug$log,
-		'helpForHome',
-		A2(
-			$author$project$Main$helperForHome,
-			$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
-			model));
-	var a = A2(
-		$elm$core$Debug$log,
-		'getDragId',
-		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop));
+		$author$project$Main$helperForHome,
+		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
+		model);
+	var distributingDone = model.distributeModel.distributingDone;
+	var helpForPile = A3(
+		$author$project$Main$helperForPile,
+		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
+		distributingDone,
+		model);
 	return {
 		body: (!model.shuffleModel.shufflingDone) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Shuffling ')
-					]))
+				A2($author$project$Space$view, model.spacesModel, helpForSpace),
+				A2($author$project$Home$view, model.homesModel, helpForHome),
+				$author$project$Shuffle$view(model.shuffleModel)
+			]) : ((!model.distributeModel.distributingDone) ? _List_fromArray(
+			[
+				$author$project$CardsCDN$stylesheet,
+				A2($author$project$Space$view, model.spacesModel, helpForSpace),
+				A2($author$project$Home$view, model.homesModel, helpForHome),
+				A2($author$project$Pile$view, model.pilesModel, helpForPile)
+			]) : ($author$project$Pile$playingDone(model.pilesModel) ? _List_fromArray(
+			[
+				$author$project$CardsCDN$stylesheet,
+				A2($author$project$Space$view, model.spacesModel, helpForSpace),
+				A2($author$project$Home$view, model.homesModel, helpForHome),
+				A2($author$project$Pile$view, model.pilesModel, helpForPile)
 			]) : _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
 				A2($author$project$Space$view, model.spacesModel, helpForSpace),
 				A2($author$project$Home$view, model.homesModel, helpForHome),
 				A2($author$project$Pile$view, model.pilesModel, helpForPile)
-			]),
+			]))),
 		title: 'Cards'
 	};
 };

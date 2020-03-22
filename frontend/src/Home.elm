@@ -123,3 +123,17 @@ canReceiveCard card { homes } =
                     maybeHomeId
         )
         Nothing
+
+
+playingDone : Model -> Bool
+playingDone model =
+    Array.foldl
+        ( \maybeCard done ->
+            case maybeCard of
+                Nothing ->
+                    False
+                Just card ->
+                    done && ( card.rank == Card.King )
+        )
+        True
+        model.homes

@@ -2,26 +2,19 @@
     font-family: "Cards font";
     src: url("./52playingcards.ttf") format("truetype");
 }
-img.card {
-    displaaay: block;
-    width: 8vw;
-    height: auto;
-    border-top: 1px solid black;
-    border-radius: 6%;
-}
 div.card {
     position: relative;
     font-family: "Cards font";
     font-size: 12vw;
     opacity: 1.0;
     background: white;
-    border: 0.05vw solid black;
-    border-radius: 5%;
+/*    border: 0.05vw solid black;
+    border-radius: 5%; */
     padding: 0vw 0vw 0vw 0vw;
     text-align: center;
     width: 7vw;
     height: 10vw;
-    line-height: 10vw;
+    line-height: 10.3vw;
 }
 div.card-red {
     color: red;
@@ -53,8 +46,8 @@ div.card-hide {
     0% { display: block; visibility: block;  }
     100% { display: none; visibility: hidden; }
 }
-/* div.card:hover {
-    margin-top: -120px;
+div.card:hover {
+
 }
 div.card:drag {
     border-top: 1px solid green;
@@ -82,6 +75,16 @@ div.pile {
     display: inline-block;
     vertical-align: top;
 }
+div.card-distributing {
+    animation-name: distributing;
+    animation-duration: 0.2s;
+/*    animation-delay: -0.1s; */
+/*    animation-fill-mode: forwards; */
+}
+@keyframes distributing {
+    0% { margin-top: -70vw; }
+    100% { margin-top: -7vw; }
+}
 
 /* Spaces */
 div.spaces-container {
@@ -96,11 +99,11 @@ div.spaces-container {
     margin-left: 4vw;
 }
 div.card-space {
-    margin-top: -10vw;
+    margin-top: -10.1vw;
     position: relative;
 }
 
-/* Spaces */
+/* Homes */
 div.homes-container {
     position: absolute;
     display: grid;
@@ -113,6 +116,37 @@ div.homes-container {
     margin-left: calc(100vw - 44vw - 4vw);
 }
 div.card-home {
-    margin-top: -10vw;
+    margin-top: -10.1vw;
     position: relative;
+}
+
+/* Shuffle */
+div.shuffle-container {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(52, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+
+    text-align: center;
+    width: 7vw;
+/*    height: fit-content;
+    height: -webkit-fill-available; */
+
+    top: 32vh;
+    left: calc( ( 100vw - 82vw - 4vw ) / 2);
+
+    animation-name: cardshuffle;
+    animation-duration: 0.8s;
+    animation-delay: 0.5s;
+    animation-fill-mode: forwards;
+}
+div.card-shuffle {
+    margin-left: -7vw;
+    position: relative;
+}
+@keyframes cardshuffle {
+    0% { width: 7vw; }
+    100% { width: 82vw; }
+}
+div.card-shuffle-bottom {
 }

@@ -24,7 +24,7 @@ allSuits = [ Spades, Hearts, Clubs, Diamonds ]
 
 allRanks : List Rank
 allRanks = [ Ace, King, Queen, Jack, N10, N9, N8, N7, N6, N5, N4, N3, N2 ]
---allRanks = [ King, Queen, Jack]
+--allRanks = [ N4, N3, N2, Ace]
 
 allCards : List Card
 allCards =

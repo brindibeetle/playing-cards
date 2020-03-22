@@ -51,8 +51,6 @@ update msg model =
                 ( model_, result ) =
                     DragDrop.update msg_ model.dragDrop
 
-                model12 = Debug.log "model" model_
-                result12 = Debug.log "result" result
             in
                 (
                     { model

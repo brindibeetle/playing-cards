@@ -6,7 +6,6 @@ import Basics as Math
 import Card exposing (..)
 import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class)
-import Html.Events exposing (onDoubleClick)
 
 
 --  ####
@@ -26,20 +25,17 @@ numberOfPiles = 8
 init : Model
 init =
      {
-        piles = Array.empty
+        piles = Array.repeat numberOfPiles Array.empty
      }
 
 
-fillPiles : Model -> Pile -> Model
-fillPiles model pile =
+setPiles : Model -> Array Pile -> Model
+setPiles model piles =
     { model
-    | piles = distributeToPiles pile numberOfPiles
+    | piles = piles
     }
 
 type alias Pile = Array Card
-
-emptyPile : Pile
-emptyPile = Array.empty
 
 
 makePile : List Card -> Pile
@@ -48,45 +44,36 @@ makePile cards = cards |> Array.fromList
 
 getCard : Int -> Int -> Model -> Maybe Card
 getCard pileIndex cardIndex model =
-    let
-        a = Debug.log "getCard pileIndex" pileIndex
-        b = Debug.log "getCard cardIndex" cardIndex
-        c = Debug.log "getCard model" model
-    in
-        Array.get pileIndex model.piles |> Maybe.andThen (Array.get cardIndex)
+    Array.get pileIndex model.piles |> Maybe.andThen (Array.get cardIndex)
 
 
 moveCard : Int -> Int -> Int -> Model -> Model
 moveCard pileIndexFrom index pileIndexTo model =
-    let
-        cards = Debug.log "moveCard pileIndexFrom" ( pileIndexFrom )
-    in
-        if pileIndexFrom == pileIndexTo then
-            model
-        else
-            case ( Array.get pileIndexFrom model.piles, Array.get pileIndexTo model.piles ) of
-                ( Nothing, _ ) ->
-                    model
+    if pileIndexFrom == pileIndexTo then
+        model
+    else
+        case ( Array.get pileIndexFrom model.piles, Array.get pileIndexTo model.piles ) of
+            ( Nothing, _ ) ->
+                model
 
-                ( _, Nothing ) ->
-                    model
+            ( _, Nothing ) ->
+                model
 
-                ( Just pileFrom, Just pileTo ) ->
-                    let
-                        ( pileFrom1, pileTo1 ) = moveCard2 index ( pileFrom, pileTo )
-                    in
-                        { model
-                        | piles = model.piles
-                            |> Array.set pileIndexFrom pileFrom1
-                            |> Array.set pileIndexTo pileTo1
-                        }
+            ( Just pileFrom, Just pileTo ) ->
+                let
+                    ( pileFrom1, pileTo1 ) = moveCard2 index ( pileFrom, pileTo )
+                in
+                    { model
+                    | piles = model.piles
+                        |> Array.set pileIndexFrom pileFrom1
+                        |> Array.set pileIndexTo pileTo1
+                    }
 
 
 moveCard2 : Int -> ( Pile, Pile ) -> ( Pile, Pile )
 moveCard2 index ( pileFrom, pileTo ) =
     let
         cards = Array.slice index ( Array.length pileFrom ) pileFrom
-        cards1 = Debug.log "cardslength" ( Array.length cards )
     in
         (
             Array.slice 0 index pileFrom
@@ -121,29 +108,6 @@ pushCard pileIndex card model =
                 { model
                 | piles = Array.set pileIndex pile model.piles
                 }
-
-
-distributeToPiles : Pile -> Int -> Array Pile
-distributeToPiles pile number =
-    Array.foldl
-        distributeCardToPile
-        ( Array.repeat number Array.empty, 0 )
-        pile
-    |> Tuple.first
-
-
-distributeCardToPile : Card -> ( Array Pile, Int ) -> ( Array Pile, Int )
-distributeCardToPile card ( piles, pileIndex ) =
-    case Array.get pileIndex  piles of
-        Nothing ->
-            ( piles, modBy ( Array.length piles ) ( pileIndex + 1 ) )
-
-        Just pile ->
-            let
-                pile1 = Array.push card pile
-                pileIndex1 = modBy ( Array.length piles ) ( pileIndex + 1 )
-            in
-               ( Array.set pileIndex pile1 piles, pileIndex1 )
 
 
 canBeDraggedFrom : Pile -> Int
@@ -202,6 +166,42 @@ getEmptyPiles { piles } =
         0
         piles
 
+
+playingDone : Model -> Bool
+playingDone { piles } =
+    Debug.log "Pile.playingDone"
+    (
+        Array.foldl
+            playingDonePile
+            True
+            piles
+    )
+
+
+playingDonePile : Array Card -> Bool -> Bool
+playingDonePile cards okay =
+    if not okay then
+        False
+    else
+        Array.foldl
+            playingDonePileHelper
+            ( True, Nothing )
+            cards
+        |> Tuple.first
+
+
+playingDonePileHelper : Card -> ( Bool, Maybe Card ) -> ( Bool, Maybe Card )
+playingDonePileHelper card ( okay, maybeLastCard ) =
+    case ( okay, maybeLastCard ) of
+        ( False, _ ) ->
+            ( False, Just card )
+
+        ( True, Nothing ) ->
+            ( True, Just card )
+
+        ( True, Just lastCard ) ->
+            ( Card.getRank card <= Card.getRank lastCard, Just card )
+
 -- ####
 -- ####    HELPER
 -- ####
@@ -217,6 +217,7 @@ type alias Helper msg =
     , emptyPiles : Int
     , emptySpaces : Int
     , clickToSendHome : Int -> Card -> Attribute msg
+    , cardClass : List(Attribute msg)
     }
 
 
@@ -247,10 +248,7 @@ draggableCards emptySpaces emptyPiles =
 viewPile : Helper msg -> Int -> Pile -> Html msg
 viewPile helper pileIndex pile =
     let
-        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, draggedNumberOfCards, droppableAttribute, emptyPiles, emptySpaces } = Debug.log "viewPile helper" helper
-        draggableFrom1 =  Debug.log "canBeDraggedFrom pileIndex" pileIndex
-        draggableFrom2 =  Debug.log "canBeDraggedFrom pile" ( canBeDraggedFrom pile )
-        a = Debug.log  ("draggableCards emptySpaces = " ++ String.fromInt emptySpaces ++ ", emptyPiles = " ++ String.fromInt emptyPiles ) ( draggableCards emptySpaces emptyPiles )
+        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, draggedNumberOfCards, droppableAttribute, emptyPiles, emptySpaces } = helper
         draggableFrom =  Math.max ( canBeDraggedFrom pile ) ( Array.length pile - ( draggableCards emptySpaces emptyPiles ) )
     in
         case maybeDragCard of
@@ -289,7 +287,7 @@ viewPile helper pileIndex pile =
 viewCardsRecursively : Helper msg -> Int -> Int -> Array Card -> Int -> Maybe Int -> Html msg
 viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFromCardId =
     let
-        { draggableAttribute, clickToSendHome } = helper
+        { draggableAttribute, clickToSendHome, cardClass } = helper
         draggableAttributes =
             if cardIndex >= draggableFrom then
                 class "card-draggable" ::  draggableAttribute ( pileIndex, cardIndex )
@@ -321,6 +319,7 @@ viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFro
                         ( List.concat
                             [
                                 [ ( class ("card card-pile" ++ cardBottom ++ cardHide)) ]
+                                , cardClass
                                 , draggableAttributes
                                 , onClick
                             ]

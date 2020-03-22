@@ -1,9 +1,14 @@
 module Shuffle exposing (..)
 
 import Array as Array exposing (Array)
+import Card exposing (Card)
+import Html exposing (Html, div)
+import Html.Attributes exposing (class)
 import Pile exposing (Pile)
 
+import Process
 import Random as Random exposing (..)
+import Task
 
 --  ####
 --  ####      Shuffling is inefficient because of the excessive use of Cmd Msg
@@ -19,13 +24,33 @@ type alias Model =
 
 
 shuffleTimesTodo : Int
-shuffleTimesTodo = 66
+shuffleTimesTodo = 30
 
 
 init : Pile -> ( Model, Cmd Msg )
 init pile =
-    ( { shuffledTimes = 0, pile = pile, shufflingDone = False }, randomShuffle ( Array.length pile ) )
+    ( { shuffledTimes = 0, pile = pile, shufflingDone = False }, randomShuffle 0 )
 
+
+-- ####
+-- ####    VIEW
+-- ####
+
+
+view : Model -> Html msg
+view model =
+    div [ class "shuffle-container" ]
+        ( Array.indexedMap viewShuffleCard model.pile |> Array.toList )
+
+
+viewShuffleCard : Int -> Card -> Html msg
+viewShuffleCard index card =
+    if index == 0 then
+        div [ class "card-shuffle-bottom" ]
+            [ Card.view card ]
+    else
+        div [ class "card-shuffle" ]
+            [ Card.view card ]
 
 --  ####
 --  ####      Update
@@ -33,27 +58,28 @@ init pile =
 
 
 randomShuffle : Int -> Cmd Msg
-randomShuffle pileLength =
-    Random.generate Shuffle (Random.int 1 (pileLength - 1) )
+randomShuffle turn =
+    Process.sleep ( if turn == 0 then 1300 else 200 )
+        |> Task.perform
+            (always DoRandom)
 
 
 type Msg
     = Shuffle Int
+    | DoRandom
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        msgA = Debug.log "msg" msg
-        shuffledTimesA = Debug.log "shuffledTimes" model.shuffledTimes
-        shufflingDoneA = Debug.log "shuffled" model.shufflingDone
-    in
     case msg of
+        DoRandom ->
+            ( model, Random.generate Shuffle (Random.int 1 (Array.length model.pile - 1) ) )
+
         Shuffle random ->
             let
                 shuffledTimes1 = model.shuffledTimes + 1
                 shufflingDone1 = ( shuffledTimes1 >= shuffleTimesTodo )
-                pile1 = Debug.log "pile1" ( shuffleOverhand model.pile random )
+                pile1 = shuffleOverhand model.pile random
             in
             (
                 {
@@ -63,9 +89,9 @@ update msg model =
                 }
                 ,
                     if not shufflingDone1 then
-                        randomShuffle ( Array.length pile1 )
+                        randomShuffle shuffledTimes1
                     else
-                       Cmd.none
+                        Cmd.none
             )
 
 
