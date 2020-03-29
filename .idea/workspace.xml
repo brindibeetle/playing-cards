@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00962ba3-65f1-47ff-8399-52f427e760c5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/resources/cards.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/resources/cards1.ttf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmi" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Card.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Card.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,7 +38,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/frontend/src/resources" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/frontend/src" />
     <property name="settings.editor.selected.configurable" value="org.elm.workspace.ui.ElmWorkspaceConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -50,8 +46,8 @@
       <recent name="C:\Users\Emile\developer\playing-cards\frontend" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src\resources" />
       <recent name="C:\Users\Emile\developer\playing-cards\frontend\src" />
+      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src\resources" />
       <recent name="C:\Users\Emile\developer\playing-cards\frontend" />
     </key>
   </component>
@@ -91,10 +87,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="608" y="139" width="759" height="762" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584018147986" />
-    <state x="445" y="261" width="586" height="488" key="find.popup" timestamp="1585490765657">
+    <state x="445" y="261" width="586" height="488" key="find.popup" timestamp="1585501531659">
       <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="445" y="261" width="586" height="488" key="find.popup/0.0.1280.984@0.0.1280.984" timestamp="1585490765657" />
+    <state x="445" y="261" width="586" height="488" key="find.popup/0.0.1280.984@0.0.1280.984" timestamp="1585501531659" />
     <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584894675598" />
     <state width="600" height="424" key="javadoc.popup" timestamp="1584290060589">
       <screen x="0" y="0" width="1920" height="1040" />

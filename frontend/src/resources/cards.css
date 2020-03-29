@@ -3,6 +3,9 @@
 /*    src: url("./52playingcards.ttf") format("truetype"); */
     src: url("./cards1.ttf");
 }
+body {
+    background-color: darkslategray;
+}
 div.char-holder {
     text-align: center;
     width: 7.3vw;
@@ -57,7 +60,7 @@ div.card-pile-bottom {
     padding: 0 1vw 0 1vw;
 }
 div.card-placeholder {
-    opacity: 0.8;
+    opacity: 1;
     margin: 0 1vw 0 1vw;
 }
 div.card-hide {
@@ -87,12 +90,10 @@ div.piles-container {
     grid-template-columns: repeat(8, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
-    width: 82vw;
-    height: fit-content;
-    height: -webkit-fill-available;
+    width: 90vw;
 
     top: 40vh;
-    left: calc( ( 100vw - 82vw - 4vw ) / 2);
+    left: calc( ( 100vw - 90vw ) / 2);
 }
 div.pile {
     display: inline-block;
@@ -154,10 +155,10 @@ div.shuffle-container {
     grid-template-rows:  repeat(1, [row] 1fr) ;
 
     text-align: center;
-    width: 7vw;
+    width: 11vw;
 
     top: 40vh;
-    left: calc( ( 100vw - 82vw - 4vw ) / 2);
+    left: calc( ( 100vw - 70vw + 7vw ) / 2);
 
     animation-name: cardshuffle;
     animation-duration: 0.8s;
@@ -169,8 +170,10 @@ div.card-shuffle {
     position: relative;
 }
 @keyframes cardshuffle {
-    0% { width: 7vw; }
-    100% { width: 82vw; }
+    0% { width: 11vw; }
+    100% { width: 70vw; }
 }
 div.card-shuffle-bottom {
+    margin-left: -7vw;
+    position: relative;
 }

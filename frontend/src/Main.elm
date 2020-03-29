@@ -1,6 +1,5 @@
 port module Main exposing (main)
 
-import Array
 import Browser exposing (Document, UrlRequest)
 import CardsCDN
 import Distribute exposing (Msg(..))
