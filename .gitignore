@@ -1,4 +1,4 @@
 /.idea/
 /frontend/elm-stuff/
 /frontend/target/
-/frontend/main.js
+#/frontend/main.js
