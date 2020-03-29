@@ -12,10 +12,7 @@ type Rank = Ace | King | Queen | Jack | N10 | N9 | N8 | N7 | N6 | N5 | N4 | N3 |
 
 type Suit = Spades | Hearts | Clubs | Diamonds
 
-type Color = Black | Red
-
-defaultCard : Card
-defaultCard = { suit = Spades, rank = N2 }
+type Color = Black | Red | DarkBrown | LightBrown | Whitish | LightBlue | DarkBlue
 
 
 allSuits : List Suit
@@ -75,48 +72,64 @@ getRank { rank } =
         King ->
             12
 
-getChar : Card -> Char
-getChar { suit, rank } =
-    ( case suit of
-        Hearts ->
-            65
-        Diamonds ->
-            78
-        Clubs ->
-            97
-        Spades ->
-            110
-    )
-    +
-    ( case rank of
-        Ace ->
-            0
-        N2 ->
-            1
-        N3 ->
-            2
-        N4 ->
-            3
-        N5 ->
-            4
-        N6 ->
-            5
-        N7 ->
-            6
-        N8 ->
-            7
-        N9 ->
-            8
-        N10 ->
-            9
-        Jack ->
-            10
-        Queen ->
-            11
-        King ->
-            12
-    )
-    |> Char.fromCode
+
+getChars : Card -> List (Int, Color)
+getChars { suit, rank } =
+    let
+        ( suitOffset, suitColor ) =
+            ( case suit of
+                Clubs ->
+                    ( 33, Black )
+                Diamonds ->
+                    ( 57, Red )
+                Hearts ->
+                    ( 81, Red )
+                Spades ->
+                    ( 105, Black )
+            )
+    in
+        ( 129, Whitish )
+        ::
+        ( case rank of
+            Ace ->
+                [ ( suitOffset + 0, suitColor ) ]
+            N2 ->
+                [ ( suitOffset + 1, suitColor ) ]
+            N3 ->
+                [ ( suitOffset + 2, suitColor ) ]
+            N4 ->
+                [ ( suitOffset + 3, suitColor ) ]
+            N5 ->
+                [ ( suitOffset + 4, suitColor ) ]
+            N6 ->
+                [ ( suitOffset + 5, suitColor ) ]
+            N7 ->
+                [ ( suitOffset + 6, suitColor ) ]
+            N8 ->
+                [ ( suitOffset + 7, suitColor ) ]
+            N9 ->
+                [ ( suitOffset + 8, suitColor ) ]
+            N10 ->
+                [ ( suitOffset + 9, suitColor ) ]
+            Jack ->
+                [ ( suitOffset + 10, Black )
+                , ( suitOffset + 11, DarkBrown )
+                , ( suitOffset + 12, LightBrown )
+                , ( suitOffset + 13, Red )
+                ]
+            Queen ->
+                [ ( suitOffset + 14, Black )
+                , ( suitOffset + 15, DarkBrown )
+                , ( suitOffset + 16, LightBrown )
+                , ( suitOffset + 17, Red )
+                ]
+            King ->
+                [ ( suitOffset + 18, Black )
+                , ( suitOffset + 19, DarkBrown )
+                , ( suitOffset + 20, LightBrown )
+                , ( suitOffset + 21, Red )
+                ]
+        )
 
 
 getColor : Card -> Color
@@ -136,23 +149,62 @@ getColorClass : Color -> Attribute msg
 getColorClass color =
     case color of
         Black ->
-            class "card-black"
+            class "color-black"
+
         Red ->
-            class "card-red"
+            class "color-red"
+
+        DarkBrown ->
+            class "color-darkbrown"
+
+        LightBrown ->
+            class "color-lightbrown"
+
+        Whitish ->
+            class "color-whitish"
+
+        LightBlue ->
+            class "color-lightblue"
+
+        DarkBlue ->
+            class "color-darkblue"
+
+
 
 view : Card -> Html msg
 view card =
-    div [ class "card ", getColor card |> getColorClass ]
-        [ text ( getChar card |> String.fromChar ) ]
+    div [ class "char-holder" ]
+        ( List.map viewChar ( getChars card ) )
 
+
+viewChar : ( Int, Color ) -> Html msg
+viewChar ( int, color ) =
+    div [ class "char ", getColorClass color ]
+    [ text ( String.fromChar (Char.fromCode int)) ]
+    --[ text ( String.fromChar char ) ]
 
 -- ####
 -- ####    VIEW
 -- ####
 
+
+getCharsBack : List ( Int, Color )
+getCharsBack =
+    [ ( 129, Whitish )
+    , ( 130, Black )
+    , ( 133, DarkBlue )
+    , ( 133, LightBlue )
+    ]
+
+viewBack : Html msg
+viewBack =
+    div [ class "char-holder" ]
+        ( List.map viewChar ( getCharsBack ) )
+
+
 cardPlaceholder : Html msg
 cardPlaceholder =
-    div [ class "card card-placeholder" ] [ text "A" ]
+    div [ class "card card-placeholder" ] [ viewBack ]
 
 
 -- ####

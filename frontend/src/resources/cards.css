@@ -1,39 +1,64 @@
 @font-face {
     font-family: "Cards font";
-    src: url("./52playingcards.ttf") format("truetype");
+/*    src: url("./52playingcards.ttf") format("truetype"); */
+    src: url("./cards1.ttf");
 }
-div.card {
-    position: relative;
+div.char-holder {
+    text-align: center;
+    width: 7.3vw;
+    height: 11.5vw;
+    line-height: 11.1vw;
+}
+div.char {
+    position: absolute;
     font-family: "Cards font";
-    font-size: 8vw;
+    font-size: 11vw;
     opacity: 1.0;
-    background: white;
+    background-color: transparent;
 /*    border: 0.05vw solid black;
     border-radius: 5%; */
     padding: 0vw 0vw 0vw 0vw;
     text-align: center;
-    width: 5vw;
-    height: 8vw;
-    line-height: 6.6vw;
+    width: 7.3vw;
+    height: 11.5vw;
+    line-height: 11.1vw;
+    user-select: none; /* to prevent selection of text */
 }
-div.card-red {
-    color: red;
+div.color-red {
+    color: #ec1c24;
 }
-div.card-black {
-    color: black;
+div.color-black {
+    color: #020202;
+}
+div.color-darkbrown {
+    color: #2f2412;
+}
+div.color-lightbrown {
+    color: #c9b582;
+}
+div.color-whitish {
+    color: #f7f3dc;
+}
+div.color-darkblue {
+    color: #182350;
+}
+div.color-lightblue {
+    color: #576e90;
 }
 div.card-draggable {
     cursor: move;
 }
 div.card-pile {
-    margin-top: -6vw;
+    margin-top: -9vw;
     position: relative;
 }
 div.card-pile-bottom {
-    margin-top: -8vw;
+    margin-top: -11.5vw;
+    padding: 0 1vw 0 1vw;
 }
 div.card-placeholder {
-    opacity: 0.4;
+    opacity: 0.8;
+    margin: 0 1vw 0 1vw;
 }
 div.card-hide {
     animation-name: cardhide;
@@ -66,12 +91,13 @@ div.piles-container {
     height: fit-content;
     height: -webkit-fill-available;
 
-    top: 32vh;
+    top: 40vh;
     left: calc( ( 100vw - 82vw - 4vw ) / 2);
 }
 div.pile {
     display: inline-block;
     vertical-align: top;
+    padding: 0 1vw 0 1vw;
 }
 div.card-distributing {
     animation-name: distributing;
@@ -81,7 +107,7 @@ div.card-distributing {
 }
 @keyframes distributing {
     0% { margin-top: -70vw; }
-    100% { margin-top: -7vw; }
+    100% { margin-top: -11vw; }
 }
 
 /* Spaces */
@@ -97,8 +123,9 @@ div.spaces-container {
     margin-left: 4vw;
 }
 div.card-space {
-    margin-top: -8vw;
+    margin-top: -11.5vw;
     position: relative;
+    padding: 0 1vw 0 1vw;
 }
 
 /* Homes */
@@ -114,8 +141,9 @@ div.homes-container {
     margin-left: calc(100vw - 44vw - 4vw);
 }
 div.card-home {
-    margin-top: -8vw;
+    margin-top: -11.5vw;
     position: relative;
+    padding: 0 1vw 0 1vw;
 }
 
 /* Shuffle */
@@ -127,10 +155,8 @@ div.shuffle-container {
 
     text-align: center;
     width: 7vw;
-/*    height: fit-content;
-    height: -webkit-fill-available; */
 
-    top: 32vh;
+    top: 40vh;
     left: calc( ( 100vw - 82vw - 4vw ) / 2);
 
     animation-name: cardshuffle;

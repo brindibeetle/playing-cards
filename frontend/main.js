@@ -7413,8 +7413,66 @@ var $author$project$CardsCDN$stylesheet = A3(
 		]),
 	_List_Nil);
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Card$Black = {$: 'Black'};
+var $author$project$Card$DarkBlue = {$: 'DarkBlue'};
+var $author$project$Card$LightBlue = {$: 'LightBlue'};
+var $author$project$Card$Whitish = {$: 'Whitish'};
+var $author$project$Card$getCharsBack = _List_fromArray(
+	[
+		_Utils_Tuple2(129, $author$project$Card$Whitish),
+		_Utils_Tuple2(130, $author$project$Card$Black),
+		_Utils_Tuple2(133, $author$project$Card$DarkBlue),
+		_Utils_Tuple2(133, $author$project$Card$LightBlue)
+	]);
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Char$fromCode = _Char_fromCode;
+var $author$project$Card$getColorClass = function (color) {
+	switch (color.$) {
+		case 'Black':
+			return $elm$html$Html$Attributes$class('color-black');
+		case 'Red':
+			return $elm$html$Html$Attributes$class('color-red');
+		case 'DarkBrown':
+			return $elm$html$Html$Attributes$class('color-darkbrown');
+		case 'LightBrown':
+			return $elm$html$Html$Attributes$class('color-lightbrown');
+		case 'Whitish':
+			return $elm$html$Html$Attributes$class('color-whitish');
+		case 'LightBlue':
+			return $elm$html$Html$Attributes$class('color-lightblue');
+		default:
+			return $elm$html$Html$Attributes$class('color-darkblue');
+	}
+};
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Card$viewChar = function (_v0) {
+	var _int = _v0.a;
+	var color = _v0.b;
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('char '),
+				$author$project$Card$getColorClass(color)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				$elm$core$String$fromChar(
+					$elm$core$Char$fromCode(_int)))
+			]));
+};
+var $author$project$Card$viewBack = A2(
+	$elm$html$Html$div,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('char-holder')
+		]),
+	A2($elm$core$List$map, $author$project$Card$viewChar, $author$project$Card$getCharsBack));
 var $author$project$Card$cardPlaceholder = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -7422,97 +7480,120 @@ var $author$project$Card$cardPlaceholder = A2(
 			$elm$html$Html$Attributes$class('card card-placeholder')
 		]),
 	_List_fromArray(
-		[
-			$elm$html$Html$text('A')
-		]));
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
-var $elm$core$Char$fromCode = _Char_fromCode;
-var $author$project$Card$getChar = function (_v0) {
+		[$author$project$Card$viewBack]));
+var $author$project$Card$DarkBrown = {$: 'DarkBrown'};
+var $author$project$Card$LightBrown = {$: 'LightBrown'};
+var $author$project$Card$Red = {$: 'Red'};
+var $author$project$Card$getChars = function (_v0) {
 	var suit = _v0.suit;
 	var rank = _v0.rank;
-	return $elm$core$Char$fromCode(
+	var _v1 = function () {
+		switch (suit.$) {
+			case 'Clubs':
+				return _Utils_Tuple2(33, $author$project$Card$Black);
+			case 'Diamonds':
+				return _Utils_Tuple2(57, $author$project$Card$Red);
+			case 'Hearts':
+				return _Utils_Tuple2(81, $author$project$Card$Red);
+			default:
+				return _Utils_Tuple2(105, $author$project$Card$Black);
+		}
+	}();
+	var suitOffset = _v1.a;
+	var suitColor = _v1.b;
+	return A2(
+		$elm$core$List$cons,
+		_Utils_Tuple2(129, $author$project$Card$Whitish),
 		function () {
-			switch (suit.$) {
-				case 'Hearts':
-					return 65;
-				case 'Diamonds':
-					return 78;
-				case 'Clubs':
-					return 97;
-				default:
-					return 110;
-			}
-		}() + function () {
 			switch (rank.$) {
 				case 'Ace':
-					return 0;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 0, suitColor)
+						]);
 				case 'N2':
-					return 1;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 1, suitColor)
+						]);
 				case 'N3':
-					return 2;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 2, suitColor)
+						]);
 				case 'N4':
-					return 3;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 3, suitColor)
+						]);
 				case 'N5':
-					return 4;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 4, suitColor)
+						]);
 				case 'N6':
-					return 5;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 5, suitColor)
+						]);
 				case 'N7':
-					return 6;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 6, suitColor)
+						]);
 				case 'N8':
-					return 7;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 7, suitColor)
+						]);
 				case 'N9':
-					return 8;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 8, suitColor)
+						]);
 				case 'N10':
-					return 9;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 9, suitColor)
+						]);
 				case 'Jack':
-					return 10;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 10, $author$project$Card$Black),
+							_Utils_Tuple2(suitOffset + 11, $author$project$Card$DarkBrown),
+							_Utils_Tuple2(suitOffset + 12, $author$project$Card$LightBrown),
+							_Utils_Tuple2(suitOffset + 13, $author$project$Card$Red)
+						]);
 				case 'Queen':
-					return 11;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 14, $author$project$Card$Black),
+							_Utils_Tuple2(suitOffset + 15, $author$project$Card$DarkBrown),
+							_Utils_Tuple2(suitOffset + 16, $author$project$Card$LightBrown),
+							_Utils_Tuple2(suitOffset + 17, $author$project$Card$Red)
+						]);
 				default:
-					return 12;
+					return _List_fromArray(
+						[
+							_Utils_Tuple2(suitOffset + 18, $author$project$Card$Black),
+							_Utils_Tuple2(suitOffset + 19, $author$project$Card$DarkBrown),
+							_Utils_Tuple2(suitOffset + 20, $author$project$Card$LightBrown),
+							_Utils_Tuple2(suitOffset + 21, $author$project$Card$Red)
+						]);
 			}
 		}());
-};
-var $author$project$Card$Black = {$: 'Black'};
-var $author$project$Card$Red = {$: 'Red'};
-var $author$project$Card$getColor = function (_v0) {
-	var suit = _v0.suit;
-	switch (suit.$) {
-		case 'Hearts':
-			return $author$project$Card$Red;
-		case 'Diamonds':
-			return $author$project$Card$Red;
-		case 'Clubs':
-			return $author$project$Card$Black;
-		default:
-			return $author$project$Card$Black;
-	}
-};
-var $author$project$Card$getColorClass = function (color) {
-	if (color.$ === 'Black') {
-		return $elm$html$Html$Attributes$class('card-black');
-	} else {
-		return $elm$html$Html$Attributes$class('card-red');
-	}
 };
 var $author$project$Card$view = function (card) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('card '),
-				$author$project$Card$getColorClass(
-				$author$project$Card$getColor(card))
+				$elm$html$Html$Attributes$class('char-holder')
 			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(
-				$elm$core$String$fromChar(
-					$author$project$Card$getChar(card)))
-			]));
+		A2(
+			$elm$core$List$map,
+			$author$project$Card$viewChar,
+			$author$project$Card$getChars(card)));
 };
 var $author$project$Home$viewHome = F3(
 	function (helper, index, maybeCard) {
@@ -7601,6 +7682,19 @@ var $author$project$Home$view = F2(
 					$author$project$Home$viewHome(helper),
 					model.homes)));
 	});
+var $author$project$Card$getColor = function (_v0) {
+	var suit = _v0.suit;
+	switch (suit.$) {
+		case 'Hearts':
+			return $author$project$Card$Red;
+		case 'Diamonds':
+			return $author$project$Card$Red;
+		case 'Clubs':
+			return $author$project$Card$Black;
+		default:
+			return $author$project$Card$Black;
+	}
+};
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Card$cardsSuccessivePile = F2(
 	function (maybeCard, nextCard) {
