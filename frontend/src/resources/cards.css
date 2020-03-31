@@ -7,24 +7,22 @@ body {
     background-color: darkslategray;
 }
 div.char-holder {
-    text-align: center;
-    width: 7.3vw;
-    height: 11.5vw;
-    line-height: 11.1vw;
+    width: 5.7vw;
+    height: 8.5vw;
+    line-height: 8.5vw;
 }
 div.char {
     position: absolute;
     font-family: "Cards font";
-    font-size: 11vw;
+    font-size: 8.4vw;
     opacity: 1.0;
     background-color: transparent;
 /*    border: 0.05vw solid black;
     border-radius: 5%; */
     padding: 0vw 0vw 0vw 0vw;
-    text-align: center;
-    width: 7.3vw;
-    height: 11.5vw;
-    line-height: 11.1vw;
+    width: 5.7vw;
+    height: 8.5vw;
+    line-height: 8.5vw;
     user-select: none; /* to prevent selection of text */
 }
 div.color-red {
@@ -52,21 +50,29 @@ div.card-draggable {
     cursor: move;
 }
 div.card-pile {
-    margin-top: -9vw;
+    margin-top: -7vw;
     position: relative;
 }
 div.card-pile-bottom {
-    margin-top: -11.5vw;
+    margin-top: -8.5vw;
     padding: 0 1vw 0 1vw;
 }
 div.card-placeholder {
     opacity: 1;
     margin: 0 1vw 0 1vw;
 }
+/*  DOES NOT WORK FOR EDGE */
 div.card-hide {
     animation-name: cardhide;
     animation-duration: 0.01s;
     animation-fill-mode: forwards;
+}
+@supports (-ms-ime-align: auto) {  // Browser Edge
+    div.card-hide {
+        animation-name: none;
+        position: absolute;
+        top: -300px;
+    }
 }
 @keyframes cardhide {
     0% { display: block; visibility: block;  }
@@ -114,17 +120,16 @@ div.card-distributing {
 /* Spaces */
 div.spaces-container {
     position: absolute;
+    width: 40vw;
+    top: 5vh;
+    left: 3vw;
     display: grid;
     grid-template-columns: repeat(4, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
-    width: 32vw;
-
-    margin-top: 3vh;
-    margin-left: 4vw;
 }
 div.card-space {
-    margin-top: -11.5vw;
+    margin-top: -8.5vw;
     position: relative;
     padding: 0 1vw 0 1vw;
 }
@@ -132,17 +137,16 @@ div.card-space {
 /* Homes */
 div.homes-container {
     position: absolute;
+    width: 40vw;
+    top: 5vh;
+    left: calc(100vw - 40vw - 3vw);
     display: grid;
     grid-template-columns: repeat(4, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
-    width: 32vw;
-
-    margin-top: 3vh;
-    margin-left: calc(100vw - 44vw - 4vw);
 }
 div.card-home {
-    margin-top: -11.5vw;
+    margin-top: -8.5vw;
     position: relative;
     padding: 0 1vw 0 1vw;
 }

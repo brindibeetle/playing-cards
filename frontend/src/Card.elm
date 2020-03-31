@@ -88,48 +88,53 @@ getChars { suit, rank } =
                     ( 105, Black )
             )
     in
-        ( 129, Whitish )
-        ::
-        ( case rank of
-            Ace ->
-                [ ( suitOffset + 0, suitColor ) ]
-            N2 ->
-                [ ( suitOffset + 1, suitColor ) ]
-            N3 ->
-                [ ( suitOffset + 2, suitColor ) ]
-            N4 ->
-                [ ( suitOffset + 3, suitColor ) ]
-            N5 ->
-                [ ( suitOffset + 4, suitColor ) ]
-            N6 ->
-                [ ( suitOffset + 5, suitColor ) ]
-            N7 ->
-                [ ( suitOffset + 6, suitColor ) ]
-            N8 ->
-                [ ( suitOffset + 7, suitColor ) ]
-            N9 ->
-                [ ( suitOffset + 8, suitColor ) ]
-            N10 ->
-                [ ( suitOffset + 9, suitColor ) ]
-            Jack ->
-                [ ( suitOffset + 10, Black )
-                , ( suitOffset + 11, DarkBrown )
-                , ( suitOffset + 12, LightBrown )
-                , ( suitOffset + 13, Red )
-                ]
-            Queen ->
-                [ ( suitOffset + 14, Black )
-                , ( suitOffset + 15, DarkBrown )
-                , ( suitOffset + 16, LightBrown )
-                , ( suitOffset + 17, Red )
-                ]
-            King ->
-                [ ( suitOffset + 18, Black )
-                , ( suitOffset + 19, DarkBrown )
-                , ( suitOffset + 20, LightBrown )
-                , ( suitOffset + 21, Red )
-                ]
-        )
+        List.concat
+        [
+            [ ( 161, Whitish )
+            , ( 162, Black )
+            ]
+            ,
+            ( case rank of
+                Ace ->
+                    [ ( suitOffset + 0, suitColor ) ]
+                N2 ->
+                    [ ( suitOffset + 1, suitColor ) ]
+                N3 ->
+                    [ ( suitOffset + 2, suitColor ) ]
+                N4 ->
+                    [ ( suitOffset + 3, suitColor ) ]
+                N5 ->
+                    [ ( suitOffset + 4, suitColor ) ]
+                N6 ->
+                    [ ( suitOffset + 5, suitColor ) ]
+                N7 ->
+                    [ ( suitOffset + 6, suitColor ) ]
+                N8 ->
+                    [ ( suitOffset + 7, suitColor ) ]
+                N9 ->
+                    [ ( suitOffset + 8, suitColor ) ]
+                N10 ->
+                    [ ( suitOffset + 9, suitColor ) ]
+                Jack ->
+                    [ ( suitOffset + 10, Black )
+                    , ( suitOffset + 11, DarkBrown )
+                    , ( suitOffset + 12, LightBrown )
+                    , ( suitOffset + 13, Red )
+                    ]
+                Queen ->
+                    [ ( suitOffset + 14, Black )
+                    , ( suitOffset + 15, DarkBrown )
+                    , ( suitOffset + 16, LightBrown )
+                    , ( suitOffset + 17, Red )
+                    ]
+                King ->
+                    [ ( suitOffset + 18, Black )
+                    , ( suitOffset + 19, DarkBrown )
+                    , ( suitOffset + 20, LightBrown )
+                    , ( suitOffset + 21, Red )
+                    ]
+            )
+        ]
 
 
 getColor : Card -> Color
@@ -180,8 +185,9 @@ view card =
 viewChar : ( Int, Color ) -> Html msg
 viewChar ( int, color ) =
     div [ class "char ", getColorClass color ]
+    --[ text ( String.fromChar (Char.fromCode 130)) ]
     [ text ( String.fromChar (Char.fromCode int)) ]
-    --[ text ( String.fromChar char ) ]
+    --[ text ( "\u{0082}") ]
 
 -- ####
 -- ####    VIEW
@@ -190,10 +196,10 @@ viewChar ( int, color ) =
 
 getCharsBack : List ( Int, Color )
 getCharsBack =
-    [ ( 129, Whitish )
-    , ( 130, Black )
-    , ( 133, DarkBlue )
-    , ( 133, LightBlue )
+    [ ( 161, Whitish )
+    , ( 162, Black )
+    , ( 165, DarkBlue )
+    , ( 166, LightBlue )
     ]
 
 viewBack : Html msg

@@ -7419,10 +7419,10 @@ var $author$project$Card$LightBlue = {$: 'LightBlue'};
 var $author$project$Card$Whitish = {$: 'Whitish'};
 var $author$project$Card$getCharsBack = _List_fromArray(
 	[
-		_Utils_Tuple2(129, $author$project$Card$Whitish),
-		_Utils_Tuple2(130, $author$project$Card$Black),
-		_Utils_Tuple2(133, $author$project$Card$DarkBlue),
-		_Utils_Tuple2(133, $author$project$Card$LightBlue)
+		_Utils_Tuple2(161, $author$project$Card$Whitish),
+		_Utils_Tuple2(162, $author$project$Card$Black),
+		_Utils_Tuple2(165, $author$project$Card$DarkBlue),
+		_Utils_Tuple2(166, $author$project$Card$LightBlue)
 	]);
 var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
@@ -7484,6 +7484,9 @@ var $author$project$Card$cardPlaceholder = A2(
 var $author$project$Card$DarkBrown = {$: 'DarkBrown'};
 var $author$project$Card$LightBrown = {$: 'LightBrown'};
 var $author$project$Card$Red = {$: 'Red'};
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $author$project$Card$getChars = function (_v0) {
 	var suit = _v0.suit;
 	var rank = _v0.rank;
@@ -7501,87 +7504,93 @@ var $author$project$Card$getChars = function (_v0) {
 	}();
 	var suitOffset = _v1.a;
 	var suitColor = _v1.b;
-	return A2(
-		$elm$core$List$cons,
-		_Utils_Tuple2(129, $author$project$Card$Whitish),
-		function () {
-			switch (rank.$) {
-				case 'Ace':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 0, suitColor)
-						]);
-				case 'N2':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 1, suitColor)
-						]);
-				case 'N3':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 2, suitColor)
-						]);
-				case 'N4':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 3, suitColor)
-						]);
-				case 'N5':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 4, suitColor)
-						]);
-				case 'N6':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 5, suitColor)
-						]);
-				case 'N7':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 6, suitColor)
-						]);
-				case 'N8':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 7, suitColor)
-						]);
-				case 'N9':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 8, suitColor)
-						]);
-				case 'N10':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 9, suitColor)
-						]);
-				case 'Jack':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 10, $author$project$Card$Black),
-							_Utils_Tuple2(suitOffset + 11, $author$project$Card$DarkBrown),
-							_Utils_Tuple2(suitOffset + 12, $author$project$Card$LightBrown),
-							_Utils_Tuple2(suitOffset + 13, $author$project$Card$Red)
-						]);
-				case 'Queen':
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 14, $author$project$Card$Black),
-							_Utils_Tuple2(suitOffset + 15, $author$project$Card$DarkBrown),
-							_Utils_Tuple2(suitOffset + 16, $author$project$Card$LightBrown),
-							_Utils_Tuple2(suitOffset + 17, $author$project$Card$Red)
-						]);
-				default:
-					return _List_fromArray(
-						[
-							_Utils_Tuple2(suitOffset + 18, $author$project$Card$Black),
-							_Utils_Tuple2(suitOffset + 19, $author$project$Card$DarkBrown),
-							_Utils_Tuple2(suitOffset + 20, $author$project$Card$LightBrown),
-							_Utils_Tuple2(suitOffset + 21, $author$project$Card$Red)
-						]);
-			}
-		}());
+	return $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					_Utils_Tuple2(161, $author$project$Card$Whitish),
+					_Utils_Tuple2(162, $author$project$Card$Black)
+				]),
+				function () {
+				switch (rank.$) {
+					case 'Ace':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 0, suitColor)
+							]);
+					case 'N2':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 1, suitColor)
+							]);
+					case 'N3':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 2, suitColor)
+							]);
+					case 'N4':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 3, suitColor)
+							]);
+					case 'N5':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 4, suitColor)
+							]);
+					case 'N6':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 5, suitColor)
+							]);
+					case 'N7':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 6, suitColor)
+							]);
+					case 'N8':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 7, suitColor)
+							]);
+					case 'N9':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 8, suitColor)
+							]);
+					case 'N10':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 9, suitColor)
+							]);
+					case 'Jack':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 10, $author$project$Card$Black),
+								_Utils_Tuple2(suitOffset + 11, $author$project$Card$DarkBrown),
+								_Utils_Tuple2(suitOffset + 12, $author$project$Card$LightBrown),
+								_Utils_Tuple2(suitOffset + 13, $author$project$Card$Red)
+							]);
+					case 'Queen':
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 14, $author$project$Card$Black),
+								_Utils_Tuple2(suitOffset + 15, $author$project$Card$DarkBrown),
+								_Utils_Tuple2(suitOffset + 16, $author$project$Card$LightBrown),
+								_Utils_Tuple2(suitOffset + 17, $author$project$Card$Red)
+							]);
+					default:
+						return _List_fromArray(
+							[
+								_Utils_Tuple2(suitOffset + 18, $author$project$Card$Black),
+								_Utils_Tuple2(suitOffset + 19, $author$project$Card$DarkBrown),
+								_Utils_Tuple2(suitOffset + 20, $author$project$Card$LightBrown),
+								_Utils_Tuple2(suitOffset + 21, $author$project$Card$Red)
+							]);
+				}
+			}()
+			]));
 };
 var $author$project$Card$view = function (card) {
 	return A2(
@@ -7760,9 +7769,6 @@ var $author$project$Pile$canBeDraggedFrom = function (cards) {
 				_Utils_Tuple2($elm$core$Maybe$Nothing, true)),
 			cards).a;
 	}
-};
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
 var $author$project$Pile$draggableCards = F2(
 	function (emptySpaces, emptyPiles) {
