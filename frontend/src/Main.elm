@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser exposing (Document, UrlRequest)
+import Buttons
 import CardsCDN
 import Distribute exposing (Msg(..))
 import Home
@@ -10,6 +11,7 @@ import Html.Events exposing (onDoubleClick)
 import Html5.DragDrop as DragDrop exposing (..)
 import Card exposing (..)
 import Json.Decode
+import ModelHistory exposing (..)
 import Pile exposing (..)
 import Process
 import Shuffle exposing (..)
@@ -28,11 +30,9 @@ main =
 
 
 type alias Model =
-    { pilesModel : Pile.Model
+    { modelHistory : ModelHistory
     , shuffleModel : Shuffle.Model
     , distributeModel : Distribute.Model
-    , spacesModel : Space.Model
-    , homesModel : Home.Model
     , dragDrop : DragDrop.Model From To
     }
 
@@ -58,11 +58,9 @@ init flags =
     in
         (
             {
-                pilesModel = Pile.init
+                modelHistory = ModelHistory.init
                 , shuffleModel = shuffleModel
                 , distributeModel = Distribute.init
-                , spacesModel = Space.init
-                , homesModel = Home.init
                 , dragDrop = DragDrop.init
             }
             , Cmd.map ShuffleMsg shuffleCmd
@@ -79,160 +77,176 @@ view model =
     let
         --playingDone = Pile.playingDone model.pilesModel
         --playingDone = Home.playingDone model.homesModel
+        hasHistory = ModelHistory.hasHistory model.modelHistory
         distributingDone = model.distributeModel.distributingDone
         helpForPile = helperForPile ( DragDrop.getDragId model.dragDrop ) distributingDone model
         helpForHome = helperForHome ( DragDrop.getDragId model.dragDrop ) model
         helpForSpace = helperForSpace ( DragDrop.getDragId model.dragDrop ) model
+        { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
+        helpForButtons = { newClicked = NewMsg, restartClicked = RestartMsg, undoClicked = UndoMsg,  newEnabled = True, restartEnabled = hasHistory, undoEnabled = hasHistory }
     in
         { title = "Cards"
         , body =
             if not ( model.shuffleModel.shufflingDone ) then
                 [
                     CardsCDN.stylesheet
-                    , Space.view model.spacesModel helpForSpace
-                    , Home.view model.homesModel helpForHome
+                    , Buttons.view helpForButtons
+                    , Space.view spacesModel helpForSpace
+                    , Home.view homesModel helpForHome
                     , Shuffle.view model.shuffleModel
                 ]
             else
                 if not ( model.distributeModel.distributingDone ) then
                 [
                     CardsCDN.stylesheet
-                    , Space.view model.spacesModel helpForSpace
-                    , Home.view model.homesModel helpForHome
-                    , Pile.view model.pilesModel helpForPile
+                    , Buttons.view helpForButtons
+                    , Space.view spacesModel helpForSpace
+                    , Home.view homesModel helpForHome
+                    , Pile.view pilesModel helpForPile
                 ]
                 else
-                    if ( Pile.playingDone model.pilesModel ) then
+                    if ( Pile.playingDone pilesModel ) then
                         [
                             CardsCDN.stylesheet
-                            , Space.view model.spacesModel helpForSpace
-                            , Home.view model.homesModel helpForHome
-                            , Pile.view model.pilesModel helpForPile
+                            , Buttons.view helpForButtons
+                            , Space.view spacesModel helpForSpace
+                            , Home.view homesModel helpForHome
+                            , Pile.view pilesModel helpForPile
                         ]
                     else
                         [
                             CardsCDN.stylesheet
-                            , Space.view model.spacesModel helpForSpace
-                            , Home.view model.homesModel helpForHome
-                            , Pile.view model.pilesModel helpForPile
+                            , Buttons.view helpForButtons
+                            , Space.view spacesModel helpForSpace
+                            , Home.view homesModel helpForHome
+                            , Pile.view pilesModel helpForPile
                         ]
         }
 
 
 helperForPile : Maybe From -> Bool -> Model -> Pile.Helper Msg
 helperForPile maybeFrom distributingDone model =
-    case ( distributingDone, maybeFrom ) of
-        ( False, _ ) ->
-            {
-                maybeDragFromPileId = Nothing
-                , maybeDragFromCardId = Nothing
-                , maybeDragCard = Nothing
-                , draggedNumberOfCards = 0
-                , droppableAttribute = droppablePiles
-                , draggableAttribute = draggablePiles
-                , emptyPiles = 0
-                , emptySpaces = 0
-                , clickToSendHome = clickToSendHomeFromPile
-                , cardClass = [ class "card-distributing" ]
-            }
+    let
+        { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
+    in
+        case ( distributingDone, maybeFrom ) of
+            ( False, _ ) ->
+                {
+                    maybeDragFromPileId = Nothing
+                    , maybeDragFromCardId = Nothing
+                    , maybeDragCard = Nothing
+                    , draggedNumberOfCards = 0
+                    , droppableAttribute = droppablePiles
+                    , draggableAttribute = draggablePiles
+                    , emptyPiles = 0
+                    , emptySpaces = 0
+                    , clickToSendHome = clickToSendHomeFromPile
+                    , cardClass = [ class "card-distributing" ]
+                }
 
-        ( True, Just ( PileFrom pileIndex cardIndex ) ) ->
-            {
-                maybeDragFromPileId = Just pileIndex
-                , maybeDragFromCardId = Just cardIndex
-                , maybeDragCard = Pile.getCard pileIndex cardIndex model.pilesModel
-                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
-                , droppableAttribute = droppablePiles
-                , draggableAttribute = draggablePiles
-                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
-                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
-                , clickToSendHome = clickToSendHomeFromPile
-                , cardClass = []
-            }
+            ( True, Just ( PileFrom pileIndex cardIndex ) ) ->
+                {
+                    maybeDragFromPileId = Just pileIndex
+                    , maybeDragFromCardId = Just cardIndex
+                    , maybeDragCard = Pile.getCard pileIndex cardIndex pilesModel
+                    , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
+                    , droppableAttribute = droppablePiles
+                    , draggableAttribute = draggablePiles
+                    , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles pilesModel )
+                    , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces spacesModel )
+                    , clickToSendHome = clickToSendHomeFromPile
+                    , cardClass = []
+                }
 
-        ( True, Just ( SpaceFrom spaceIndex ) ) ->
-            {
-                maybeDragFromPileId = Nothing
-                , maybeDragFromCardId = Nothing
-                , maybeDragCard = Space.getCard spaceIndex model.spacesModel
-                , draggedNumberOfCards = 1
-                , droppableAttribute = droppablePiles
-                , draggableAttribute = draggablePiles
-                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
-                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
-                , clickToSendHome = clickToSendHomeFromPile
-                , cardClass = []
-            }
+            ( True, Just ( SpaceFrom spaceIndex ) ) ->
+                {
+                    maybeDragFromPileId = Nothing
+                    , maybeDragFromCardId = Nothing
+                    , maybeDragCard = Space.getCard spaceIndex spacesModel
+                    , draggedNumberOfCards = 1
+                    , droppableAttribute = droppablePiles
+                    , draggableAttribute = draggablePiles
+                    , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles pilesModel )
+                    , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces spacesModel )
+                    , clickToSendHome = clickToSendHomeFromPile
+                    , cardClass = []
+                }
 
-        ( True, _ ) ->
-            {
-                maybeDragFromPileId = Nothing
-                , maybeDragFromCardId = Nothing
-                , maybeDragCard = Nothing
-                , draggedNumberOfCards = 0
-                , droppableAttribute = droppablePiles
-                , draggableAttribute = draggablePiles
-                , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles model.pilesModel )
-                , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces model.spacesModel )
-                , clickToSendHome = clickToSendHomeFromPile
-                , cardClass = []
-              }
+            ( True, _ ) ->
+                {
+                    maybeDragFromPileId = Nothing
+                    , maybeDragFromCardId = Nothing
+                    , maybeDragCard = Nothing
+                    , draggedNumberOfCards = 0
+                    , droppableAttribute = droppablePiles
+                    , draggableAttribute = draggablePiles
+                    , emptyPiles = Debug.log "getEmptyPiles" ( Pile.getEmptyPiles pilesModel )
+                    , emptySpaces = Debug.log "getEmptySpaces" ( Space.getEmptySpaces spacesModel )
+                    , clickToSendHome = clickToSendHomeFromPile
+                    , cardClass = []
+                  }
 
 
 helperForSpace : Maybe From -> Model -> Space.Helper Msg
 helperForSpace maybeFrom model =
-    case maybeFrom of
-        Just ( PileFrom pileIndex cardIndex ) ->
-            {
-                maybeDragFromSpaceId = Nothing
-                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
-                , droppableAttribute = droppableSpaces
-                , draggableAttribute = draggableSpaces
-                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-            }
+    let
+        { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
+    in
+        case maybeFrom of
+            Just ( PileFrom pileIndex cardIndex ) ->
+                {
+                    maybeDragFromSpaceId = Nothing
+                    , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
+                    , droppableAttribute = droppableSpaces
+                    , draggableAttribute = draggableSpaces
+                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
+                }
 
-        Just ( SpaceFrom spaceIndex ) ->
-            {
-                maybeDragFromSpaceId = Just spaceIndex
-                , draggedNumberOfCards = 1
-                , droppableAttribute = droppableSpaces
-                , draggableAttribute = draggableSpaces
-                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-            }
+            Just ( SpaceFrom spaceIndex ) ->
+                {
+                    maybeDragFromSpaceId = Just spaceIndex
+                    , draggedNumberOfCards = 1
+                    , droppableAttribute = droppableSpaces
+                    , draggableAttribute = draggableSpaces
+                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
+                }
 
-        _ ->
-            {
-                maybeDragFromSpaceId = Nothing
-                , draggedNumberOfCards = 0
-                , droppableAttribute = droppableSpaces
-                , draggableAttribute = draggableSpaces
-                , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-            }
+            _ ->
+                {
+                    maybeDragFromSpaceId = Nothing
+                    , draggedNumberOfCards = 0
+                    , droppableAttribute = droppableSpaces
+                    , draggableAttribute = draggableSpaces
+                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
+                }
 
 
 helperForHome : Maybe From -> Model -> Home.Helper Msg
 helperForHome maybeFrom model =
-    case maybeFrom of
-        Just ( PileFrom pileIndex cardIndex ) ->
-            {
-                maybeDraggedCard = Pile.getTopCard pileIndex model.pilesModel
-                , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex model.pilesModel
-                , droppableAttribute = droppableHomes
-            }
+    let
+        { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
+    in
+        case maybeFrom of
+            Just ( PileFrom pileIndex cardIndex ) ->
+                {
+                    maybeDraggedCard = Pile.getTopCard pileIndex pilesModel
+                    , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
+                    , droppableAttribute = droppableHomes
+                }
 
-        Just ( SpaceFrom spaceIndex ) ->
-            {
-                maybeDraggedCard = Space.getCard spaceIndex model.spacesModel
-                , draggedNumberOfCards = 1
-                , droppableAttribute = droppableHomes
-            }
+            Just ( SpaceFrom spaceIndex ) ->
+                {
+                    maybeDraggedCard = Space.getCard spaceIndex spacesModel
+                    , draggedNumberOfCards = 1
+                    , droppableAttribute = droppableHomes
+                }
 
-        _ ->
-            {
-                maybeDraggedCard = Nothing
-                , draggedNumberOfCards = 0
-                , droppableAttribute = droppableHomes
-            }
+            _ ->
+                {
+                    maybeDraggedCard = Nothing
+                    , draggedNumberOfCards = 0
+                    , droppableAttribute = droppableHomes
+                }
 
 
 droppablePiles : Int -> List (Attribute Msg)
@@ -284,6 +298,9 @@ type Msg
     | SentHomeFromSpaceMsg Int Card
     | SentAllHomeFromPileMsg Int
     | SentAllHomeFromSpaceMsg Int
+    | NewMsg
+    | RestartMsg
+    | UndoMsg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -321,22 +338,15 @@ update msg model =
                     ( distributeModel, distributeCmd ) =
                         Distribute.update distributeMsg model.distributeModel
                 in
-                    if distributeModel.distributingDone then
-                        (
-                            { model
-                            | distributeModel = distributeModel
-                            , pilesModel = Pile.setPiles model.pilesModel distributeModel.piles
-                            }
-                            , Cmd.none
-                        )
-                    else
-                        (
-                            { model
-                            | distributeModel = distributeModel
-                            , pilesModel = Pile.setPiles model.pilesModel distributeModel.piles
-                            }
-                            , Cmd.map DistributeMsg distributeCmd
-                        )
+                    (
+                        { model
+                        | distributeModel = distributeModel
+                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                |> ModelHistory.setPiles ( Pile.setPiles distributeModel.piles )
+                                |> ModelHistory.setCurrent model.modelHistory
+                        }
+                        , if distributeModel.distributingDone then Cmd.none else Cmd.map DistributeMsg distributeCmd
+                    )
 
             DragDropMsg msg_ ->
                 let
@@ -358,15 +368,17 @@ update msg model =
                                     model2 =
                                         { model
                                         | dragDrop = dragDropModel
-                                        , pilesModel = Pile.moveCard pileFromId cardFromId pileToId model.pilesModel
+                                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                |> ModelHistory.setPiles ( Pile.moveCard pileFromId cardFromId pileToId  ( ModelHistory.getPiles model.modelHistory ) )
+                                                |> ModelHistory.addMoment model.modelHistory
                                         }
                                 in
                                     ( model2
-                                    , if Pile.playingDone model2.pilesModel then doSentHomeAll model2 0  else Cmd.none
+                                    , if ModelHistory.playingDone model2.modelHistory then doSentHomeAll model2 0  else Cmd.none
                                     )
 
                             Just ( PileFrom pileFromId _, SpaceTo spaceId, _ ) ->
-                                case Pile.getTopCard pileFromId model.pilesModel of
+                                case Pile.getTopCard pileFromId ( ModelHistory.getPiles model.modelHistory ) of
                                     Nothing ->
                                         (
                                             { model
@@ -380,25 +392,29 @@ update msg model =
                                             model2 =
                                                 { model
                                                 | dragDrop = dragDropModel
-                                                , spacesModel = Space.pushCard spaceId card model.spacesModel
-                                                , pilesModel = Pile.pullCard pileFromId model.pilesModel
+                                                , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                        |> ModelHistory.setSpaces ( Space.pushCard spaceId card ( ModelHistory.getSpaces model.modelHistory ) )
+                                                        |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
+                                                        |> ModelHistory.addMoment model.modelHistory
                                                 }
                                         in
                                             ( model2
-                                            , if Pile.playingDone model2.pilesModel then doSentHomeAll model2 0  else Cmd.none
+                                            , if ModelHistory.playingDone model2.modelHistory then doSentHomeAll model2 0  else Cmd.none
                                             )
 
                             Just ( SpaceFrom spaceFromId, SpaceTo spaceToId, _ ) ->
                                 (
                                     { model
                                     | dragDrop = dragDropModel
-                                    , spacesModel = Space.moveCard spaceFromId spaceToId model.spacesModel
+                                    , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                             |> ModelHistory.setSpaces ( Space.moveCard spaceFromId spaceToId ( ModelHistory.getSpaces model.modelHistory ) )
+                                             |> ModelHistory.addMoment model.modelHistory
                                     }
                                     , Cmd.none
                                 )
 
                             Just ( SpaceFrom spaceFromId, PileTo pileToId, _ ) ->
-                                case Space.getCard spaceFromId model.spacesModel of
+                                case Space.getCard spaceFromId ( ModelHistory.getSpaces model.modelHistory ) of
                                     Nothing ->
                                         (
                                             { model
@@ -411,14 +427,16 @@ update msg model =
                                         (
                                             { model
                                             | dragDrop = dragDropModel
-                                            , spacesModel = Space.pullCard spaceFromId model.spacesModel
-                                            , pilesModel = Pile.pushCard pileToId card model.pilesModel
+                                            , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                     |> ModelHistory.setSpaces ( Space.pullCard spaceFromId ( ModelHistory.getSpaces model.modelHistory ) )
+                                                     |> ModelHistory.setPiles ( Pile.pushCard pileToId card ( ModelHistory.getPiles model.modelHistory ) )
+                                                     |> ModelHistory.addMoment model.modelHistory
                                             }
                                             , Cmd.none
                                         )
 
                             Just ( PileFrom pileFromId _, HomeTo homeId, _ ) ->
-                                case Pile.getTopCard pileFromId model.pilesModel of
+                                case Pile.getTopCard pileFromId ( ModelHistory.getPiles model.modelHistory ) of
                                     Nothing ->
                                         (
                                             { model
@@ -432,16 +450,18 @@ update msg model =
                                             model2 =
                                                 { model
                                                 | dragDrop = dragDropModel
-                                                , homesModel = Home.pushCard homeId card model.homesModel
-                                                , pilesModel = Pile.pullCard pileFromId model.pilesModel
+                                                , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                         |> ModelHistory.setHomes ( Home.pushCard homeId card ( ModelHistory.getHomes model.modelHistory ) )
+                                                         |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
+                                                         |> ModelHistory.addMoment model.modelHistory
                                                 }
                                         in
                                             ( model2
-                                            , if Pile.playingDone model2.pilesModel then doSentHomeAll model2 0  else Cmd.none
+                                            , if ModelHistory.playingDone model2.modelHistory then doSentHomeAll model2 0  else Cmd.none
                                             )
 
                             Just ( SpaceFrom spaceFromId, HomeTo homeId, _ ) ->
-                                case Space.getCard spaceFromId model.spacesModel of
+                                case Space.getCard spaceFromId ( ModelHistory.getSpaces model.modelHistory ) of
                                     Nothing ->
                                         (
                                             { model
@@ -454,8 +474,10 @@ update msg model =
                                         (
                                             { model
                                             | dragDrop = dragDropModel
-                                            , spacesModel = Space.pullCard spaceFromId model.spacesModel
-                                            , homesModel = Home.pushCard homeId card model.homesModel
+                                            , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                     |> ModelHistory.setSpaces ( Space.pullCard spaceFromId ( ModelHistory.getSpaces model.modelHistory ) )
+                                                     |> ModelHistory.setHomes ( Home.pushCard homeId card ( ModelHistory.getHomes model.modelHistory ) )
+                                                     |> ModelHistory.addMoment model.modelHistory
                                             }
                                             , Cmd.none
                                         )
@@ -469,40 +491,44 @@ update msg model =
                     )
 
             SentHomeFromPileMsg pileIndex card ->
-                case Home.canReceiveCard card model.homesModel of
+                case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                     Nothing ->
                         ( model, Cmd.none )
 
                     Just index ->
                         (
                             { model
-                            | pilesModel = Pile.pullCard pileIndex model.pilesModel
-                            , homesModel = Home.pushCard index card model.homesModel
+                            | modelHistory = ModelHistory.getCurrent model.modelHistory
+                                    |> ModelHistory.setPiles ( Pile.pullCard pileIndex ( ModelHistory.getPiles model.modelHistory ) )
+                                    |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                                    |> ModelHistory.addMoment model.modelHistory
                             }
                             , Cmd.none
                         )
 
             SentHomeFromSpaceMsg homeIndex card ->
-                case Home.canReceiveCard card model.homesModel of
+                case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                     Nothing ->
                         ( model, Cmd.none )
 
                     Just index ->
                         (
                             { model
-                            | spacesModel = Space.pullCard homeIndex model.spacesModel
-                            , homesModel = Home.pushCard index card model.homesModel
+                            | modelHistory = ModelHistory.getCurrent model.modelHistory
+                                    |> ModelHistory.setSpaces ( Space.pullCard homeIndex ( ModelHistory.getSpaces model.modelHistory ) )
+                                    |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                                    |> ModelHistory.addMoment model.modelHistory
                             }
                             , Cmd.none
                         )
 
             SentAllHomeFromPileMsg pileIndex ->
-                case Pile.getTopCard pileIndex model.pilesModel of
+                case Pile.getTopCard pileIndex ( ModelHistory.getPiles model.modelHistory ) of
                     Nothing ->
                         ( model, doSentHomeAll model ( pileIndex + 1) )
 
                     Just card ->
-                        case Home.canReceiveCard card model.homesModel of
+                        case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                             Nothing ->
                                 ( model, doSentHomeAll model ( pileIndex + 1) )
 
@@ -510,20 +536,22 @@ update msg model =
                                 let
                                     model2 =
                                         { model
-                                        | pilesModel = Pile.pullCard pileIndex model.pilesModel
-                                        , homesModel = Home.pushCard index card model.homesModel
+                                        | modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                |> ModelHistory.setPiles ( Pile.pullCard pileIndex ( ModelHistory.getPiles model.modelHistory ) )
+                                                |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                                                |> ModelHistory.setCurrent model.modelHistory
                                         }
                                 in
                                     ( model2, doSentHomeAll model2 ( pileIndex + 1)
                                 )
 
             SentAllHomeFromSpaceMsg spaceIndex8 ->
-                case Space.getCard ( spaceIndex8 - 8 ) model.spacesModel of
+                case Space.getCard ( spaceIndex8 - 8 ) ( ModelHistory.getSpaces model.modelHistory ) of
                     Nothing ->
                         ( model, doSentHomeAll model ( spaceIndex8 + 1) )
 
                     Just card ->
-                        case Home.canReceiveCard card model.homesModel of
+                        case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                             Nothing ->
                                 ( model, doSentHomeAll model ( spaceIndex8 + 1) )
 
@@ -531,12 +559,38 @@ update msg model =
                                 let
                                     model2 =
                                         { model
-                                        | spacesModel = Space.pullCard ( spaceIndex8 - 8 ) model.spacesModel
-                                        , homesModel = Home.pushCard index card model.homesModel
+                                        | modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                |> ModelHistory.setSpaces ( Space.pullCard ( spaceIndex8 - 8 ) ( ModelHistory.getSpaces model.modelHistory ) )
+                                                |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                                                |> ModelHistory.setCurrent model.modelHistory
                                         }
                                 in
                                     ( model2, doSentHomeAll model2 ( spaceIndex8 + 1)
                                 )
+
+            UndoMsg ->
+                (
+                    { model
+                    | modelHistory = ModelHistory.popMoment model.modelHistory
+                    }
+                    , Cmd.none
+                )
+
+            RestartMsg ->
+                (
+                    { model
+                    | modelHistory = ModelHistory.popHistory model.modelHistory
+                    }
+                    , Cmd.none
+                )
+
+            NewMsg ->
+                (
+                    init "new"
+                )
+
+
+
 
 
 
@@ -546,7 +600,7 @@ doSentHomeAll model int =
     let
         chooser = modBy 12 int
     in
-        if Home.playingDone model.homesModel then
+        if Home.playingDone ( ModelHistory.getHomes model.modelHistory ) then
             Cmd.none
         else
             if chooser < 8 then

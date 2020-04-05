@@ -7,22 +7,20 @@ body {
     background-color: darkslategray;
 }
 div.char-holder {
-    width: 5.7vw;
-    height: 8.5vw;
-    line-height: 8.5vw;
+    width: 8.1vw;
+    height: 12.2vw;
+    line-height: 12.3vw;
 }
 div.char {
     position: absolute;
     font-family: "Cards font";
-    font-size: 8.4vw;
+    font-size: 12vw;
     opacity: 1.0;
     background-color: transparent;
-/*    border: 0.05vw solid black;
-    border-radius: 5%; */
     padding: 0vw 0vw 0vw 0vw;
-    width: 5.7vw;
-    height: 8.5vw;
-    line-height: 8.5vw;
+    width: 8.1vw;
+    height: 12.2vw;
+    line-height: 12.3vw;
     user-select: none; /* to prevent selection of text */
 }
 div.color-red {
@@ -50,11 +48,11 @@ div.card-draggable {
     cursor: move;
 }
 div.card-pile {
-    margin-top: -7vw;
+    margin-top: -9vw;
     position: relative;
 }
 div.card-pile-bottom {
-    margin-top: -8.5vw;
+    margin-top: -12.2vw;
     padding: 0 1vw 0 1vw;
 }
 div.card-placeholder {
@@ -96,10 +94,10 @@ div.piles-container {
     grid-template-columns: repeat(8, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
-    width: 90vw;
+    width: 96vw;
 
     top: 40vh;
-    left: calc( ( 100vw - 90vw ) / 2);
+    left: calc( ( 100vw - 96vw ) / 2);
 }
 div.pile {
     display: inline-block;
@@ -113,23 +111,23 @@ div.card-distributing {
 /*    animation-fill-mode: forwards; */
 }
 @keyframes distributing {
-    0% { margin-top: -70vw; }
-    100% { margin-top: -11vw; }
+    0% { margin-top: -50vw; }
+/*    100% { margin-top: -10vw; } */
 }
 
 /* Spaces */
 div.spaces-container {
     position: absolute;
-    width: 40vw;
+    width: 42vw;
     top: 5vh;
-    left: 3vw;
+    left: 5vw;
     display: grid;
     grid-template-columns: repeat(4, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
 }
 div.card-space {
-    margin-top: -8.5vw;
+    margin-top: -12.2vw;
     position: relative;
     padding: 0 1vw 0 1vw;
 }
@@ -137,16 +135,16 @@ div.card-space {
 /* Homes */
 div.homes-container {
     position: absolute;
-    width: 40vw;
+    width: 42vw;
     top: 5vh;
-    left: calc(100vw - 40vw - 3vw);
+    left: calc(100vw - 42vw - 5vw);
     display: grid;
     grid-template-columns: repeat(4, [col] 1fr) ;
     grid-template-rows:  repeat(1, [row] 1fr) ;
     text-align: center;
 }
 div.card-home {
-    margin-top: -8.5vw;
+    margin-top: -12.2vw;
     position: relative;
     padding: 0 1vw 0 1vw;
 }
@@ -180,4 +178,49 @@ div.card-shuffle {
 div.card-shuffle-bottom {
     margin-left: -7vw;
     position: relative;
+}
+
+/* Buttons */
+div.buttons-container {
+    position: absolute;
+    display: grid;
+    grid-template-columns: repeat(5, [col] 1fr) ;
+    grid-template-rows:  repeat(1, [row] 1fr) ;
+
+    text-align: center;
+
+    top: 1vh;
+    left: 68vw;
+}
+button.button {
+    font-family: "Courier new";
+    font-size: 1vw;
+    background-color: transparent;
+    border-style: solid;
+    border-width: .05vw;
+    color: #f7f3dc;
+    width : 10vw;
+    margin: 0.2vw 0.2vw 0.2vw 0.2vw;
+    white-space: nowrap;
+    padding: .3vw .1vw .3vw .1vw;
+    text-align: center;
+}
+button.button:hover {
+    background-color: #f7f3dc;
+    color: #020202;
+}
+button.button-hidden {
+    background-color: transparent;
+    color: transparent;
+    border-style: hidden;
+}
+button.button:focus {
+    outline: none;
+}
+button.button-disabled {
+    opacity: 0.5;
+}
+button.button-disabled:hover {
+    background-color: transparent;
+    color: #f7f3dc;
 }

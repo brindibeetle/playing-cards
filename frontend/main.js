@@ -5295,6 +5295,17 @@ var $author$project$Pile$numberOfPiles = 8;
 var $author$project$Pile$init = {
 	piles: A2($elm$core$Array$repeat, $author$project$Pile$numberOfPiles, $elm$core$Array$empty)
 };
+var $author$project$Space$numberOfSpaces = 4;
+var $author$project$Space$init = {
+	dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
+	spaces: A2($elm$core$Array$repeat, $author$project$Space$numberOfSpaces, $elm$core$Maybe$Nothing)
+};
+var $author$project$ModelHistory$initMoment = {homesModel: $author$project$Home$init, pilesModel: $author$project$Pile$init, spacesModel: $author$project$Space$init};
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$ModelHistory$init = $elm$core$List$singleton($author$project$ModelHistory$initMoment);
 var $author$project$Shuffle$DoRandom = {$: 'DoRandom'};
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
@@ -5312,11 +5323,6 @@ var $author$project$Shuffle$init = function (pile) {
 	return _Utils_Tuple2(
 		{pile: pile, shuffledTimes: 0, shufflingDone: false},
 		$author$project$Shuffle$randomShuffle(0));
-};
-var $author$project$Space$numberOfSpaces = 4;
-var $author$project$Space$init = {
-	dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
-	spaces: A2($elm$core$Array$repeat, $author$project$Space$numberOfSpaces, $elm$core$Maybe$Nothing)
 };
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
@@ -5363,7 +5369,7 @@ var $author$project$Main$init = function (flags) {
 	var shuffleModel = _v0.a;
 	var shuffleCmd = _v0.b;
 	return _Utils_Tuple2(
-		{distributeModel: $author$project$Distribute$init, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, homesModel: $author$project$Home$init, pilesModel: $author$project$Pile$init, shuffleModel: shuffleModel, spacesModel: $author$project$Space$init},
+		{distributeModel: $author$project$Distribute$init, dragDrop: $norpan$elm_html5_drag_drop$Html5$DragDrop$init, modelHistory: $author$project$ModelHistory$init, shuffleModel: shuffleModel},
 		A2($elm$core$Platform$Cmd$map, $author$project$Main$ShuffleMsg, shuffleCmd));
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5372,6 +5378,10 @@ var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$DistributeMsg = function (a) {
 	return {$: 'DistributeMsg', a: a};
 };
+var $author$project$ModelHistory$addMoment = F2(
+	function (modelHistory, modelHistoryMoment) {
+		return A2($elm$core$List$cons, modelHistoryMoment, modelHistory);
+	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $author$project$Card$getRank = function (_v0) {
 	var rank = _v0.rank;
@@ -5519,6 +5529,33 @@ var $author$project$Main$SentAllHomeFromPileMsg = function (a) {
 var $author$project$Main$SentAllHomeFromSpaceMsg = function (a) {
 	return {$: 'SentAllHomeFromSpaceMsg', a: a};
 };
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$ModelHistory$getCurrent = function (modelHistory) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		$author$project$ModelHistory$initMoment,
+		$elm$core$List$head(modelHistory));
+};
+var $author$project$ModelHistory$getHomes = function (modelHistory) {
+	return $author$project$ModelHistory$getCurrent(modelHistory).homesModel;
+};
 var $elm$core$Basics$modBy = _Basics_modBy;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Home$playingDone = function (model) {
@@ -5539,7 +5576,8 @@ var $author$project$Home$playingDone = function (model) {
 var $author$project$Main$doSentHomeAll = F2(
 	function (model, _int) {
 		var chooser = A2($elm$core$Basics$modBy, 12, _int);
-		return $author$project$Home$playingDone(model.homesModel) ? $elm$core$Platform$Cmd$none : ((chooser < 8) ? A2(
+		return $author$project$Home$playingDone(
+			$author$project$ModelHistory$getHomes(model.modelHistory)) ? $elm$core$Platform$Cmd$none : ((chooser < 8) ? A2(
 			$elm$core$Task$perform,
 			$elm$core$Basics$always(
 				$author$project$Main$SentAllHomeFromPileMsg(chooser)),
@@ -5606,6 +5644,12 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
+};
+var $author$project$ModelHistory$getPiles = function (modelHistory) {
+	return $author$project$ModelHistory$getCurrent(modelHistory).pilesModel;
+};
+var $author$project$ModelHistory$getSpaces = function (modelHistory) {
+	return $author$project$ModelHistory$getCurrent(modelHistory).spacesModel;
 };
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
@@ -6169,6 +6213,17 @@ var $author$project$Pile$playingDone = function (_v0) {
 		'Pile.playingDone',
 		A3($elm$core$Array$foldl, $author$project$Pile$playingDonePile, true, piles));
 };
+var $author$project$ModelHistory$playingDone = function (modelHistory) {
+	return $author$project$Pile$playingDone(
+		$author$project$ModelHistory$getCurrent(modelHistory).pilesModel);
+};
+var $author$project$ModelHistory$popHistory = function (modelHistory) {
+	var allButOne = $elm$core$List$length(modelHistory) - 1;
+	return A2($elm$core$List$drop, allButOne, modelHistory);
+};
+var $author$project$ModelHistory$popMoment = function (modelHistory) {
+	return A2($elm$core$List$drop, 1, modelHistory);
+};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
@@ -6246,11 +6301,33 @@ var $author$project$Space$pushCard = F3(
 					model.spaces)
 			});
 	});
-var $author$project$Pile$setPiles = F2(
-	function (model, piles) {
+var $author$project$ModelHistory$setCurrent = F2(
+	function (modelHistory, modelHistoryMoment) {
+		return A2(
+			$elm$core$List$cons,
+			modelHistoryMoment,
+			A2($elm$core$List$drop, 1, modelHistory));
+	});
+var $author$project$ModelHistory$setHomes = F2(
+	function (homesModel, modelHistoryCurrent) {
 		return _Utils_update(
-			model,
-			{piles: piles});
+			modelHistoryCurrent,
+			{homesModel: homesModel});
+	});
+var $author$project$ModelHistory$setPiles = F2(
+	function (pilesModel, modelHistoryCurrent) {
+		return _Utils_update(
+			modelHistoryCurrent,
+			{pilesModel: pilesModel});
+	});
+var $author$project$Pile$setPiles = function (piles) {
+	return {piles: piles};
+};
+var $author$project$ModelHistory$setSpaces = F2(
+	function (spacesModel, modelHistoryCurrent) {
+		return _Utils_update(
+			modelHistoryCurrent,
+			{spacesModel: spacesModel});
 	});
 var $author$project$Distribute$DoDistribute = {$: 'DoDistribute'};
 var $author$project$Distribute$distribute = function (index) {
@@ -6618,15 +6695,6 @@ var $author$project$Shuffle$update = F2(
 				(!shufflingDone1) ? $author$project$Shuffle$randomShuffle(shuffledTimes1) : $elm$core$Platform$Cmd$none);
 		}
 	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var a = A2($elm$core$Debug$log, 'Main.update.msg', msg);
@@ -6657,21 +6725,20 @@ var $author$project$Main$update = F2(
 				var _v3 = A2($author$project$Distribute$update, distributeMsg, model.distributeModel);
 				var distributeModel = _v3.a;
 				var distributeCmd = _v3.b;
-				return distributeModel.distributingDone ? _Utils_Tuple2(
+				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
 							distributeModel: distributeModel,
-							pilesModel: A2($author$project$Pile$setPiles, model.pilesModel, distributeModel.piles)
+							modelHistory: A2(
+								$author$project$ModelHistory$setCurrent,
+								model.modelHistory,
+								A2(
+									$author$project$ModelHistory$setPiles,
+									$author$project$Pile$setPiles(distributeModel.piles),
+									$author$project$ModelHistory$getCurrent(model.modelHistory)))
 						}),
-					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							distributeModel: distributeModel,
-							pilesModel: A2($author$project$Pile$setPiles, model.pilesModel, distributeModel.piles)
-						}),
-					A2($elm$core$Platform$Cmd$map, $author$project$Main$DistributeMsg, distributeCmd));
+					distributeModel.distributingDone ? $elm$core$Platform$Cmd$none : A2($elm$core$Platform$Cmd$map, $author$project$Main$DistributeMsg, distributeCmd));
 			case 'DragDropMsg':
 				var msg_ = msg.a;
 				var _v4 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.dragDrop);
@@ -6697,17 +6764,31 @@ var $author$project$Main$update = F2(
 										model,
 										{
 											dragDrop: dragDropModel,
-											pilesModel: A4($author$project$Pile$moveCard, pileFromId, cardFromId, pileToId, model.pilesModel)
+											modelHistory: A2(
+												$author$project$ModelHistory$addMoment,
+												model.modelHistory,
+												A2(
+													$author$project$ModelHistory$setPiles,
+													A4(
+														$author$project$Pile$moveCard,
+														pileFromId,
+														cardFromId,
+														pileToId,
+														$author$project$ModelHistory$getPiles(model.modelHistory)),
+													$author$project$ModelHistory$getCurrent(model.modelHistory)))
 										});
 									return _Utils_Tuple2(
 										model2,
-										$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+										$author$project$ModelHistory$playingDone(model2.modelHistory) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
 								case 'SpaceTo':
 									var _v9 = dragDropResult.a;
 									var _v10 = _v9.a;
 									var pileFromId = _v10.a;
 									var spaceId = _v9.b.a;
-									var _v11 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
+									var _v11 = A2(
+										$author$project$Pile$getTopCard,
+										pileFromId,
+										$author$project$ModelHistory$getPiles(model.modelHistory));
 									if (_v11.$ === 'Nothing') {
 										return _Utils_Tuple2(
 											_Utils_update(
@@ -6720,19 +6801,37 @@ var $author$project$Main$update = F2(
 											model,
 											{
 												dragDrop: dragDropModel,
-												pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel),
-												spacesModel: A3($author$project$Space$pushCard, spaceId, card, model.spacesModel)
+												modelHistory: A2(
+													$author$project$ModelHistory$addMoment,
+													model.modelHistory,
+													A2(
+														$author$project$ModelHistory$setPiles,
+														A2(
+															$author$project$Pile$pullCard,
+															pileFromId,
+															$author$project$ModelHistory$getPiles(model.modelHistory)),
+														A2(
+															$author$project$ModelHistory$setSpaces,
+															A3(
+																$author$project$Space$pushCard,
+																spaceId,
+																card,
+																$author$project$ModelHistory$getSpaces(model.modelHistory)),
+															$author$project$ModelHistory$getCurrent(model.modelHistory))))
 											});
 										return _Utils_Tuple2(
 											model2,
-											$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+											$author$project$ModelHistory$playingDone(model2.modelHistory) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
 									}
 								default:
 									var _v15 = dragDropResult.a;
 									var _v16 = _v15.a;
 									var pileFromId = _v16.a;
 									var homeId = _v15.b.a;
-									var _v17 = A2($author$project$Pile$getTopCard, pileFromId, model.pilesModel);
+									var _v17 = A2(
+										$author$project$Pile$getTopCard,
+										pileFromId,
+										$author$project$ModelHistory$getPiles(model.modelHistory));
 									if (_v17.$ === 'Nothing') {
 										return _Utils_Tuple2(
 											_Utils_update(
@@ -6745,12 +6844,27 @@ var $author$project$Main$update = F2(
 											model,
 											{
 												dragDrop: dragDropModel,
-												homesModel: A3($author$project$Home$pushCard, homeId, card, model.homesModel),
-												pilesModel: A2($author$project$Pile$pullCard, pileFromId, model.pilesModel)
+												modelHistory: A2(
+													$author$project$ModelHistory$addMoment,
+													model.modelHistory,
+													A2(
+														$author$project$ModelHistory$setPiles,
+														A2(
+															$author$project$Pile$pullCard,
+															pileFromId,
+															$author$project$ModelHistory$getPiles(model.modelHistory)),
+														A2(
+															$author$project$ModelHistory$setHomes,
+															A3(
+																$author$project$Home$pushCard,
+																homeId,
+																card,
+																$author$project$ModelHistory$getHomes(model.modelHistory)),
+															$author$project$ModelHistory$getCurrent(model.modelHistory))))
 											});
 										return _Utils_Tuple2(
 											model2,
-											$author$project$Pile$playingDone(model2.pilesModel) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
+											$author$project$ModelHistory$playingDone(model2.modelHistory) ? A2($author$project$Main$doSentHomeAll, model2, 0) : $elm$core$Platform$Cmd$none);
 									}
 							}
 						} else {
@@ -6764,14 +6878,27 @@ var $author$project$Main$update = F2(
 											model,
 											{
 												dragDrop: dragDropModel,
-												spacesModel: A3($author$project$Space$moveCard, spaceFromId, spaceToId, model.spacesModel)
+												modelHistory: A2(
+													$author$project$ModelHistory$addMoment,
+													model.modelHistory,
+													A2(
+														$author$project$ModelHistory$setSpaces,
+														A3(
+															$author$project$Space$moveCard,
+															spaceFromId,
+															spaceToId,
+															$author$project$ModelHistory$getSpaces(model.modelHistory)),
+														$author$project$ModelHistory$getCurrent(model.modelHistory)))
 											}),
 										$elm$core$Platform$Cmd$none);
 								case 'PileTo':
 									var _v13 = dragDropResult.a;
 									var spaceFromId = _v13.a.a;
 									var pileToId = _v13.b.a;
-									var _v14 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
+									var _v14 = A2(
+										$author$project$Space$getCard,
+										spaceFromId,
+										$author$project$ModelHistory$getSpaces(model.modelHistory));
 									if (_v14.$ === 'Nothing') {
 										return _Utils_Tuple2(
 											_Utils_update(
@@ -6785,8 +6912,23 @@ var $author$project$Main$update = F2(
 												model,
 												{
 													dragDrop: dragDropModel,
-													pilesModel: A3($author$project$Pile$pushCard, pileToId, card, model.pilesModel),
-													spacesModel: A2($author$project$Space$pullCard, spaceFromId, model.spacesModel)
+													modelHistory: A2(
+														$author$project$ModelHistory$addMoment,
+														model.modelHistory,
+														A2(
+															$author$project$ModelHistory$setPiles,
+															A3(
+																$author$project$Pile$pushCard,
+																pileToId,
+																card,
+																$author$project$ModelHistory$getPiles(model.modelHistory)),
+															A2(
+																$author$project$ModelHistory$setSpaces,
+																A2(
+																	$author$project$Space$pullCard,
+																	spaceFromId,
+																	$author$project$ModelHistory$getSpaces(model.modelHistory)),
+																$author$project$ModelHistory$getCurrent(model.modelHistory))))
 												}),
 											$elm$core$Platform$Cmd$none);
 									}
@@ -6794,7 +6936,10 @@ var $author$project$Main$update = F2(
 									var _v18 = dragDropResult.a;
 									var spaceFromId = _v18.a.a;
 									var homeId = _v18.b.a;
-									var _v19 = A2($author$project$Space$getCard, spaceFromId, model.spacesModel);
+									var _v19 = A2(
+										$author$project$Space$getCard,
+										spaceFromId,
+										$author$project$ModelHistory$getSpaces(model.modelHistory));
 									if (_v19.$ === 'Nothing') {
 										return _Utils_Tuple2(
 											_Utils_update(
@@ -6808,8 +6953,23 @@ var $author$project$Main$update = F2(
 												model,
 												{
 													dragDrop: dragDropModel,
-													homesModel: A3($author$project$Home$pushCard, homeId, card, model.homesModel),
-													spacesModel: A2($author$project$Space$pullCard, spaceFromId, model.spacesModel)
+													modelHistory: A2(
+														$author$project$ModelHistory$addMoment,
+														model.modelHistory,
+														A2(
+															$author$project$ModelHistory$setHomes,
+															A3(
+																$author$project$Home$pushCard,
+																homeId,
+																card,
+																$author$project$ModelHistory$getHomes(model.modelHistory)),
+															A2(
+																$author$project$ModelHistory$setSpaces,
+																A2(
+																	$author$project$Space$pullCard,
+																	spaceFromId,
+																	$author$project$ModelHistory$getSpaces(model.modelHistory)),
+																$author$project$ModelHistory$getCurrent(model.modelHistory))))
 												}),
 											$elm$core$Platform$Cmd$none);
 									}
@@ -6841,7 +7001,10 @@ var $author$project$Main$update = F2(
 			case 'SentHomeFromPileMsg':
 				var pileIndex = msg.a;
 				var card = msg.b;
-				var _v20 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+				var _v20 = A2(
+					$author$project$Home$canReceiveCard,
+					card,
+					$author$project$ModelHistory$getHomes(model.modelHistory));
 				if (_v20.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
@@ -6850,15 +7013,33 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
-								pilesModel: A2($author$project$Pile$pullCard, pileIndex, model.pilesModel)
+								modelHistory: A2(
+									$author$project$ModelHistory$addMoment,
+									model.modelHistory,
+									A2(
+										$author$project$ModelHistory$setHomes,
+										A3(
+											$author$project$Home$pushCard,
+											index,
+											card,
+											$author$project$ModelHistory$getHomes(model.modelHistory)),
+										A2(
+											$author$project$ModelHistory$setPiles,
+											A2(
+												$author$project$Pile$pullCard,
+												pileIndex,
+												$author$project$ModelHistory$getPiles(model.modelHistory)),
+											$author$project$ModelHistory$getCurrent(model.modelHistory))))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'SentHomeFromSpaceMsg':
 				var homeIndex = msg.a;
 				var card = msg.b;
-				var _v21 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+				var _v21 = A2(
+					$author$project$Home$canReceiveCard,
+					card,
+					$author$project$ModelHistory$getHomes(model.modelHistory));
 				if (_v21.$ === 'Nothing') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
@@ -6867,21 +7048,42 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
-								spacesModel: A2($author$project$Space$pullCard, homeIndex, model.spacesModel)
+								modelHistory: A2(
+									$author$project$ModelHistory$addMoment,
+									model.modelHistory,
+									A2(
+										$author$project$ModelHistory$setHomes,
+										A3(
+											$author$project$Home$pushCard,
+											index,
+											card,
+											$author$project$ModelHistory$getHomes(model.modelHistory)),
+										A2(
+											$author$project$ModelHistory$setSpaces,
+											A2(
+												$author$project$Space$pullCard,
+												homeIndex,
+												$author$project$ModelHistory$getSpaces(model.modelHistory)),
+											$author$project$ModelHistory$getCurrent(model.modelHistory))))
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
 			case 'SentAllHomeFromPileMsg':
 				var pileIndex = msg.a;
-				var _v22 = A2($author$project$Pile$getTopCard, pileIndex, model.pilesModel);
+				var _v22 = A2(
+					$author$project$Pile$getTopCard,
+					pileIndex,
+					$author$project$ModelHistory$getPiles(model.modelHistory));
 				if (_v22.$ === 'Nothing') {
 					return _Utils_Tuple2(
 						model,
 						A2($author$project$Main$doSentHomeAll, model, pileIndex + 1));
 				} else {
 					var card = _v22.a;
-					var _v23 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+					var _v23 = A2(
+						$author$project$Home$canReceiveCard,
+						card,
+						$author$project$ModelHistory$getHomes(model.modelHistory));
 					if (_v23.$ === 'Nothing') {
 						return _Utils_Tuple2(
 							model,
@@ -6891,24 +7093,45 @@ var $author$project$Main$update = F2(
 						var model2 = _Utils_update(
 							model,
 							{
-								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
-								pilesModel: A2($author$project$Pile$pullCard, pileIndex, model.pilesModel)
+								modelHistory: A2(
+									$author$project$ModelHistory$setCurrent,
+									model.modelHistory,
+									A2(
+										$author$project$ModelHistory$setHomes,
+										A3(
+											$author$project$Home$pushCard,
+											index,
+											card,
+											$author$project$ModelHistory$getHomes(model.modelHistory)),
+										A2(
+											$author$project$ModelHistory$setPiles,
+											A2(
+												$author$project$Pile$pullCard,
+												pileIndex,
+												$author$project$ModelHistory$getPiles(model.modelHistory)),
+											$author$project$ModelHistory$getCurrent(model.modelHistory))))
 							});
 						return _Utils_Tuple2(
 							model2,
 							A2($author$project$Main$doSentHomeAll, model2, pileIndex + 1));
 					}
 				}
-			default:
+			case 'SentAllHomeFromSpaceMsg':
 				var spaceIndex8 = msg.a;
-				var _v24 = A2($author$project$Space$getCard, spaceIndex8 - 8, model.spacesModel);
+				var _v24 = A2(
+					$author$project$Space$getCard,
+					spaceIndex8 - 8,
+					$author$project$ModelHistory$getSpaces(model.modelHistory));
 				if (_v24.$ === 'Nothing') {
 					return _Utils_Tuple2(
 						model,
 						A2($author$project$Main$doSentHomeAll, model, spaceIndex8 + 1));
 				} else {
 					var card = _v24.a;
-					var _v25 = A2($author$project$Home$canReceiveCard, card, model.homesModel);
+					var _v25 = A2(
+						$author$project$Home$canReceiveCard,
+						card,
+						$author$project$ModelHistory$getHomes(model.modelHistory));
 					if (_v25.$ === 'Nothing') {
 						return _Utils_Tuple2(
 							model,
@@ -6918,16 +7141,52 @@ var $author$project$Main$update = F2(
 						var model2 = _Utils_update(
 							model,
 							{
-								homesModel: A3($author$project$Home$pushCard, index, card, model.homesModel),
-								spacesModel: A2($author$project$Space$pullCard, spaceIndex8 - 8, model.spacesModel)
+								modelHistory: A2(
+									$author$project$ModelHistory$setCurrent,
+									model.modelHistory,
+									A2(
+										$author$project$ModelHistory$setHomes,
+										A3(
+											$author$project$Home$pushCard,
+											index,
+											card,
+											$author$project$ModelHistory$getHomes(model.modelHistory)),
+										A2(
+											$author$project$ModelHistory$setSpaces,
+											A2(
+												$author$project$Space$pullCard,
+												spaceIndex8 - 8,
+												$author$project$ModelHistory$getSpaces(model.modelHistory)),
+											$author$project$ModelHistory$getCurrent(model.modelHistory))))
 							});
 						return _Utils_Tuple2(
 							model2,
 							A2($author$project$Main$doSentHomeAll, model2, spaceIndex8 + 1));
 					}
 				}
+			case 'UndoMsg':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							modelHistory: $author$project$ModelHistory$popMoment(model.modelHistory)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 'RestartMsg':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							modelHistory: $author$project$ModelHistory$popHistory(model.modelHistory)
+						}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return $author$project$Main$init('new');
 		}
 	});
+var $author$project$Main$NewMsg = {$: 'NewMsg'};
+var $author$project$Main$RestartMsg = {$: 'RestartMsg'};
+var $author$project$Main$UndoMsg = {$: 'UndoMsg'};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 	switch (model.$) {
 		case 'NotDragging':
@@ -6940,6 +7199,9 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 			var dropId = model.b;
 			return $elm$core$Maybe$Just(dragId);
 	}
+};
+var $author$project$ModelHistory$hasHistory = function (modelHistory) {
+	return $elm$core$List$length(modelHistory) > 1;
 };
 var $author$project$Main$DragDropMsg = function (a) {
 	return {$: 'DragDropMsg', a: a};
@@ -7102,22 +7364,26 @@ var $author$project$Pile$getNumberOfCards = F3(
 	});
 var $author$project$Main$helperForHome = F2(
 	function (maybeFrom, model) {
+		var _v0 = $author$project$ModelHistory$getCurrent(model.modelHistory);
+		var pilesModel = _v0.pilesModel;
+		var spacesModel = _v0.spacesModel;
+		var homesModel = _v0.homesModel;
 		if (maybeFrom.$ === 'Just') {
 			if (maybeFrom.a.$ === 'PileFrom') {
-				var _v1 = maybeFrom.a;
-				var pileIndex = _v1.a;
-				var cardIndex = _v1.b;
+				var _v2 = maybeFrom.a;
+				var pileIndex = _v2.a;
+				var cardIndex = _v2.b;
 				return {
-					draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, model.pilesModel),
+					draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, pilesModel),
 					droppableAttribute: $author$project$Main$droppableHomes,
-					maybeDraggedCard: A2($author$project$Pile$getTopCard, pileIndex, model.pilesModel)
+					maybeDraggedCard: A2($author$project$Pile$getTopCard, pileIndex, pilesModel)
 				};
 			} else {
 				var spaceIndex = maybeFrom.a.a;
 				return {
 					draggedNumberOfCards: 1,
 					droppableAttribute: $author$project$Main$droppableHomes,
-					maybeDraggedCard: A2($author$project$Space$getCard, spaceIndex, model.spacesModel)
+					maybeDraggedCard: A2($author$project$Space$getCard, spaceIndex, spacesModel)
 				};
 			}
 		} else {
@@ -7252,8 +7518,12 @@ var $author$project$Space$getEmptySpaces = function (_v0) {
 };
 var $author$project$Main$helperForPile = F3(
 	function (maybeFrom, distributingDone, model) {
-		var _v0 = _Utils_Tuple2(distributingDone, maybeFrom);
-		if (!_v0.a) {
+		var _v0 = $author$project$ModelHistory$getCurrent(model.modelHistory);
+		var pilesModel = _v0.pilesModel;
+		var spacesModel = _v0.spacesModel;
+		var homesModel = _v0.homesModel;
+		var _v1 = _Utils_Tuple2(distributingDone, maybeFrom);
+		if (!_v1.a) {
 			return {
 				cardClass: _List_fromArray(
 					[
@@ -7270,31 +7540,31 @@ var $author$project$Main$helperForPile = F3(
 				maybeDragFromPileId: $elm$core$Maybe$Nothing
 			};
 		} else {
-			if (_v0.b.$ === 'Just') {
-				if (_v0.b.a.$ === 'PileFrom') {
-					var _v1 = _v0.b.a;
-					var pileIndex = _v1.a;
-					var cardIndex = _v1.b;
+			if (_v1.b.$ === 'Just') {
+				if (_v1.b.a.$ === 'PileFrom') {
+					var _v2 = _v1.b.a;
+					var pileIndex = _v2.a;
+					var cardIndex = _v2.b;
 					return {
 						cardClass: _List_Nil,
 						clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
 						draggableAttribute: $author$project$Main$draggablePiles,
-						draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, model.pilesModel),
+						draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, pilesModel),
 						droppableAttribute: $author$project$Main$droppablePiles,
 						emptyPiles: A2(
 							$elm$core$Debug$log,
 							'getEmptyPiles',
-							$author$project$Pile$getEmptyPiles(model.pilesModel)),
+							$author$project$Pile$getEmptyPiles(pilesModel)),
 						emptySpaces: A2(
 							$elm$core$Debug$log,
 							'getEmptySpaces',
-							$author$project$Space$getEmptySpaces(model.spacesModel)),
-						maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, model.pilesModel),
+							$author$project$Space$getEmptySpaces(spacesModel)),
+						maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, pilesModel),
 						maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
 						maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex)
 					};
 				} else {
-					var spaceIndex = _v0.b.a.a;
+					var spaceIndex = _v1.b.a.a;
 					return {
 						cardClass: _List_Nil,
 						clickToSendHome: $author$project$Main$clickToSendHomeFromPile,
@@ -7304,12 +7574,12 @@ var $author$project$Main$helperForPile = F3(
 						emptyPiles: A2(
 							$elm$core$Debug$log,
 							'getEmptyPiles',
-							$author$project$Pile$getEmptyPiles(model.pilesModel)),
+							$author$project$Pile$getEmptyPiles(pilesModel)),
 						emptySpaces: A2(
 							$elm$core$Debug$log,
 							'getEmptySpaces',
-							$author$project$Space$getEmptySpaces(model.spacesModel)),
-						maybeDragCard: A2($author$project$Space$getCard, spaceIndex, model.spacesModel),
+							$author$project$Space$getEmptySpaces(spacesModel)),
+						maybeDragCard: A2($author$project$Space$getCard, spaceIndex, spacesModel),
 						maybeDragFromCardId: $elm$core$Maybe$Nothing,
 						maybeDragFromPileId: $elm$core$Maybe$Nothing
 					};
@@ -7324,11 +7594,11 @@ var $author$project$Main$helperForPile = F3(
 					emptyPiles: A2(
 						$elm$core$Debug$log,
 						'getEmptyPiles',
-						$author$project$Pile$getEmptyPiles(model.pilesModel)),
+						$author$project$Pile$getEmptyPiles(pilesModel)),
 					emptySpaces: A2(
 						$elm$core$Debug$log,
 						'getEmptySpaces',
-						$author$project$Space$getEmptySpaces(model.spacesModel)),
+						$author$project$Space$getEmptySpaces(spacesModel)),
 					maybeDragCard: $elm$core$Maybe$Nothing,
 					maybeDragFromCardId: $elm$core$Maybe$Nothing,
 					maybeDragFromPileId: $elm$core$Maybe$Nothing
@@ -7365,15 +7635,19 @@ var $author$project$Main$droppableSpaces = function (spaceIndex) {
 };
 var $author$project$Main$helperForSpace = F2(
 	function (maybeFrom, model) {
+		var _v0 = $author$project$ModelHistory$getCurrent(model.modelHistory);
+		var pilesModel = _v0.pilesModel;
+		var spacesModel = _v0.spacesModel;
+		var homesModel = _v0.homesModel;
 		if (maybeFrom.$ === 'Just') {
 			if (maybeFrom.a.$ === 'PileFrom') {
-				var _v1 = maybeFrom.a;
-				var pileIndex = _v1.a;
-				var cardIndex = _v1.b;
+				var _v2 = maybeFrom.a;
+				var pileIndex = _v2.a;
+				var cardIndex = _v2.b;
 				return {
 					clickToSendHomeFromSpace: $author$project$Main$clickToSendHomeFromSpace,
 					draggableAttribute: $author$project$Main$draggableSpaces,
-					draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, model.pilesModel),
+					draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, pilesModel),
 					droppableAttribute: $author$project$Main$droppableSpaces,
 					maybeDragFromSpaceId: $elm$core$Maybe$Nothing
 				};
@@ -7412,7 +7686,93 @@ var $author$project$CardsCDN$stylesheet = A3(
 			$elm$html$Html$Attributes$href('src/resources/cards.css')
 		]),
 	_List_Nil);
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Buttons$view = function (_v0) {
+	var undoClicked = _v0.undoClicked;
+	var newClicked = _v0.newClicked;
+	var restartClicked = _v0.restartClicked;
+	var newEnabled = _v0.newEnabled;
+	var restartEnabled = _v0.restartEnabled;
+	var undoEnabled = _v0.undoEnabled;
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('buttons-container')
+			]),
+		_List_fromArray(
+			[
+				newEnabled ? A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button'),
+						$elm$html$Html$Events$onClick(newClicked)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('New game')
+					])) : A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button button-disabled')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('New game')
+					])),
+				restartEnabled ? A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button'),
+						$elm$html$Html$Events$onClick(restartClicked)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Restart')
+					])) : A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button button-disabled')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Restart')
+					])),
+				undoEnabled ? A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button'),
+						$elm$html$Html$Events$onClick(undoClicked)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Undo')
+					])) : A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('button button-disabled')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Undo')
+					]))
+			]));
+};
 var $author$project$Card$Black = {$: 'Black'};
 var $author$project$Card$DarkBlue = {$: 'DarkBlue'};
 var $author$project$Card$LightBlue = {$: 'LightBlue'};
@@ -7447,8 +7807,6 @@ var $author$project$Card$getColorClass = function (color) {
 			return $elm$html$Html$Attributes$class('color-darkblue');
 	}
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Card$viewChar = function (_v0) {
 	var _int = _v0.a;
 	var color = _v0.b;
@@ -8055,37 +8413,47 @@ var $author$project$Main$view = function (model) {
 		$author$project$Main$helperForHome,
 		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
 		model);
+	var hasHistory = $author$project$ModelHistory$hasHistory(model.modelHistory);
+	var helpForButtons = {newClicked: $author$project$Main$NewMsg, newEnabled: true, restartClicked: $author$project$Main$RestartMsg, restartEnabled: hasHistory, undoClicked: $author$project$Main$UndoMsg, undoEnabled: hasHistory};
 	var distributingDone = model.distributeModel.distributingDone;
 	var helpForPile = A3(
 		$author$project$Main$helperForPile,
 		$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(model.dragDrop),
 		distributingDone,
 		model);
+	var _v0 = $author$project$ModelHistory$getCurrent(model.modelHistory);
+	var pilesModel = _v0.pilesModel;
+	var spacesModel = _v0.spacesModel;
+	var homesModel = _v0.homesModel;
 	return {
 		body: (!model.shuffleModel.shufflingDone) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				A2($author$project$Space$view, model.spacesModel, helpForSpace),
-				A2($author$project$Home$view, model.homesModel, helpForHome),
+				$author$project$Buttons$view(helpForButtons),
+				A2($author$project$Space$view, spacesModel, helpForSpace),
+				A2($author$project$Home$view, homesModel, helpForHome),
 				$author$project$Shuffle$view(model.shuffleModel)
 			]) : ((!model.distributeModel.distributingDone) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				A2($author$project$Space$view, model.spacesModel, helpForSpace),
-				A2($author$project$Home$view, model.homesModel, helpForHome),
-				A2($author$project$Pile$view, model.pilesModel, helpForPile)
-			]) : ($author$project$Pile$playingDone(model.pilesModel) ? _List_fromArray(
+				$author$project$Buttons$view(helpForButtons),
+				A2($author$project$Space$view, spacesModel, helpForSpace),
+				A2($author$project$Home$view, homesModel, helpForHome),
+				A2($author$project$Pile$view, pilesModel, helpForPile)
+			]) : ($author$project$Pile$playingDone(pilesModel) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				A2($author$project$Space$view, model.spacesModel, helpForSpace),
-				A2($author$project$Home$view, model.homesModel, helpForHome),
-				A2($author$project$Pile$view, model.pilesModel, helpForPile)
+				$author$project$Buttons$view(helpForButtons),
+				A2($author$project$Space$view, spacesModel, helpForSpace),
+				A2($author$project$Home$view, homesModel, helpForHome),
+				A2($author$project$Pile$view, pilesModel, helpForPile)
 			]) : _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				A2($author$project$Space$view, model.spacesModel, helpForSpace),
-				A2($author$project$Home$view, model.homesModel, helpForHome),
-				A2($author$project$Pile$view, model.pilesModel, helpForPile)
+				$author$project$Buttons$view(helpForButtons),
+				A2($author$project$Space$view, spacesModel, helpForSpace),
+				A2($author$project$Home$view, homesModel, helpForHome),
+				A2($author$project$Pile$view, pilesModel, helpForPile)
 			]))),
 		title: 'Cards'
 	};

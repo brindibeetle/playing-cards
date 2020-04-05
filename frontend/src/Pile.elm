@@ -29,10 +29,9 @@ init =
      }
 
 
-setPiles : Model -> Array Pile -> Model
-setPiles model piles =
-    { model
-    | piles = piles
+setPiles : Array Pile -> Model
+setPiles piles =
+    { piles = piles
     }
 
 type alias Pile = Array Card
