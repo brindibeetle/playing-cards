@@ -1,5 +1,6 @@
 module Pile exposing (..)
 
+import Animate exposing (Coordinates)
 import Array as Array exposing (..)
 
 import Basics as Math
@@ -148,6 +149,14 @@ getTopCard pileIndex model  =
     |> Maybe.andThen getTopCardOfPile
 
 
+getTopCards : Model -> Array ( Card, Int )
+getTopCards { piles }  =
+    Array.map getTopCardOfPile piles                          -- > Array ( Maybe Card )
+    |> Array.indexedMap ( \i maybeCard -> ( maybeCard, i ) )        -- > Array ( Maybe Card, Int)
+    |> Array.filter ( \(maybeCard, i ) -> maybeCard /= Nothing )
+    |> Array.map ( \(maybeCard, i ) -> ( Maybe.withDefault Card.defaultCard maybeCard, i ) )
+
+
 getNumberOfCards : Int -> Int -> Model -> Int
 getNumberOfCards pileIndex cardIndex model =
     case Array.get pileIndex model.piles of
@@ -168,13 +177,10 @@ getEmptyPiles { piles } =
 
 playingDone : Model -> Bool
 playingDone { piles } =
-    Debug.log "Pile.playingDone"
-    (
-        Array.foldl
-            playingDonePile
-            True
-            piles
-    )
+    Array.foldl
+        playingDonePile
+        True
+        piles
 
 
 playingDonePile : Array Card -> Bool -> Bool
@@ -200,6 +206,15 @@ playingDonePileHelper card ( okay, maybeLastCard ) =
 
         ( True, Just lastCard ) ->
             ( Card.getRank card <= Card.getRank lastCard, Just card )
+
+
+emptyAllPiles : Model -> Bool
+emptyAllPiles { piles } =
+    Array.foldl
+        (\pile bool -> bool && Array.isEmpty pile)
+        True
+        piles
+
 
 -- ####
 -- ####    HELPER
@@ -327,3 +342,11 @@ viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFro
                         , viewCardsRecursively helper pileIndex ( cardIndex + 1 ) cards draggableFrom maybeDragFromCardId
                         ]
 
+
+
+getCoordinates : Model -> Int -> Coordinates
+getCoordinates model pileIndex =
+    {
+        x = 2 + 2 + pileIndex * 12
+        , y = 40 + 2 + ( getNumberOfCards pileIndex 0 model ) * 3
+    }

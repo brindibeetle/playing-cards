@@ -60,6 +60,7 @@ viewShuffleCard index card =
 randomShuffle : Int -> Cmd Msg
 randomShuffle turn =
     Process.sleep ( if turn == 0 then 1300 else 200 )
+    --Process.sleep ( if turn == 0 then 0 else 0 )
         |> Task.perform
             (always DoRandom)
 

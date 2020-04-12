@@ -1,5 +1,6 @@
 module Card exposing (..)
 
+import Array
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
@@ -8,7 +9,6 @@ type alias Card = { suit : Suit, rank : Rank }
 
 
 type Rank = Ace | King | Queen | Jack | N10 | N9 | N8 | N7 | N6 | N5 | N4 | N3 | N2
-
 
 type Suit = Spades | Hearts | Clubs | Diamonds
 
@@ -150,30 +150,76 @@ getColor { suit } =
             Black
 
 
-getColorClass : Color -> Attribute msg
-getColorClass color =
+getColorClass : Color -> String -> Attribute msg
+getColorClass color postString =
     case color of
         Black ->
-            class "color-black"
+            class ( "color-black" ++ postString )
 
         Red ->
-            class "color-red"
+            class ( "color-red" ++ postString )
 
         DarkBrown ->
-            class "color-darkbrown"
+            class ( "color-darkbrown" ++ postString )
 
         LightBrown ->
-            class "color-lightbrown"
+            class ( "color-lightbrown" ++ postString )
 
         Whitish ->
-            class "color-whitish"
+            class ( "color-whitish" ++ postString )
 
         LightBlue ->
-            class "color-lightblue"
+            class ( "color-lightblue" ++ postString )
 
         DarkBlue ->
-            class "color-darkblue"
+            class ( "color-darkblue" ++ postString )
 
+
+getCardFromNumber : Int -> Maybe Card
+getCardFromNumber int =
+    case ( getRankFromNumber ( modBy 13 int ) , getSuitFromNumber ( int // 13 ) ) of
+        ( Just rank, Just suit ) ->
+            Just { rank = rank, suit = suit }
+
+        ( Nothing, _ ) ->
+            Nothing
+
+        ( _, Nothing ) ->
+            Nothing
+
+
+getRankFromNumber : Int -> Maybe Rank
+getRankFromNumber int =
+    allRanks
+    |> Array.fromList
+    |> Array.get int
+
+
+getSuitFromNumber : Int -> Maybe Suit
+getSuitFromNumber int =
+    allSuits
+    |> Array.fromList
+    |> Array.get int
+
+defaultCard : Card
+defaultCard = { suit = Diamonds, rank = N2 }
+
+-- ####
+-- ####    VIEW
+-- ####
+
+animate : Card -> Html msg
+animate card =
+    div [ class "char-holder" ]
+        ( List.map animateChar ( getChars card ) )
+
+
+animateChar : ( Int, Color ) -> Html msg
+animateChar ( int, color ) =
+    div [ class "char ", getColorClass color "-animate" ]
+    --[ text ( String.fromChar (Char.fromCode 130)) ]
+    [ text ( String.fromChar (Char.fromCode int)) ]
+    --[ text ( "\u{0082}") ]
 
 
 view : Card -> Html msg
@@ -184,14 +230,10 @@ view card =
 
 viewChar : ( Int, Color ) -> Html msg
 viewChar ( int, color ) =
-    div [ class "char ", getColorClass color ]
+    div [ class "char ", getColorClass color "" ]
     --[ text ( String.fromChar (Char.fromCode 130)) ]
     [ text ( String.fromChar (Char.fromCode int)) ]
     --[ text ( "\u{0082}") ]
-
--- ####
--- ####    VIEW
--- ####
 
 
 getCharsBack : List ( Int, Color )

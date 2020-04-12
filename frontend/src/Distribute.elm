@@ -35,15 +35,14 @@ init =
 
 start : Pile -> ( Model, Cmd Msg )
 start pile =
-    let
-        model =
-            { pile = pile
-            , piles = Array.repeat Pile.numberOfPiles Array.empty
-            , distributorCardIndex = 0
-            , distributingDone = False
-            }
-    in
-        ( model , distribute 0 )
+    (
+        { pile = pile
+        , piles = Array.repeat Pile.numberOfPiles Array.empty
+        , distributorCardIndex = 0
+        , distributingDone = False
+        }
+        , distribute 0
+    )
 
 
 --  ####
@@ -54,8 +53,9 @@ start pile =
 distribute : Int -> Cmd Msg
 distribute index =
     Process.sleep ( if index == 0 then 800 else 80 )
+    --Process.sleep 0
         |> Task.perform
-            ( always ( DoDistribute ) )
+            ( always DoDistribute )
 
 
 type Msg

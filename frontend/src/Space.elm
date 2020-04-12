@@ -1,5 +1,6 @@
 module Space exposing (..)
 
+import Animate exposing (Coordinates)
 import Array exposing (Array)
 import Card exposing (Card, cardPlaceholder)
 import Html exposing (Attribute, Html, div)
@@ -138,3 +139,24 @@ getCard spaceId model =
         Just maybeCard ->
             maybeCard
 
+getCards : Model -> Array ( Card, Int )
+getCards { spaces } =
+    spaces
+    |> Array.indexedMap ( \i maybeCard -> ( maybeCard, i ) )            -- Array (Maybe Card, Int )
+    |> Array.filter ( \(maybeCard, i ) -> maybeCard /= Nothing )
+    |> Array.map ( \(maybeCard, i ) -> ( Maybe.withDefault Card.defaultCard maybeCard, i ) )
+
+getCoordinates : Int -> Coordinates
+getCoordinates spaceIndex =
+    {
+        x = 5 + ( spaceIndex * 11 )
+        , y = 4
+    }
+
+
+emptyAllSpaces : Model -> Bool
+emptyAllSpaces { spaces } =
+    Array.foldl
+        ( \space bool -> bool && space == Nothing )
+        True
+        spaces

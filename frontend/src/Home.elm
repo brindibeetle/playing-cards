@@ -1,5 +1,6 @@
 module Home exposing (..)
 
+import Animate exposing (Coordinates)
 import Array exposing (Array)
 import Card exposing (Card, cardPlaceholder, cardsSuccessiveHome)
 import Html exposing (Attribute, Html, div)
@@ -137,3 +138,11 @@ playingDone model =
         )
         True
         model.homes
+
+
+getCoordinates : Int -> Coordinates
+getCoordinates homeIndex =
+    {
+        x = 53 + ( homeIndex * 11 )
+        , y = 4
+    }

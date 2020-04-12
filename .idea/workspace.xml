@@ -2,17 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="00962ba3-65f1-47ff-8399-52f427e760c5" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/Buttons.elm" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/ModelHistory.elm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/Animate.elm" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/EndAnimation.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmi" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Card.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Card.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Card.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Distribute.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Distribute.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Home.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Home.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/ModelHistory.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/ModelHistory.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Pile.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Pile.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Shuffle.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Shuffle.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Space.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Space.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,16 +53,16 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/frontend/src/resources" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sudoku-elm" />
     <property name="settings.editor.selected.configurable" value="org.elm.workspace.ui.ElmWorkspaceConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src\resources" />
-      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src" />
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Emile\developer\playing-cards\frontend" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src" />
+      <recent name="C:\Users\Emile\developer\playing-cards\frontend\src\resources" />
       <recent name="C:\Users\Emile\developer\playing-cards\frontend" />
     </key>
   </component>
@@ -82,9 +90,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="182" key="#Intentions/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584874055881" />
-    <state x="740" y="279" key="FileChooserDialogImpl" timestamp="1584172756765">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="493" y="264" key="FileChooserDialogImpl" timestamp="1586179268569">
+      <screen x="0" y="0" width="1280" height="984" />
     </state>
+    <state x="493" y="264" key="FileChooserDialogImpl/0.0.1280.984@0.0.1280.984" timestamp="1586179268569" />
     <state x="740" y="279" key="FileChooserDialogImpl/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584172756765" />
     <state x="463" y="166" key="SettingsEditor" timestamp="1583764521759">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -94,11 +103,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="608" y="139" width="759" height="762" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584018147986" />
-    <state x="445" y="261" width="586" height="488" key="find.popup" timestamp="1585771875970">
-      <screen x="0" y="0" width="1280" height="984" />
+    <state x="667" y="276" width="586" height="488" key="find.popup" timestamp="1586680532050">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="445" y="261" width="586" height="488" key="find.popup/0.0.1280.984@0.0.1280.984" timestamp="1585771875970" />
-    <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584894675598" />
+    <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1586680532050" />
     <state width="600" height="424" key="javadoc.popup" timestamp="1584290060589">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

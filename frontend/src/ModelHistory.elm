@@ -1,7 +1,7 @@
 module ModelHistory exposing (..)
 
 import Home
-import Pile
+import Pile exposing (emptyAllPiles)
 import Space
 
 
@@ -105,6 +105,14 @@ playingDone modelHistory =
         |> getCurrent
         |> .pilesModel
         |> Pile.playingDone
+
+
+allHome : ModelHistory -> Bool
+allHome modelHistory =
+    modelHistory
+        |> getCurrent
+        |> .homesModel
+        |> Home.playingDone
 
 
 hasHistory : ModelHistory -> Bool
