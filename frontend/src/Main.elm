@@ -87,8 +87,7 @@ view model =
         --playingDone = Pile.playingDone model.pilesModel
         --playingDone = Home.playingDone model.homesModel
         hasHistory = ModelHistory.hasHistory model.modelHistory && not ( Pile.playingDone pilesModel )
-        distributingDone = model.distributeModel.distributingDone
-        helpForPile = helperForPile ( DragDrop.getDragId model.dragDrop ) distributingDone model
+        helpForPile = helperForPile ( DragDrop.getDragId model.dragDrop ) model
         helpForHome = helperForHome ( DragDrop.getDragId model.dragDrop ) model
         helpForSpace = helperForSpace ( DragDrop.getDragId model.dragDrop ) model
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
@@ -132,67 +131,81 @@ view model =
         }
 
 
-helperForPile : Maybe From -> Bool -> Model -> Pile.Helper Msg
-helperForPile maybeFrom distributingDone model =
+helperForPile : Maybe From -> Model -> Pile.Helper Msg
+helperForPile maybeFrom model =
     let
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
+        distributingDone = model.distributeModel.distributingDone
     in
-        case ( distributingDone, maybeFrom ) of
-            ( False, _ ) ->
-                {
-                    maybeDragFromPileId = Nothing
-                    , maybeDragFromCardId = Nothing
-                    , maybeDragCard = Nothing
-                    , draggedNumberOfCards = 0
-                    , droppableAttribute = droppablePiles
-                    , draggableAttribute = draggablePiles
-                    , emptyPiles = 0
-                    , emptySpaces = 0
-                    , clickToSendHome = clickToSendHomeFromPile
-                    , cardClass = [ class "card-distributing" ]
-                }
+        if not distributingDone then
+            {
+                maybeDragFromPileId = Nothing
+                , maybeDragFromCardId = Nothing
+                , maybeDragCard = Nothing
+                , draggedNumberOfCards = 0
+                , maybeDroppableAttribute = Nothing
+                , maybeDraggableAttribute = Nothing
+                , emptyPiles = 0
+                , emptySpaces = 0
+                , maybeClickToSendHome = Nothing
+                , cardClass = [ class "card-distributing" ]
+            }
+        else if Animate.animating model.animateModel then
+            {
+                maybeDragFromPileId = Nothing
+                , maybeDragFromCardId = Nothing
+                , maybeDragCard = Nothing
+                , draggedNumberOfCards = 0
+                , maybeDroppableAttribute = Nothing
+                , maybeDraggableAttribute = Nothing
+                , emptyPiles = 0
+                , emptySpaces = 0
+                , maybeClickToSendHome = Nothing
+                , cardClass = []
+            }
+        else
+            case maybeFrom of
+                Just ( PileFrom pileIndex cardIndex ) ->
+                    {
+                        maybeDragFromPileId = Just pileIndex
+                        , maybeDragFromCardId = Just cardIndex
+                        , maybeDragCard = Pile.getCard pileIndex cardIndex pilesModel
+                        , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
+                        , maybeDroppableAttribute = Just droppablePiles
+                        , maybeDraggableAttribute = Just draggablePiles
+                        , emptyPiles = Pile.getEmptyPiles pilesModel
+                        , emptySpaces = Space.getEmptySpaces spacesModel
+                        , maybeClickToSendHome = Just clickToSendHomeFromPile
+                        , cardClass = []
+                    }
 
-            ( True, Just ( PileFrom pileIndex cardIndex ) ) ->
-                {
-                    maybeDragFromPileId = Just pileIndex
-                    , maybeDragFromCardId = Just cardIndex
-                    , maybeDragCard = Pile.getCard pileIndex cardIndex pilesModel
-                    , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
-                    , droppableAttribute = droppablePiles
-                    , draggableAttribute = draggablePiles
-                    , emptyPiles = Pile.getEmptyPiles pilesModel
-                    , emptySpaces = Space.getEmptySpaces spacesModel
-                    , clickToSendHome = clickToSendHomeFromPile
-                    , cardClass = []
-                }
+                Just ( SpaceFrom spaceIndex ) ->
+                    {
+                        maybeDragFromPileId = Nothing
+                        , maybeDragFromCardId = Nothing
+                        , maybeDragCard = Space.getCard spaceIndex spacesModel
+                        , draggedNumberOfCards = 1
+                        , maybeDroppableAttribute = Just droppablePiles
+                        , maybeDraggableAttribute = Just draggablePiles
+                        , emptyPiles = Pile.getEmptyPiles pilesModel
+                        , emptySpaces = Space.getEmptySpaces spacesModel
+                        , maybeClickToSendHome = Just clickToSendHomeFromPile
+                        , cardClass = []
+                    }
 
-            ( True, Just ( SpaceFrom spaceIndex ) ) ->
-                {
-                    maybeDragFromPileId = Nothing
-                    , maybeDragFromCardId = Nothing
-                    , maybeDragCard = Space.getCard spaceIndex spacesModel
-                    , draggedNumberOfCards = 1
-                    , droppableAttribute = droppablePiles
-                    , draggableAttribute = draggablePiles
-                    , emptyPiles = Pile.getEmptyPiles pilesModel
-                    , emptySpaces = Space.getEmptySpaces spacesModel
-                    , clickToSendHome = clickToSendHomeFromPile
-                    , cardClass = []
-                }
-
-            ( True, _ ) ->
-                {
-                    maybeDragFromPileId = Nothing
-                    , maybeDragFromCardId = Nothing
-                    , maybeDragCard = Nothing
-                    , draggedNumberOfCards = 0
-                    , droppableAttribute = droppablePiles
-                    , draggableAttribute = draggablePiles
-                    , emptyPiles = Pile.getEmptyPiles pilesModel
-                    , emptySpaces = Space.getEmptySpaces spacesModel
-                    , clickToSendHome = clickToSendHomeFromPile
-                    , cardClass = []
-                  }
+                _ ->
+                    {
+                        maybeDragFromPileId = Nothing
+                        , maybeDragFromCardId = Nothing
+                        , maybeDragCard = Nothing
+                        , draggedNumberOfCards = 0
+                        , maybeDroppableAttribute = Just droppablePiles
+                        , maybeDraggableAttribute = Just draggablePiles
+                        , emptyPiles = Pile.getEmptyPiles pilesModel
+                        , emptySpaces = Space.getEmptySpaces spacesModel
+                        , maybeClickToSendHome = Just clickToSendHomeFromPile
+                        , cardClass = []
+                      }
 
 
 helperForSpace : Maybe From -> Model -> Space.Helper Msg
@@ -200,33 +213,43 @@ helperForSpace maybeFrom model =
     let
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
     in
-        case maybeFrom of
-            Just ( PileFrom pileIndex cardIndex ) ->
-                {
-                    maybeDragFromSpaceId = Nothing
-                    , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
-                    , droppableAttribute = droppableSpaces
-                    , draggableAttribute = draggableSpaces
-                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-                }
+        if Animate.animating model.animateModel then
+            {
+                maybeDragFromSpaceId = Nothing
+                , draggedNumberOfCards = 0
+                , maybeDroppableAttribute = Nothing
+                , maybeDraggableAttribute = Nothing
+                , maybeClickToSendHomeFromSpace = Nothing
+            }
 
-            Just ( SpaceFrom spaceIndex ) ->
-                {
-                    maybeDragFromSpaceId = Just spaceIndex
-                    , draggedNumberOfCards = 1
-                    , droppableAttribute = droppableSpaces
-                    , draggableAttribute = draggableSpaces
-                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-                }
+        else
+            case maybeFrom of
+                Just ( PileFrom pileIndex cardIndex ) ->
+                    {
+                        maybeDragFromSpaceId = Nothing
+                        , draggedNumberOfCards = Pile.getNumberOfCards pileIndex cardIndex pilesModel
+                        , maybeDroppableAttribute = Just droppableSpaces
+                        , maybeDraggableAttribute = Just draggableSpaces
+                        , maybeClickToSendHomeFromSpace = Just clickToSendHomeFromSpace
+                    }
 
-            _ ->
-                {
-                    maybeDragFromSpaceId = Nothing
-                    , draggedNumberOfCards = 0
-                    , droppableAttribute = droppableSpaces
-                    , draggableAttribute = draggableSpaces
-                    , clickToSendHomeFromSpace = clickToSendHomeFromSpace
-                }
+                Just ( SpaceFrom spaceIndex ) ->
+                    {
+                        maybeDragFromSpaceId = Just spaceIndex
+                        , draggedNumberOfCards = 1
+                        , maybeDroppableAttribute = Just droppableSpaces
+                        , maybeDraggableAttribute = Just draggableSpaces
+                        , maybeClickToSendHomeFromSpace = Just clickToSendHomeFromSpace
+                    }
+
+                _ ->
+                    {
+                        maybeDragFromSpaceId = Nothing
+                        , draggedNumberOfCards = 0
+                        , maybeDroppableAttribute = Just droppableSpaces
+                        , maybeDraggableAttribute = Just draggableSpaces
+                        , maybeClickToSendHomeFromSpace = Just clickToSendHomeFromSpace
+                    }
 
 
 helperForHome : Maybe From -> Model -> Home.Helper Msg
@@ -305,8 +328,6 @@ type Msg
     | DragDropMsg (DragDrop.Msg From To)
     | SentHomeFromPileMsg Int Card
     | SentHomeFromSpaceMsg Int Card
-    --| SentAllHomeFromPileMsg Int
-    --| SentAllHomeFromSpaceMsg Int
     | NewMsg
     | RestartMsg
     | UndoMsg
@@ -360,7 +381,14 @@ update msg model =
                 ( animateModel, animateCmd ) =
                     Animate.update animateMsg model.animateModel
             in
-                if Animate.done animateModel then
+                if Animate.animating animateModel then
+                    (
+                        { model
+                        | animateModel = animateModel
+                        }
+                        , Cmd.map AnimateMsg animateCmd
+                    )
+                else
                     let
                         model2 =
                             { model
@@ -370,13 +398,6 @@ update msg model =
                     in
                         ( model2
                         , possiblyCloseTheGame model2 )
-                else
-                    (
-                        { model
-                        | animateModel = animateModel
-                        }
-                        , Cmd.map AnimateMsg animateCmd
-                    )
 
         DragDropMsg msg_ ->
             let

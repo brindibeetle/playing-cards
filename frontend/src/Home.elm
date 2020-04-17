@@ -143,6 +143,6 @@ playingDone model =
 getCoordinates : Int -> Coordinates
 getCoordinates homeIndex =
     {
-        x = 53 + ( homeIndex * 11 )
-        , y = 4
+        x = 50 + ( homeIndex * 11 )
+        , y = 10
     }

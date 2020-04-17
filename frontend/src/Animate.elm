@@ -15,7 +15,7 @@ import Task
 
 
 numberOfIterations : Int
-numberOfIterations = 10
+numberOfIterations = 8
 
 
 type alias Model =
@@ -39,14 +39,14 @@ init =
      }
 
 
-done : Model -> Bool
-done { maybeCard } =
+animating : Model -> Bool
+animating { maybeCard } =
     case maybeCard of
         Nothing ->
-            True
+            False
 
         _ ->
-            False
+            True
 
 --  ####
 --  ####      Coordinates
@@ -142,7 +142,7 @@ update _ model =
                 ( model, Cmd.none )
 
             Just card ->
-                if iteration == 10 then
+                if iteration == numberOfIterations + 1 then
                     (
                         { model
                         | maybeCard = Nothing

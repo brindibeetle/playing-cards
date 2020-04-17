@@ -226,11 +226,11 @@ type alias Helper msg =
     , maybeDragFromCardId : Maybe Int
     , maybeDragCard : Maybe Card
     , draggedNumberOfCards : Int
-    , droppableAttribute : Int -> List (Attribute msg)
-    , draggableAttribute : ( Int, Int ) -> List (Attribute msg)
+    , maybeDroppableAttribute : Maybe ( Int -> List (Attribute msg) )
+    , maybeDraggableAttribute : Maybe ( ( Int, Int ) -> List (Attribute msg) )
     , emptyPiles : Int
     , emptySpaces : Int
-    , clickToSendHome : Int -> Card -> Attribute msg
+    , maybeClickToSendHome : Maybe ( Int -> Card -> Attribute msg )
     , cardClass : List(Attribute msg)
     }
 
@@ -262,14 +262,20 @@ draggableCards emptySpaces emptyPiles =
 viewPile : Helper msg -> Int -> Pile -> Html msg
 viewPile helper pileIndex pile =
     let
-        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, draggedNumberOfCards, droppableAttribute, emptyPiles, emptySpaces } = helper
+        { maybeDragFromPileId, maybeDragFromCardId, maybeDragCard, draggedNumberOfCards, maybeDroppableAttribute, emptyPiles, emptySpaces } = helper
         draggableFrom =  Math.max ( canBeDraggedFrom pile ) ( Array.length pile - ( draggableCards emptySpaces emptyPiles ) )
+        droppableAttributeList =
+            case maybeDroppableAttribute of
+                Nothing ->
+                    []
+                Just droppableAttribute ->
+                    droppableAttribute pileIndex
     in
         case maybeDragCard of
             Just draggedCard ->
                 -- cards may go back on pile where they came from :
                 if pileIndex == ( Maybe.withDefault 99 maybeDragFromPileId ) then
-                    div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
+                    div ( class "pile" :: droppableAttributeList )
                         [ cardPlaceholder
                         , viewCardsRecursively helper pileIndex 0 pile draggableFrom maybeDragFromCardId
                         ]
@@ -282,7 +288,7 @@ viewPile helper pileIndex pile =
                         ]
                     else
                         if cardsSuccessivePile ( getTopCardOfPile pile ) draggedCard then
-                            div ( List.concat [ [ class "pile"], droppableAttribute pileIndex ] )
+                            div ( class "pile" :: droppableAttributeList )
                             [ cardPlaceholder
                             , viewCardsRecursively helper pileIndex 0 pile draggableFrom Nothing
                             ]
@@ -301,12 +307,13 @@ viewPile helper pileIndex pile =
 viewCardsRecursively : Helper msg -> Int -> Int -> Array Card -> Int -> Maybe Int -> Html msg
 viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFromCardId =
     let
-        { draggableAttribute, clickToSendHome, cardClass } = helper
+        { maybeDraggableAttribute, maybeClickToSendHome, cardClass } = helper
         draggableAttributes =
-            if cardIndex >= draggableFrom then
-                class "card-draggable" ::  draggableAttribute ( pileIndex, cardIndex )
-            else
-                []
+            case ( maybeDraggableAttribute, cardIndex >= draggableFrom ) of
+                ( Just draggableAttribute, True ) ->
+                    class "card-draggable" ::  draggableAttribute ( pileIndex, cardIndex )
+                ( _, _ ) ->
+                    []
         cardHide =
              if cardIndex >= ( maybeDragFromCardId |> Maybe.withDefault 99 ) then
                  " card-hide"
@@ -324,10 +331,11 @@ viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFro
             Just card ->
                 let
                     onClick =
-                          if cardIndex == Array.length cards - 1 then
-                             [ clickToSendHome pileIndex card ]
-                          else
-                             []
+                            case ( maybeClickToSendHome, cardIndex == Array.length cards - 1 ) of
+                                ( Just clickToSendHome, True ) ->
+                                    [ clickToSendHome pileIndex card ]
+                                ( _, _ ) ->
+                                    []
                 in
                     div
                         ( List.concat
@@ -348,5 +356,5 @@ getCoordinates : Model -> Int -> Coordinates
 getCoordinates model pileIndex =
     {
         x = 2 + 2 + pileIndex * 12
-        , y = 40 + 2 + ( getNumberOfCards pileIndex 0 model ) * 3
+        , y = 32 + 2 + ( getNumberOfCards pileIndex 0 model ) * 2
     }

@@ -42,9 +42,9 @@ getEmptySpaces { spaces } =
 type alias Helper msg =
     { maybeDragFromSpaceId : Maybe Int
     , draggedNumberOfCards : Int
-    , droppableAttribute : Int -> List (Attribute msg)
-    , draggableAttribute : Int -> List (Attribute msg)
-    , clickToSendHomeFromSpace : Int -> Card -> Attribute msg
+    , maybeDroppableAttribute : Maybe ( Int -> List (Attribute msg) )
+    , maybeDraggableAttribute : Maybe ( Int -> List (Attribute msg) )
+    , maybeClickToSendHomeFromSpace : Maybe ( Int -> Card -> Attribute msg )
     }
 
 
@@ -62,12 +62,24 @@ view model helper =
 viewSpace : Helper msg -> Int -> Maybe Card -> Html msg
 viewSpace helper index maybeCard =
     let
-        { maybeDragFromSpaceId, draggedNumberOfCards, droppableAttribute, draggableAttribute, clickToSendHomeFromSpace } = helper
+        { maybeDragFromSpaceId, draggedNumberOfCards, maybeDroppableAttribute, maybeDraggableAttribute, maybeClickToSendHomeFromSpace } = helper
+        droppableAttributeList =
+            case maybeDroppableAttribute of
+                Nothing ->
+                    []
+                Just droppableAttribute ->
+                    droppableAttribute index
+        draggableAttributeList =
+            case maybeDraggableAttribute of
+                Nothing ->
+                    []
+                Just draggableAttribute ->
+                    draggableAttribute index
     in
     case maybeCard  of
         Nothing ->
             if draggedNumberOfCards == 1 then
-                div ( droppableAttribute index )
+                div droppableAttributeList
                     [ cardPlaceholder
                     ]
             else
@@ -76,20 +88,28 @@ viewSpace helper index maybeCard =
                     ]
 
         Just card ->
-            if ( maybeDragFromSpaceId |> Maybe.withDefault 99 ) == index then
-                div ( List.append ( draggableAttribute index ) ( droppableAttribute index ) )
-                    [ cardPlaceholder
-                    , div
-                        [ class "card-space card-hide", clickToSendHomeFromSpace index card ]
-                        [ Card.view card ]
-                    ]
-            else
-                div ( draggableAttribute index )
-                    [ cardPlaceholder
-                    , div
-                        [ class "card-space", clickToSendHomeFromSpace index card ]
-                        [ Card.view card ]
-                    ]
+            let
+                clickToSendHomeFromSpaceList =
+                    case maybeClickToSendHomeFromSpace of
+                        Nothing ->
+                            []
+                        Just clickToSendHomeFromSpace ->
+                            [ clickToSendHomeFromSpace index card ]
+            in
+                if ( maybeDragFromSpaceId |> Maybe.withDefault 99 ) == index then
+                    div ( List.append draggableAttributeList droppableAttributeList )
+                        [ cardPlaceholder
+                        , div
+                            ( class "card-space card-hide" :: clickToSendHomeFromSpaceList )
+                            [ Card.view card ]
+                        ]
+                else
+                    div draggableAttributeList
+                        [ cardPlaceholder
+                        , div
+                            ( class "card-space" :: clickToSendHomeFromSpaceList )
+                            [ Card.view card ]
+                        ]
 
 
 -- ####
