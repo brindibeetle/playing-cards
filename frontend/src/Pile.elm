@@ -318,7 +318,7 @@ viewCardsRecursively helper pileIndex cardIndex cards draggableFrom maybeDragFro
              if cardIndex >= ( maybeDragFromCardId |> Maybe.withDefault 99 ) then
                  " card-hide"
              else
-                 ""
+                 " card-show"
         cardBottom =
               if cardIndex == 0 then
                  " card-pile-bottom"

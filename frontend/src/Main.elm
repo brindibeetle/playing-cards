@@ -163,6 +163,19 @@ helperForPile maybeFrom model =
                 , maybeClickToSendHome = Nothing
                 , cardClass = []
             }
+        else if closingTheGame model then
+            {
+                maybeDragFromPileId = Nothing
+                , maybeDragFromCardId = Nothing
+                , maybeDragCard = Nothing
+                , draggedNumberOfCards = 0
+                , maybeDroppableAttribute = Nothing
+                , maybeDraggableAttribute = Nothing
+                , emptyPiles = 0
+                , emptySpaces = 0
+                , maybeClickToSendHome = Nothing
+                , cardClass = []
+            }
         else
             case maybeFrom of
                 Just ( PileFrom pileIndex cardIndex ) ->
@@ -213,7 +226,7 @@ helperForSpace maybeFrom model =
     let
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
     in
-        if Animate.animating model.animateModel then
+        if Animate.animating model.animateModel || closingTheGame model then
             {
                 maybeDragFromSpaceId = Nothing
                 , draggedNumberOfCards = 0
@@ -625,14 +638,19 @@ update msg model =
 
 
 possiblyCloseTheGame : Model -> Cmd Msg
-possiblyCloseTheGame { modelHistory } =
-    if Home.playingDone ( ModelHistory.getHomes modelHistory ) then
+possiblyCloseTheGame model =
+    if closingTheGame model then
+        doSentHomeAll model.modelHistory
+    else if Home.playingDone ( ModelHistory.getHomes model.modelHistory ) then
         Cmd.map EndAnimationMsg EndAnimation.animate
     else
-        if ModelHistory.playingDone modelHistory then
-            doSentHomeAll modelHistory
-        else
-            Cmd.none
+        Cmd.none
+
+
+closingTheGame : Model -> Bool
+closingTheGame { modelHistory } =
+    not ( Home.playingDone ( ModelHistory.getHomes modelHistory ) )
+    && ModelHistory.playingDone modelHistory
 
 
 doSentHomeAll : ModelHistory -> Cmd Msg

@@ -94,21 +94,32 @@ div.card-placeholder {
 }
 div.card {
 }
+div.card-show {
+    display: block; visibility: block;
+/*    animation-name: cardhide1;
+    animation-duration: 0.01s;
+    animation-fill-mode: backwards; */
+}
 /*  DOES NOT WORK FOR EDGE */
 div.card-hide {
     animation-name: cardhide;
     animation-duration: 0.01s;
     animation-fill-mode: forwards;
 }
+
 @supports (-ms-ime-align:auto) { /* Browser EDGE */
-    div.card-hide {
+/*    div.card-hide {
         animation-name: none;
         animation-fill-mode: backwards;
-        position: absolute;
+       position: absolute;
         top: -600px;
-    }
+    } */
 }
 @keyframes cardhide {
+    0% { display: block; visibility: block;  }
+    100% { display: none; visibility: hidden; }
+}
+@keyframes cardhide1 {
     0% { display: block; visibility: block;  }
     100% { display: none; visibility: hidden; }
 }

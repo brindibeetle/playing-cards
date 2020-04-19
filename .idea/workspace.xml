@@ -4,18 +4,12 @@
     <list default="true" id="00962ba3-65f1-47ff-8399-52f427e760c5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Animate.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Animate.elm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Home.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Home.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Pile.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Pile.elm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Space.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Space.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards1.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards1.ttf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards2.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards2.ttf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

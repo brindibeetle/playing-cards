@@ -6187,6 +6187,68 @@ var $author$project$EndAnimation$animate = A2(
 	$elm$core$Task$perform,
 	$elm$core$Basics$always($author$project$EndAnimation$DoAnimate),
 	$elm$core$Process$sleep(80));
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Home$playingDone = function (model) {
+	return A3(
+		$elm$core$Array$foldl,
+		F2(
+			function (maybeCard, done) {
+				if (maybeCard.$ === 'Nothing') {
+					return false;
+				} else {
+					var card = maybeCard.a;
+					return done && _Utils_eq(card.rank, $author$project$Card$King);
+				}
+			}),
+		true,
+		model.homes);
+};
+var $author$project$Pile$playingDonePileHelper = F2(
+	function (card, _v0) {
+		var okay = _v0.a;
+		var maybeLastCard = _v0.b;
+		var _v1 = _Utils_Tuple2(okay, maybeLastCard);
+		if (!_v1.a) {
+			return _Utils_Tuple2(
+				false,
+				$elm$core$Maybe$Just(card));
+		} else {
+			if (_v1.b.$ === 'Nothing') {
+				var _v2 = _v1.b;
+				return _Utils_Tuple2(
+					true,
+					$elm$core$Maybe$Just(card));
+			} else {
+				var lastCard = _v1.b.a;
+				return _Utils_Tuple2(
+					_Utils_cmp(
+						$author$project$Card$getRank(card),
+						$author$project$Card$getRank(lastCard)) < 1,
+					$elm$core$Maybe$Just(card));
+			}
+		}
+	});
+var $author$project$Pile$playingDonePile = F2(
+	function (cards, okay) {
+		return (!okay) ? false : A3(
+			$elm$core$Array$foldl,
+			$author$project$Pile$playingDonePileHelper,
+			_Utils_Tuple2(true, $elm$core$Maybe$Nothing),
+			cards).a;
+	});
+var $author$project$Pile$playingDone = function (_v0) {
+	var piles = _v0.piles;
+	return A3($elm$core$Array$foldl, $author$project$Pile$playingDonePile, true, piles);
+};
+var $author$project$ModelHistory$playingDone = function (modelHistory) {
+	return $author$project$Pile$playingDone(
+		$author$project$ModelHistory$getCurrent(modelHistory).pilesModel);
+};
+var $author$project$Main$closingTheGame = function (_v0) {
+	var modelHistory = _v0.modelHistory;
+	return (!$author$project$Home$playingDone(
+		$author$project$ModelHistory$getHomes(modelHistory))) && $author$project$ModelHistory$playingDone(modelHistory);
+};
 var $author$project$Main$SentHomeFromPileMsg = F2(
 	function (a, b) {
 		return {$: 'SentHomeFromPileMsg', a: a, b: b};
@@ -6368,67 +6430,9 @@ var $author$project$Main$doSentHomeAll = function (modelHistory) {
 		}
 	}
 };
-var $author$project$Home$playingDone = function (model) {
-	return A3(
-		$elm$core$Array$foldl,
-		F2(
-			function (maybeCard, done) {
-				if (maybeCard.$ === 'Nothing') {
-					return false;
-				} else {
-					var card = maybeCard.a;
-					return done && _Utils_eq(card.rank, $author$project$Card$King);
-				}
-			}),
-		true,
-		model.homes);
-};
-var $elm$core$Basics$not = _Basics_not;
-var $author$project$Pile$playingDonePileHelper = F2(
-	function (card, _v0) {
-		var okay = _v0.a;
-		var maybeLastCard = _v0.b;
-		var _v1 = _Utils_Tuple2(okay, maybeLastCard);
-		if (!_v1.a) {
-			return _Utils_Tuple2(
-				false,
-				$elm$core$Maybe$Just(card));
-		} else {
-			if (_v1.b.$ === 'Nothing') {
-				var _v2 = _v1.b;
-				return _Utils_Tuple2(
-					true,
-					$elm$core$Maybe$Just(card));
-			} else {
-				var lastCard = _v1.b.a;
-				return _Utils_Tuple2(
-					_Utils_cmp(
-						$author$project$Card$getRank(card),
-						$author$project$Card$getRank(lastCard)) < 1,
-					$elm$core$Maybe$Just(card));
-			}
-		}
-	});
-var $author$project$Pile$playingDonePile = F2(
-	function (cards, okay) {
-		return (!okay) ? false : A3(
-			$elm$core$Array$foldl,
-			$author$project$Pile$playingDonePileHelper,
-			_Utils_Tuple2(true, $elm$core$Maybe$Nothing),
-			cards).a;
-	});
-var $author$project$Pile$playingDone = function (_v0) {
-	var piles = _v0.piles;
-	return A3($elm$core$Array$foldl, $author$project$Pile$playingDonePile, true, piles);
-};
-var $author$project$ModelHistory$playingDone = function (modelHistory) {
-	return $author$project$Pile$playingDone(
-		$author$project$ModelHistory$getCurrent(modelHistory).pilesModel);
-};
-var $author$project$Main$possiblyCloseTheGame = function (_v0) {
-	var modelHistory = _v0.modelHistory;
-	return $author$project$Home$playingDone(
-		$author$project$ModelHistory$getHomes(modelHistory)) ? A2($elm$core$Platform$Cmd$map, $author$project$Main$EndAnimationMsg, $author$project$EndAnimation$animate) : ($author$project$ModelHistory$playingDone(modelHistory) ? $author$project$Main$doSentHomeAll(modelHistory) : $elm$core$Platform$Cmd$none);
+var $author$project$Main$possiblyCloseTheGame = function (model) {
+	return $author$project$Main$closingTheGame(model) ? $author$project$Main$doSentHomeAll(model.modelHistory) : ($author$project$Home$playingDone(
+		$author$project$ModelHistory$getHomes(model.modelHistory)) ? A2($elm$core$Platform$Cmd$map, $author$project$Main$EndAnimationMsg, $author$project$EndAnimation$animate) : $elm$core$Platform$Cmd$none);
 };
 var $author$project$Pile$pullCard = F2(
 	function (pileIndex, model) {
@@ -7842,51 +7846,55 @@ var $author$project$Main$helperForPile = F2(
 			if ($author$project$Animate$animating(model.animateModel)) {
 				return {cardClass: _List_Nil, draggedNumberOfCards: 0, emptyPiles: 0, emptySpaces: 0, maybeClickToSendHome: $elm$core$Maybe$Nothing, maybeDragCard: $elm$core$Maybe$Nothing, maybeDragFromCardId: $elm$core$Maybe$Nothing, maybeDragFromPileId: $elm$core$Maybe$Nothing, maybeDraggableAttribute: $elm$core$Maybe$Nothing, maybeDroppableAttribute: $elm$core$Maybe$Nothing};
 			} else {
-				if (maybeFrom.$ === 'Just') {
-					if (maybeFrom.a.$ === 'PileFrom') {
-						var _v2 = maybeFrom.a;
-						var pileIndex = _v2.a;
-						var cardIndex = _v2.b;
-						return {
-							cardClass: _List_Nil,
-							draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, pilesModel),
-							emptyPiles: $author$project$Pile$getEmptyPiles(pilesModel),
-							emptySpaces: $author$project$Space$getEmptySpaces(spacesModel),
-							maybeClickToSendHome: $elm$core$Maybe$Just($author$project$Main$clickToSendHomeFromPile),
-							maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, pilesModel),
-							maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
-							maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex),
-							maybeDraggableAttribute: $elm$core$Maybe$Just($author$project$Main$draggablePiles),
-							maybeDroppableAttribute: $elm$core$Maybe$Just($author$project$Main$droppablePiles)
-						};
+				if ($author$project$Main$closingTheGame(model)) {
+					return {cardClass: _List_Nil, draggedNumberOfCards: 0, emptyPiles: 0, emptySpaces: 0, maybeClickToSendHome: $elm$core$Maybe$Nothing, maybeDragCard: $elm$core$Maybe$Nothing, maybeDragFromCardId: $elm$core$Maybe$Nothing, maybeDragFromPileId: $elm$core$Maybe$Nothing, maybeDraggableAttribute: $elm$core$Maybe$Nothing, maybeDroppableAttribute: $elm$core$Maybe$Nothing};
+				} else {
+					if (maybeFrom.$ === 'Just') {
+						if (maybeFrom.a.$ === 'PileFrom') {
+							var _v2 = maybeFrom.a;
+							var pileIndex = _v2.a;
+							var cardIndex = _v2.b;
+							return {
+								cardClass: _List_Nil,
+								draggedNumberOfCards: A3($author$project$Pile$getNumberOfCards, pileIndex, cardIndex, pilesModel),
+								emptyPiles: $author$project$Pile$getEmptyPiles(pilesModel),
+								emptySpaces: $author$project$Space$getEmptySpaces(spacesModel),
+								maybeClickToSendHome: $elm$core$Maybe$Just($author$project$Main$clickToSendHomeFromPile),
+								maybeDragCard: A3($author$project$Pile$getCard, pileIndex, cardIndex, pilesModel),
+								maybeDragFromCardId: $elm$core$Maybe$Just(cardIndex),
+								maybeDragFromPileId: $elm$core$Maybe$Just(pileIndex),
+								maybeDraggableAttribute: $elm$core$Maybe$Just($author$project$Main$draggablePiles),
+								maybeDroppableAttribute: $elm$core$Maybe$Just($author$project$Main$droppablePiles)
+							};
+						} else {
+							var spaceIndex = maybeFrom.a.a;
+							return {
+								cardClass: _List_Nil,
+								draggedNumberOfCards: 1,
+								emptyPiles: $author$project$Pile$getEmptyPiles(pilesModel),
+								emptySpaces: $author$project$Space$getEmptySpaces(spacesModel),
+								maybeClickToSendHome: $elm$core$Maybe$Just($author$project$Main$clickToSendHomeFromPile),
+								maybeDragCard: A2($author$project$Space$getCard, spaceIndex, spacesModel),
+								maybeDragFromCardId: $elm$core$Maybe$Nothing,
+								maybeDragFromPileId: $elm$core$Maybe$Nothing,
+								maybeDraggableAttribute: $elm$core$Maybe$Just($author$project$Main$draggablePiles),
+								maybeDroppableAttribute: $elm$core$Maybe$Just($author$project$Main$droppablePiles)
+							};
+						}
 					} else {
-						var spaceIndex = maybeFrom.a.a;
 						return {
 							cardClass: _List_Nil,
-							draggedNumberOfCards: 1,
+							draggedNumberOfCards: 0,
 							emptyPiles: $author$project$Pile$getEmptyPiles(pilesModel),
 							emptySpaces: $author$project$Space$getEmptySpaces(spacesModel),
 							maybeClickToSendHome: $elm$core$Maybe$Just($author$project$Main$clickToSendHomeFromPile),
-							maybeDragCard: A2($author$project$Space$getCard, spaceIndex, spacesModel),
+							maybeDragCard: $elm$core$Maybe$Nothing,
 							maybeDragFromCardId: $elm$core$Maybe$Nothing,
 							maybeDragFromPileId: $elm$core$Maybe$Nothing,
 							maybeDraggableAttribute: $elm$core$Maybe$Just($author$project$Main$draggablePiles),
 							maybeDroppableAttribute: $elm$core$Maybe$Just($author$project$Main$droppablePiles)
 						};
 					}
-				} else {
-					return {
-						cardClass: _List_Nil,
-						draggedNumberOfCards: 0,
-						emptyPiles: $author$project$Pile$getEmptyPiles(pilesModel),
-						emptySpaces: $author$project$Space$getEmptySpaces(spacesModel),
-						maybeClickToSendHome: $elm$core$Maybe$Just($author$project$Main$clickToSendHomeFromPile),
-						maybeDragCard: $elm$core$Maybe$Nothing,
-						maybeDragFromCardId: $elm$core$Maybe$Nothing,
-						maybeDragFromPileId: $elm$core$Maybe$Nothing,
-						maybeDraggableAttribute: $elm$core$Maybe$Just($author$project$Main$draggablePiles),
-						maybeDroppableAttribute: $elm$core$Maybe$Just($author$project$Main$droppablePiles)
-					};
 				}
 			}
 		}
@@ -7920,7 +7928,7 @@ var $author$project$Main$helperForSpace = F2(
 		var pilesModel = _v0.pilesModel;
 		var spacesModel = _v0.spacesModel;
 		var homesModel = _v0.homesModel;
-		if ($author$project$Animate$animating(model.animateModel)) {
+		if ($author$project$Animate$animating(model.animateModel) || $author$project$Main$closingTheGame(model)) {
 			return {draggedNumberOfCards: 0, maybeClickToSendHomeFromSpace: $elm$core$Maybe$Nothing, maybeDragFromSpaceId: $elm$core$Maybe$Nothing, maybeDraggableAttribute: $elm$core$Maybe$Nothing, maybeDroppableAttribute: $elm$core$Maybe$Nothing};
 		} else {
 			if (maybeFrom.$ === 'Just') {
@@ -8532,7 +8540,7 @@ var $author$project$Pile$viewCardsRecursively = F6(
 	function (helper, pileIndex, cardIndex, cards, draggableFrom, maybeDragFromCardId) {
 		var cardHide = (_Utils_cmp(
 			cardIndex,
-			A2($elm$core$Maybe$withDefault, 99, maybeDragFromCardId)) > -1) ? ' card-hide' : '';
+			A2($elm$core$Maybe$withDefault, 99, maybeDragFromCardId)) > -1) ? ' card-hide' : ' card-show';
 		var cardBottom = (!cardIndex) ? ' card-pile-bottom' : '';
 		var _v0 = helper;
 		var maybeDraggableAttribute = _v0.maybeDraggableAttribute;
