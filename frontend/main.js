@@ -7470,30 +7470,36 @@ var $author$project$Main$update = F2(
 							}),
 						A2($elm$core$Platform$Cmd$map, $author$project$Main$AnimateMsg, animateCmd));
 				}
-			case 'UndoMsg':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							modelHistory: $author$project$ModelHistory$popMoment(model.modelHistory)
-						}),
-					$elm$core$Platform$Cmd$none);
-			case 'RestartMsg':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							endAnimationModel: $author$project$EndAnimation$init,
-							modelHistory: $author$project$ModelHistory$popHistory(model.modelHistory)
-						}),
-					$elm$core$Platform$Cmd$none);
-			case 'NewMsg':
-				return $author$project$Main$init('new');
+			case 'ButtonsMsg':
+				switch (msg.a.$) {
+					case 'UndoClicked':
+						var _v25 = msg.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									modelHistory: $author$project$ModelHistory$popMoment(model.modelHistory)
+								}),
+							$elm$core$Platform$Cmd$none);
+					case 'RestartClicked':
+						var _v26 = msg.a;
+						return _Utils_Tuple2(
+							_Utils_update(
+								model,
+								{
+									endAnimationModel: $author$project$EndAnimation$init,
+									modelHistory: $author$project$ModelHistory$popHistory(model.modelHistory)
+								}),
+							$elm$core$Platform$Cmd$none);
+					default:
+						var _v27 = msg.a;
+						return $author$project$Main$init('new');
+				}
 			default:
 				var endAnimationMsg = msg.a;
-				var _v25 = A2($author$project$EndAnimation$update, endAnimationMsg, model.endAnimationModel);
-				var endAnimationModel = _v25.a;
-				var endAnimationCmd = _v25.b;
+				var _v28 = A2($author$project$EndAnimation$update, endAnimationMsg, model.endAnimationModel);
+				var endAnimationModel = _v28.a;
+				var endAnimationCmd = _v28.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7501,9 +7507,9 @@ var $author$project$Main$update = F2(
 					A2($elm$core$Platform$Cmd$map, $author$project$Main$EndAnimationMsg, endAnimationCmd));
 		}
 	});
-var $author$project$Main$NewMsg = {$: 'NewMsg'};
-var $author$project$Main$RestartMsg = {$: 'RestartMsg'};
-var $author$project$Main$UndoMsg = {$: 'UndoMsg'};
+var $author$project$Main$ButtonsMsg = function (a) {
+	return {$: 'ButtonsMsg', a: a};
+};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId = function (model) {
 	switch (model.$) {
 		case 'NotDragging':
@@ -7964,6 +7970,8 @@ var $author$project$Main$helperForSpace = F2(
 			}
 		}
 	});
+var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -8191,6 +8199,9 @@ var $author$project$Animate$view = function (model) {
 				]));
 	}
 };
+var $author$project$Buttons$NewClicked = {$: 'NewClicked'};
+var $author$project$Buttons$RestartClicked = {$: 'RestartClicked'};
+var $author$project$Buttons$UndoClicked = {$: 'UndoClicked'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Events$onClick = function (msg) {
 	return A2(
@@ -8199,9 +8210,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$Buttons$view = function (_v0) {
-	var undoClicked = _v0.undoClicked;
-	var newClicked = _v0.newClicked;
-	var restartClicked = _v0.restartClicked;
 	var newEnabled = _v0.newEnabled;
 	var restartEnabled = _v0.restartEnabled;
 	var undoEnabled = _v0.undoEnabled;
@@ -8218,7 +8226,7 @@ var $author$project$Buttons$view = function (_v0) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$class('button'),
-						$elm$html$Html$Events$onClick(newClicked)
+						$elm$html$Html$Events$onClick($author$project$Buttons$NewClicked)
 					]),
 				_List_fromArray(
 					[
@@ -8238,7 +8246,7 @@ var $author$project$Buttons$view = function (_v0) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$class('button'),
-						$elm$html$Html$Events$onClick(restartClicked)
+						$elm$html$Html$Events$onClick($author$project$Buttons$RestartClicked)
 					]),
 				_List_fromArray(
 					[
@@ -8258,7 +8266,7 @@ var $author$project$Buttons$view = function (_v0) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$class('button'),
-						$elm$html$Html$Events$onClick(undoClicked)
+						$elm$html$Html$Events$onClick($author$project$Buttons$UndoClicked)
 					]),
 				_List_fromArray(
 					[
@@ -8825,7 +8833,7 @@ var $author$project$Space$viewSpace = F3(
 						$elm$html$Html$div,
 						A2(
 							$elm$core$List$cons,
-							$elm$html$Html$Attributes$class('card-space'),
+							$elm$html$Html$Attributes$class('card-space card-show'),
 							clickToSendHomeFromSpaceList),
 						_List_fromArray(
 							[
@@ -8866,31 +8874,43 @@ var $author$project$Main$view = function (model) {
 	var spacesModel = _v0.spacesModel;
 	var homesModel = _v0.homesModel;
 	var hasHistory = $author$project$ModelHistory$hasHistory(model.modelHistory) && (!$author$project$Pile$playingDone(pilesModel));
-	var helpForButtons = {newClicked: $author$project$Main$NewMsg, newEnabled: true, restartClicked: $author$project$Main$RestartMsg, restartEnabled: hasHistory, undoClicked: $author$project$Main$UndoMsg, undoEnabled: hasHistory};
+	var buttonsModel = {newEnabled: true, restartEnabled: hasHistory, undoEnabled: hasHistory};
 	return {
 		body: (!model.shuffleModel.shufflingDone) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				$author$project$Buttons$view(helpForButtons),
+				A2(
+				$elm$html$Html$map,
+				$author$project$Main$ButtonsMsg,
+				$author$project$Buttons$view(buttonsModel)),
 				A2($author$project$Space$view, spacesModel, helpForSpace),
 				A2($author$project$Home$view, homesModel, helpForHome),
 				$author$project$Shuffle$view(model.shuffleModel)
 			]) : ((!model.distributeModel.distributingDone) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				$author$project$Buttons$view(helpForButtons),
+				A2(
+				$elm$html$Html$map,
+				$author$project$Main$ButtonsMsg,
+				$author$project$Buttons$view(buttonsModel)),
 				A2($author$project$Space$view, spacesModel, helpForSpace),
 				A2($author$project$Home$view, homesModel, helpForHome),
 				A2($author$project$Pile$view, pilesModel, helpForPile)
 			]) : ($author$project$Home$playingDone(homesModel) ? _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				$author$project$Buttons$view(helpForButtons),
+				A2(
+				$elm$html$Html$map,
+				$author$project$Main$ButtonsMsg,
+				$author$project$Buttons$view(buttonsModel)),
 				$author$project$EndAnimation$view(model.endAnimationModel)
 			]) : _List_fromArray(
 			[
 				$author$project$CardsCDN$stylesheet,
-				$author$project$Buttons$view(helpForButtons),
+				A2(
+				$elm$html$Html$map,
+				$author$project$Main$ButtonsMsg,
+				$author$project$Buttons$view(buttonsModel)),
 				A2($author$project$Space$view, spacesModel, helpForSpace),
 				A2($author$project$Home$view, homesModel, helpForHome),
 				A2($author$project$Pile$view, pilesModel, helpForPile),

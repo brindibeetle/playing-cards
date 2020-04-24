@@ -107,7 +107,7 @@ viewSpace helper index maybeCard =
                     div draggableAttributeList
                         [ cardPlaceholder
                         , div
-                            ( class "card-space" :: clickToSendHomeFromSpaceList )
+                            ( class "card-space card-show" :: clickToSendHomeFromSpaceList )
                             [ Card.view card ]
                         ]
 

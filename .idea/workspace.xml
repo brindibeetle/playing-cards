@@ -3,13 +3,13 @@
   <component name="ChangeListManager">
     <list default="true" id="00962ba3-65f1-47ff-8399-52f427e760c5" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmo" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Buttons.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Buttons.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Pile.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Pile.elm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/resources/cards.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/resources/cards.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Space.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Space.elm" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +41,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sudoku-elm" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../pesten" />
     <property name="settings.editor.selected.configurable" value="org.elm.workspace.ui.ElmWorkspaceConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -82,11 +82,19 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="414" y="179" width="1092" height="721" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1586696382302" />
-    <state x="740" y="279" key="FileChooserDialogImpl" timestamp="1586696380420">
+    <state x="92" y="92" width="1736" height="856" key="DiffContextDialog" timestamp="1587722767682">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="92" y="92" width="1736" height="856" key="DiffContextDialog/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1587722767682" />
+    <state x="740" y="279" key="FileChooserDialogImpl" timestamp="1587301714314">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="493" y="264" key="FileChooserDialogImpl/0.0.1280.984@0.0.1280.984" timestamp="1586179268569" />
-    <state x="740" y="279" key="FileChooserDialogImpl/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1586696380420" />
+    <state x="740" y="279" key="FileChooserDialogImpl/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1587301714314" />
+    <state x="735" y="235" key="RollbackChangesDialog" timestamp="1587722578839">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="735" y="235" key="RollbackChangesDialog/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1587722578839" />
     <state x="463" y="166" key="SettingsEditor" timestamp="1583764521759">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -95,10 +103,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="608" y="139" width="759" height="762" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584018147986" />
-    <state x="667" y="276" width="586" height="488" key="find.popup" timestamp="1586680532050">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="445" y="261" width="586" height="488" key="find.popup" timestamp="1587495625414">
+      <screen x="0" y="0" width="1280" height="984" />
     </state>
-    <state x="445" y="261" width="586" height="488" key="find.popup/0.0.1280.984@0.0.1280.984" timestamp="1585771875970" />
+    <state x="445" y="261" width="586" height="488" key="find.popup/0.0.1280.984@0.0.1280.984" timestamp="1587495625414" />
     <state x="667" y="276" width="586" height="488" key="find.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1586680532050" />
     <state width="600" height="424" key="javadoc.popup" timestamp="1584290060589">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -108,9 +116,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="616" y="240" key="run.anything.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1584296219964" />
-    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1585597981964">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="415" y="213" width="672" height="642" key="search.everywhere.popup" timestamp="1587484675785">
+      <screen x="0" y="0" width="1280" height="984" />
     </state>
+    <state x="415" y="213" width="672" height="642" key="search.everywhere.popup/0.0.1280.984@0.0.1280.984" timestamp="1587484675785" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/-1280.50.1280.984@0.0.1920.1040" timestamp="1585597981964" />
   </component>
 </project>

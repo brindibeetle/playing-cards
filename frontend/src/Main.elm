@@ -91,14 +91,14 @@ view model =
         helpForHome = helperForHome ( DragDrop.getDragId model.dragDrop ) model
         helpForSpace = helperForSpace ( DragDrop.getDragId model.dragDrop ) model
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
-        helpForButtons = { newClicked = NewMsg, restartClicked = RestartMsg, undoClicked = UndoMsg,  newEnabled = True, restartEnabled = hasHistory, undoEnabled = hasHistory }
+        buttonsModel = { newEnabled = True, restartEnabled = hasHistory, undoEnabled = hasHistory }
     in
         { title = "Cards"
         , body =
             if not ( model.shuffleModel.shufflingDone ) then
                 [
                     CardsCDN.stylesheet
-                    , Buttons.view helpForButtons
+                    , Buttons.view buttonsModel |> Html.map ButtonsMsg
                     , Space.view spacesModel helpForSpace
                     , Home.view homesModel helpForHome
                     , Shuffle.view model.shuffleModel
@@ -107,7 +107,7 @@ view model =
                 if not ( model.distributeModel.distributingDone ) then
                 [
                     CardsCDN.stylesheet
-                    , Buttons.view helpForButtons
+                    , Buttons.view buttonsModel |> Html.map ButtonsMsg
                     , Space.view spacesModel helpForSpace
                     , Home.view homesModel helpForHome
                     , Pile.view pilesModel helpForPile
@@ -116,13 +116,13 @@ view model =
                     if ( Home.playingDone homesModel ) then
                         [
                             CardsCDN.stylesheet
-                            , Buttons.view helpForButtons
+                            , Buttons.view buttonsModel |> Html.map ButtonsMsg
                             , EndAnimation.view model.endAnimationModel
                         ]
                     else
                         [
                             CardsCDN.stylesheet
-                            , Buttons.view helpForButtons
+                            , Buttons.view buttonsModel |> Html.map ButtonsMsg
                             , Space.view spacesModel helpForSpace
                             , Home.view homesModel helpForHome
                             , Pile.view pilesModel helpForPile
@@ -341,10 +341,8 @@ type Msg
     | DragDropMsg (DragDrop.Msg From To)
     | SentHomeFromPileMsg Int Card
     | SentHomeFromSpaceMsg Int Card
-    | NewMsg
-    | RestartMsg
-    | UndoMsg
     | EndAnimationMsg EndAnimation.Msg
+    | ButtonsMsg Buttons.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -602,7 +600,7 @@ update msg model =
                         , Cmd.map AnimateMsg animateCmd
                     )
 
-        UndoMsg ->
+        ButtonsMsg Buttons.UndoClicked ->
             (
                 { model
                 | modelHistory = ModelHistory.popMoment model.modelHistory
@@ -610,7 +608,7 @@ update msg model =
                 , Cmd.none
             )
 
-        RestartMsg ->
+        ButtonsMsg Buttons.RestartClicked ->
             (
                 { model
                 | modelHistory = ModelHistory.popHistory model.modelHistory
@@ -619,7 +617,7 @@ update msg model =
                 , Cmd.none
             )
 
-        NewMsg ->
+        ButtonsMsg Buttons.NewClicked ->
             (
                 init "new"
             )
