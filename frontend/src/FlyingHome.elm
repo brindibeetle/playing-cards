@@ -1,4 +1,4 @@
-module Animate exposing (..)
+module FlyingHome exposing (..)
 
 import Array as Array exposing (Array)
 import Card exposing (Card)
@@ -39,8 +39,8 @@ init =
      }
 
 
-animating : Model -> Bool
-animating { maybeCard } =
+flyingHome : Model -> Bool
+flyingHome { maybeCard } =
     case maybeCard of
         Nothing ->
             False

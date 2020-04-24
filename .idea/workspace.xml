@@ -5,10 +5,13 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Main.elmo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/Pile.elmi" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/elm-stuff/0.19.1/d.dat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/Buttons.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Buttons.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Animate.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/FlyingHome.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Home.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Home.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Main.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Main.elm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/Pile.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Pile.elm" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/Space.elm" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/Space.elm" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

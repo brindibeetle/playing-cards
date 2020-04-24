@@ -1,6 +1,6 @@
 module Pile exposing (..)
 
-import Animate exposing (Coordinates)
+import FlyingHome exposing (Coordinates)
 import Array as Array exposing (..)
 
 import Basics as Math

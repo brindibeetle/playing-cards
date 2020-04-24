@@ -1,6 +1,6 @@
 module Space exposing (..)
 
-import Animate exposing (Coordinates)
+import FlyingHome exposing (Coordinates)
 import Array exposing (Array)
 import Card exposing (Card, cardPlaceholder)
 import Html exposing (Attribute, Html, div)

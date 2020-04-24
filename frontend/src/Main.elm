@@ -1,6 +1,6 @@
 port module Main exposing (main)
 
-import Animate
+import FlyingHome
 import Array
 import Browser exposing (Document, UrlRequest)
 import Buttons
@@ -37,10 +37,20 @@ type alias Model =
     , shuffleModel : Shuffle.Model
     , distributeModel : Distribute.Model
     , dragDrop : DragDrop.Model From To
-    , animateModel : Animate.Model
+    , flyingHomeModel : FlyingHome.Model
     , afterAnimationModel : ModelHistoryMoment
     , endAnimationModel : EndAnimation.Model
+    , doing : Doing
     }
+
+
+type Doing =
+    Shuffling
+    | Distributing
+    | FlyingHome
+    | Playing
+    | FlyingAllHome
+    | EndAnimation
 
 
 type From =
@@ -68,9 +78,10 @@ init flags =
                 , shuffleModel = shuffleModel
                 , distributeModel = Distribute.init
                 , dragDrop = DragDrop.init
-                , animateModel = Animate.init
+                , flyingHomeModel = FlyingHome.init
                 , afterAnimationModel = ModelHistory.initMoment
                 , endAnimationModel = EndAnimation.init
+                , doing = Shuffling
             }
             , Cmd.map ShuffleMsg shuffleCmd
         )
@@ -95,39 +106,61 @@ view model =
     in
         { title = "Cards"
         , body =
-            if not ( model.shuffleModel.shufflingDone ) then
-                [
-                    CardsCDN.stylesheet
-                    , Buttons.view buttonsModel |> Html.map ButtonsMsg
-                    , Space.view spacesModel helpForSpace
-                    , Home.view homesModel helpForHome
-                    , Shuffle.view model.shuffleModel
-                ]
-            else
-                if not ( model.distributeModel.distributingDone ) then
-                [
-                    CardsCDN.stylesheet
-                    , Buttons.view buttonsModel |> Html.map ButtonsMsg
-                    , Space.view spacesModel helpForSpace
-                    , Home.view homesModel helpForHome
-                    , Pile.view pilesModel helpForPile
-                ]
-                else
-                    if ( Home.playingDone homesModel ) then
-                        [
-                            CardsCDN.stylesheet
-                            , Buttons.view buttonsModel |> Html.map ButtonsMsg
-                            , EndAnimation.view model.endAnimationModel
-                        ]
-                    else
-                        [
-                            CardsCDN.stylesheet
-                            , Buttons.view buttonsModel |> Html.map ButtonsMsg
-                            , Space.view spacesModel helpForSpace
-                            , Home.view homesModel helpForHome
-                            , Pile.view pilesModel helpForPile
-                            , Animate.view model.animateModel
-                        ]
+            case model.doing of
+                Shuffling ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , Space.view spacesModel helpForSpace
+                        , Home.view homesModel helpForHome
+                        , Shuffle.view model.shuffleModel
+                    ]
+
+                Distributing ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , Space.view spacesModel helpForSpace
+                        , Home.view homesModel helpForHome
+                        , Pile.view pilesModel helpForPile
+                    ]
+
+                Playing ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , Space.view spacesModel helpForSpace
+                        , Home.view homesModel helpForHome
+                        , Pile.view pilesModel helpForPile
+                        , FlyingHome.view model.flyingHomeModel
+                    ]
+
+                FlyingHome ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , Space.view spacesModel helpForSpace
+                        , Home.view homesModel helpForHome
+                        , Pile.view pilesModel helpForPile
+                        , FlyingHome.view model.flyingHomeModel
+                    ]
+
+                FlyingAllHome ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , Space.view spacesModel helpForSpace
+                        , Home.view homesModel helpForHome
+                        , Pile.view pilesModel helpForPile
+                        , FlyingHome.view model.flyingHomeModel
+                    ]
+
+                EndAnimation ->
+                    [
+                        CardsCDN.stylesheet
+                        , Buttons.view buttonsModel |> Html.map ButtonsMsg
+                        , EndAnimation.view model.endAnimationModel
+                    ]
         }
 
 
@@ -150,7 +183,7 @@ helperForPile maybeFrom model =
                 , maybeClickToSendHome = Nothing
                 , cardClass = [ class "card-distributing" ]
             }
-        else if Animate.animating model.animateModel then
+        else if FlyingHome.flyingHome model.flyingHomeModel then
             {
                 maybeDragFromPileId = Nothing
                 , maybeDragFromCardId = Nothing
@@ -226,7 +259,7 @@ helperForSpace maybeFrom model =
     let
         { pilesModel, spacesModel, homesModel } = ModelHistory.getCurrent model.modelHistory
     in
-        if Animate.animating model.animateModel || closingTheGame model then
+        if FlyingHome.flyingHome model.flyingHomeModel || closingTheGame model then
             {
                 maybeDragFromSpaceId = Nothing
                 , draggedNumberOfCards = 0
@@ -337,7 +370,7 @@ port dragstart : Json.Decode.Value -> Cmd msg
 type Msg
     = ShuffleMsg Shuffle.Msg
     | DistributeMsg Distribute.Msg
-    | AnimateMsg Animate.Msg
+    | FlyingHomeMsg FlyingHome.Msg
     | DragDropMsg (DragDrop.Msg From To)
     | SentHomeFromPileMsg Int Card
     | SentHomeFromSpaceMsg Int Card
@@ -347,8 +380,8 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        ShuffleMsg shuffleMsg ->
+    case ( model.doing, msg ) of
+        ( Shuffling, ShuffleMsg shuffleMsg ) ->
             let
                 ( shuffleModel, shuffleCmd ) =
                     Shuffle.update shuffleMsg model.shuffleModel
@@ -361,6 +394,7 @@ update msg model =
                             { model
                             | shuffleModel = shuffleModel
                             , distributeModel = distributeModel
+                            , doing = Distributing
                             }
                             , Cmd.map DistributeMsg distributeCmd
                         )
@@ -372,45 +406,163 @@ update msg model =
                         , Cmd.map ShuffleMsg shuffleCmd
                     )
 
-        DistributeMsg distributeMsg ->
+        ( Shuffling, _ ) ->
+            ( model, Cmd.none )
+
+        ( Distributing, DistributeMsg distributeMsg ) ->
             let
                 ( distributeModel, distributeCmd ) =
                     Distribute.update distributeMsg model.distributeModel
             in
-                (
-                    { model
-                    | distributeModel = distributeModel
-                    , modelHistory = ModelHistory.getCurrent model.modelHistory
-                            |> ModelHistory.setPiles ( Pile.setPiles distributeModel.piles )
-                            |> ModelHistory.setCurrent model.modelHistory
-                    }
-                    , if distributeModel.distributingDone then Cmd.none else Cmd.map DistributeMsg distributeCmd
-                )
-
-        AnimateMsg animateMsg ->
-            let
-                ( animateModel, animateCmd ) =
-                    Animate.update animateMsg model.animateModel
-            in
-                if Animate.animating animateModel then
+                if distributeModel.distributingDone then
                     (
                         { model
-                        | animateModel = animateModel
+                        | distributeModel = distributeModel
+                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                |> ModelHistory.setPiles ( Pile.setPiles distributeModel.piles )
+                                |> ModelHistory.setCurrent model.modelHistory
+                        , doing = Playing
                         }
-                        , Cmd.map AnimateMsg animateCmd
+                        , Cmd.none
                     )
                 else
-                    let
-                        model2 =
-                            { model
-                            | modelHistory = ModelHistory.setCurrent model.modelHistory model.afterAnimationModel
-                            , animateModel = animateModel
-                            }
-                    in
-                        ( model2
-                        , possiblyCloseTheGame model2 )
+                    (
+                        { model
+                        | distributeModel = distributeModel
+                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                |> ModelHistory.setPiles ( Pile.setPiles distributeModel.piles )
+                                |> ModelHistory.setCurrent model.modelHistory
+                        }
+                        , Cmd.map DistributeMsg distributeCmd
+                    )
 
-        DragDropMsg msg_ ->
+        ( Distributing, _ ) ->
+            ( model, Cmd.none )
+
+        ( FlyingHome, FlyingHomeMsg flyingHomeMsg ) ->
+            let
+                ( flyingHomeModel, flyingHomeCmd ) =
+                    FlyingHome.update flyingHomeMsg model.flyingHomeModel
+            in
+                if FlyingHome.flyingHome flyingHomeModel then
+                    (
+                        { model
+                        | flyingHomeModel = flyingHomeModel
+                        }
+                        , Cmd.map FlyingHomeMsg flyingHomeCmd
+                    )
+                else
+                    possiblyCloseTheGame
+                        { model
+                        | modelHistory = ModelHistory.setCurrent model.modelHistory model.afterAnimationModel
+                        , flyingHomeModel = flyingHomeModel
+                        , doing = Playing
+                        }
+
+        ( FlyingHome, _ ) ->
+            ( model, Cmd.none )
+
+        ( _, ButtonsMsg Buttons.NewClicked ) ->
+            (
+                init "new"
+            )
+
+        ( _, ButtonsMsg Buttons.RestartClicked ) ->
+            (
+                { model
+                | modelHistory = ModelHistory.popHistory model.modelHistory
+                , endAnimationModel = EndAnimation.init
+                }
+                , Cmd.none
+            )
+
+        ( FlyingAllHome, FlyingHomeMsg flyingHomeMsg ) ->
+            let
+                ( flyingHomeModel, flyingHomeCmd ) =
+                    FlyingHome.update flyingHomeMsg model.flyingHomeModel
+            in
+                if FlyingHome.flyingHome flyingHomeModel then
+                    (
+                        { model
+                        | flyingHomeModel = flyingHomeModel
+                        }
+                        , Cmd.map FlyingHomeMsg flyingHomeCmd
+                    )
+                else
+                    possiblyCloseTheGame
+                        { model
+                        | modelHistory = ModelHistory.setCurrent model.modelHistory model.afterAnimationModel
+                        , flyingHomeModel = flyingHomeModel
+                        , doing = Playing
+                        }
+
+        ( FlyingAllHome, SentHomeFromPileMsg pileIndex card ) ->
+            case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just index ->
+                    let
+                        ( flyingHomeModel, flyingHomeCmd ) = FlyingHome.start card ( Pile.getCoordinates  ( ModelHistory.getPiles model.modelHistory ) pileIndex ) ( Home.getCoordinates index )
+                    in
+                        (
+                            { model
+                            | modelHistory = ModelHistory.getCurrent model.modelHistory
+                                |> ModelHistory.setPiles ( Pile.pullCard pileIndex ( ModelHistory.getPiles model.modelHistory ) )
+                                -- This one NOT : is flying in animation
+                                --|> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                                |> ModelHistory.addMoment model.modelHistory
+                            , afterAnimationModel = ModelHistory.getCurrent model.modelHistory
+                                |> ModelHistory.setPiles ( Pile.pullCard pileIndex ( ModelHistory.getPiles model.modelHistory ) )
+                                |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                            , flyingHomeModel = flyingHomeModel
+                            }
+                            , Cmd.map FlyingHomeMsg flyingHomeCmd
+                        )
+
+        ( FlyingAllHome, SentHomeFromSpaceMsg spaceIndex card ) ->
+            case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just index ->
+                    let
+                        ( flyingHomeModel, flyingHomeCmd ) = FlyingHome.start card ( Space.getCoordinates spaceIndex ) ( Home.getCoordinates index )
+                    in
+                    (
+                        { model
+                        | modelHistory = ModelHistory.getCurrent model.modelHistory
+                            |> ModelHistory.setSpaces ( Space.pullCard spaceIndex ( ModelHistory.getSpaces model.modelHistory ) )
+                            -- This one NOT : is flying in animation
+                            --|> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                            |> ModelHistory.addMoment model.modelHistory
+                        , afterAnimationModel = ModelHistory.getCurrent model.modelHistory
+                            |> ModelHistory.setSpaces ( Space.pullCard spaceIndex ( ModelHistory.getSpaces model.modelHistory ) )
+                            |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
+                        , flyingHomeModel = flyingHomeModel
+                        }
+                        , Cmd.map FlyingHomeMsg flyingHomeCmd
+                    )
+
+        ( FlyingAllHome, _ ) ->
+            ( model, Cmd.none )
+
+        ( EndAnimation, EndAnimationMsg endAnimationMsg ) ->
+            let
+                ( endAnimationModel, endAnimationCmd ) =
+                    EndAnimation.update endAnimationMsg model.endAnimationModel
+            in
+                (
+                    { model
+                    | endAnimationModel = endAnimationModel
+                    }
+                    , Cmd.map EndAnimationMsg endAnimationCmd
+                )
+
+        ( EndAnimation, _ ) ->
+            ( model, Cmd.none )
+
+        ( Playing, DragDropMsg msg_ ) ->
             let
                 ( dragDropModel, dragDropResult ) =
                     DragDrop.update msg_ model.dragDrop
@@ -426,18 +578,13 @@ update msg model =
                             )
 
                         Just ( PileFrom pileFromId cardFromId, PileTo pileToId, _ ) ->
-                            let
-                                model2 =
-                                    { model
-                                    | dragDrop = dragDropModel
-                                    , modelHistory = ModelHistory.getCurrent model.modelHistory
-                                            |> ModelHistory.setPiles ( Pile.moveCard pileFromId cardFromId pileToId  ( ModelHistory.getPiles model.modelHistory ) )
-                                            |> ModelHistory.addMoment model.modelHistory
-                                    }
-                            in
-                                ( model2
-                                , possiblyCloseTheGame model2
-                                )
+                            possiblyCloseTheGame
+                                { model
+                                | dragDrop = dragDropModel
+                                , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                        |> ModelHistory.setPiles ( Pile.moveCard pileFromId cardFromId pileToId  ( ModelHistory.getPiles model.modelHistory ) )
+                                        |> ModelHistory.addMoment model.modelHistory
+                                }
 
                         Just ( PileFrom pileFromId _, SpaceTo spaceId, _ ) ->
                             case Pile.getTopCard pileFromId ( ModelHistory.getPiles model.modelHistory ) of
@@ -450,19 +597,14 @@ update msg model =
                                     )
 
                                 Just card ->
-                                    let
-                                        model2 =
-                                            { model
-                                            | dragDrop = dragDropModel
-                                            , modelHistory = ModelHistory.getCurrent model.modelHistory
-                                                    |> ModelHistory.setSpaces ( Space.pushCard spaceId card ( ModelHistory.getSpaces model.modelHistory ) )
-                                                    |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
-                                                    |> ModelHistory.addMoment model.modelHistory
-                                            }
-                                    in
-                                        ( model2
-                                        , possiblyCloseTheGame model2
-                                        )
+                                    possiblyCloseTheGame
+                                        { model
+                                        | dragDrop = dragDropModel
+                                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                |> ModelHistory.setSpaces ( Space.pushCard spaceId card ( ModelHistory.getSpaces model.modelHistory ) )
+                                                |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
+                                                |> ModelHistory.addMoment model.modelHistory
+                                        }
 
                         Just ( SpaceFrom spaceFromId, SpaceTo spaceToId, _ ) ->
                             (
@@ -508,19 +650,14 @@ update msg model =
                                     )
 
                                 Just card ->
-                                    let
-                                        model2 =
-                                            { model
-                                            | dragDrop = dragDropModel
-                                            , modelHistory = ModelHistory.getCurrent model.modelHistory
-                                                     |> ModelHistory.setHomes ( Home.pushCard homeId card ( ModelHistory.getHomes model.modelHistory ) )
-                                                     |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
-                                                     |> ModelHistory.addMoment model.modelHistory
-                                            }
-                                    in
-                                        ( model2
-                                        , possiblyCloseTheGame model2
-                                        )
+                                    possiblyCloseTheGame
+                                        { model
+                                        | dragDrop = dragDropModel
+                                        , modelHistory = ModelHistory.getCurrent model.modelHistory
+                                                 |> ModelHistory.setHomes ( Home.pushCard homeId card ( ModelHistory.getHomes model.modelHistory ) )
+                                                 |> ModelHistory.setPiles ( Pile.pullCard pileFromId ( ModelHistory.getPiles model.modelHistory ) )
+                                                 |> ModelHistory.addMoment model.modelHistory
+                                        }
 
                         Just ( SpaceFrom spaceFromId, HomeTo homeId, _ ) ->
                             case Space.getCard spaceFromId ( ModelHistory.getSpaces model.modelHistory ) of
@@ -552,14 +689,14 @@ update msg model =
                         ]
                 )
 
-        SentHomeFromPileMsg pileIndex card ->
+        ( Playing, SentHomeFromPileMsg pileIndex card ) ->
             case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just index ->
                     let
-                        ( animateModel, animateCmd ) = Animate.start card ( Pile.getCoordinates  ( ModelHistory.getPiles model.modelHistory ) pileIndex ) ( Home.getCoordinates index )
+                        ( flyingHomeModel, flyingHomeCmd ) = FlyingHome.start card ( Pile.getCoordinates  ( ModelHistory.getPiles model.modelHistory ) pileIndex ) ( Home.getCoordinates index )
                     in
                         (
                             { model
@@ -571,19 +708,20 @@ update msg model =
                             , afterAnimationModel = ModelHistory.getCurrent model.modelHistory
                                 |> ModelHistory.setPiles ( Pile.pullCard pileIndex ( ModelHistory.getPiles model.modelHistory ) )
                                 |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
-                            , animateModel = animateModel
+                            , flyingHomeModel = flyingHomeModel
+                            , doing = FlyingHome
                             }
-                            , Cmd.map AnimateMsg animateCmd
+                            , Cmd.map FlyingHomeMsg flyingHomeCmd
                         )
 
-        SentHomeFromSpaceMsg spaceIndex card ->
+        ( Playing, SentHomeFromSpaceMsg spaceIndex card ) ->
             case Home.canReceiveCard card ( ModelHistory.getHomes model.modelHistory ) of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just index ->
                     let
-                        ( animateModel, animateCmd ) = Animate.start card ( Space.getCoordinates spaceIndex ) ( Home.getCoordinates index )
+                        ( flyingHomeModel, flyingHomeCmd ) = FlyingHome.start card ( Space.getCoordinates spaceIndex ) ( Home.getCoordinates index )
                     in
                     (
                         { model
@@ -595,12 +733,13 @@ update msg model =
                         , afterAnimationModel = ModelHistory.getCurrent model.modelHistory
                             |> ModelHistory.setSpaces ( Space.pullCard spaceIndex ( ModelHistory.getSpaces model.modelHistory ) )
                             |> ModelHistory.setHomes ( Home.pushCard index card ( ModelHistory.getHomes model.modelHistory ) )
-                        , animateModel = animateModel
+                        , flyingHomeModel = flyingHomeModel
+                        , doing = FlyingHome
                         }
-                        , Cmd.map AnimateMsg animateCmd
+                        , Cmd.map FlyingHomeMsg flyingHomeCmd
                     )
 
-        ButtonsMsg Buttons.UndoClicked ->
+        ( Playing, ButtonsMsg Buttons.UndoClicked ) ->
             (
                 { model
                 | modelHistory = ModelHistory.popMoment model.modelHistory
@@ -608,41 +747,27 @@ update msg model =
                 , Cmd.none
             )
 
-        ButtonsMsg Buttons.RestartClicked ->
-            (
-                { model
-                | modelHistory = ModelHistory.popHistory model.modelHistory
-                , endAnimationModel = EndAnimation.init
-                }
-                , Cmd.none
-            )
+        ( _, _ ) ->
+            ( model, Cmd.none )
 
-        ButtonsMsg Buttons.NewClicked ->
-            (
-                init "new"
-            )
-
-        EndAnimationMsg endAnimationMsg ->
-            let
-                ( endAnimationModel, endAnimationCmd ) =
-                    EndAnimation.update endAnimationMsg model.endAnimationModel
-            in
-                (
-                    { model
-                    | endAnimationModel = endAnimationModel
-                    }
-                    , Cmd.map EndAnimationMsg endAnimationCmd
-                )
-
-
-possiblyCloseTheGame : Model -> Cmd Msg
+possiblyCloseTheGame : Model -> ( Model, Cmd Msg )
 possiblyCloseTheGame model =
     if closingTheGame model then
-        doSentHomeAll model.modelHistory
+        (
+            { model
+            | doing = FlyingAllHome
+            }
+            , doSentHomeAll model.modelHistory
+        )
     else if Home.playingDone ( ModelHistory.getHomes model.modelHistory ) then
-        Cmd.map EndAnimationMsg EndAnimation.animate
+        (
+            { model
+            | doing = EndAnimation
+            }
+            , Cmd.map EndAnimationMsg EndAnimation.animate
+        )
     else
-        Cmd.none
+        ( model, Cmd.none )
 
 
 closingTheGame : Model -> Bool
